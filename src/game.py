@@ -32,11 +32,35 @@ class Game:
         return True
 
     def run(self):
+        import pygame
+        from utils import display_text
         self.setup()
-        while True:
-            self.player_action()
-            if not self.update():
+        clock = pygame.time.Clock()
+        running = True
+        action_ready = True  # Wait for player input
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    break
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                    action_ready = True
+            if not running:
                 break
-            self.enemy_action()
-            if not self.update():
-                break
+            self.screen.fill((0, 0, 0))  # Clear screen (black)
+            # Display player and enemy health
+            display_text(self.screen, f"Player: {self.player.health}", (50, 50))
+            display_text(self.screen, f"Enemy: {self.enemy.health}", (50, 100))
+            display_text(self.screen, "Press SPACE to attack", (50, 200), font_size=24, color=(200,200,200))
+            pygame.display.flip()
+            if action_ready:
+                if self.player_turn:
+                    self.player_action()
+                else:
+                    self.enemy_action()
+                if not self.update():
+                    pygame.time.wait(1500)  # Pause to show result
+                    break
+                action_ready = False
+            clock.tick(60)
+        pygame.quit()

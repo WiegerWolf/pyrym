@@ -1,6 +1,7 @@
+import pygame
+
 def load_image(file_path):
     """Load an image from the specified file path."""
-    import pygame
     image = pygame.image.load(file_path)
     return image
 
