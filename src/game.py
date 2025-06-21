@@ -99,13 +99,9 @@ class Game:
             pygame.time.wait(1000)
         return True
 
-    def draw_health_bar(self, x, y, current, max_health, color, label):
-        from utils import draw_health_bar
-        draw_health_bar(self.screen, x, y, current, max_health, color, label)
-
     def run(self):
         import pygame
-        from utils import display_text
+        from ui import display_text, draw_health_bar
         self.setup()
         self.last_action = ""
         clock = pygame.time.Clock()
@@ -131,8 +127,8 @@ class Game:
                 break
             self.screen.fill((30, 30, 60))  # Dark blue background
             # Draw health bars
-            self.draw_health_bar(50, 60, self.player.health, self.player_max_health, (0,200,0), "Player")
-            self.draw_health_bar(50, 160, self.enemy.health, self.enemy_max_health, (200,0,0), self.enemy.name)
+            draw_health_bar(self.screen, 50, 60, self.player.health, self.player_max_health, (0,200,0), "Player")
+            draw_health_bar(self.screen, 50, 160, self.enemy.health, self.enemy_max_health, (200,0,0), self.enemy.name)
             # Score and wave
             display_text(self.screen, f"Score: {self.score}", (400, 30), font_size=32, color=(255,255,255))
             display_text(self.screen, f"Wave: {self.wave+1}", (400, 70), font_size=28, color=(255,255,255))
