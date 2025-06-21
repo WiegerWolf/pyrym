@@ -14,12 +14,24 @@ class Game:
 
     def player_action(self):
         if self.player_turn:
-            self.player.attack(self.enemy)
+            damage, crit, miss = self.player.attack(self.enemy)
+            if miss:
+                self.last_action = "Player missed!"
+            elif crit:
+                self.last_action = f"Critical hit! Player deals {damage} damage."
+            else:
+                self.last_action = f"Player deals {damage} damage."
             self.player_turn = False
 
     def enemy_action(self):
         if not self.player_turn:
-            self.enemy.attack(self.player)
+            damage, crit, miss = self.enemy.attack(self.player)
+            if miss:
+                self.last_action = "Enemy missed!"
+            elif crit:
+                self.last_action = f"Critical hit! Enemy deals {damage} damage."
+            else:
+                self.last_action = f"Enemy deals {damage} damage."
             self.player_turn = True
 
     def update(self):
@@ -35,6 +47,7 @@ class Game:
         import pygame
         from utils import display_text
         self.setup()
+        self.last_action = ""
         clock = pygame.time.Clock()
         running = True
         action_ready = True  # Wait for player input
@@ -52,6 +65,8 @@ class Game:
             display_text(self.screen, f"Player: {self.player.health}", (50, 50))
             display_text(self.screen, f"Enemy: {self.enemy.health}", (50, 100))
             display_text(self.screen, "Press SPACE to attack", (50, 200), font_size=24, color=(200,200,200))
+            if self.last_action:
+                display_text(self.screen, self.last_action, (50, 300), font_size=28, color=(255, 215, 0))
             pygame.display.flip()
             if action_ready:
                 if self.player_turn:
