@@ -138,7 +138,7 @@ class Game:
             else:
                 display_text(self.screen, "Enemy's turn...", (50, 250), font_size=28, color=(255,100,100))
             display_text(self.screen, f"Potions: {self.potions}", (50, 290), font_size=24, color=(100,255,100))
-            # Battle log (last 3 actions, fading)
+            # Battle log (last 5 actions, fading)
             log_colors = [(255, 215, 0), (200, 200, 200), (120, 120, 120), (80, 80, 80), (50, 50, 50)]
             for i, msg in enumerate(reversed(self.battle_log)):
                 display_text(self.screen, msg, (50, 340 + i*32), font_size=28, color=log_colors[i])
