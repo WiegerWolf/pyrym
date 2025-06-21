@@ -6,6 +6,7 @@ class Enemy:
         self.name = name
         self.health = health
         self.attack_power = attack_power
+        self.is_defending = False
 
     def attack(self, player):
         # Randomize damage: 70%-130% of attack_power
@@ -23,9 +24,17 @@ class Enemy:
         return damage, crit, miss
 
     def take_damage(self, damage):
+        if self.is_defending:
+            damage = int(damage * 0.5)  # Reduce damage by 50% if defending
         self.health -= damage
         if self.health < 0:
             self.health = 0
+
+    def defend(self):
+        self.is_defending = True
+
+    def reset_defend(self):
+        self.is_defending = False
 
     def is_alive(self):
         return self.health > 0

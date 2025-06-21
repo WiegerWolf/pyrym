@@ -16,9 +16,11 @@ class Game:
     def setup(self):
         from player import Player
         self.player = Player("Hero", 100, 20)
+        self.player.is_defending = False
         self.wave = 0
         self.score = 0
         self.enemy = self.setup_enemy(self.wave)
+        self.enemy.is_defending = False
         self.player_max_health = self.player.health
         self.potions = 0  # Healing potions
         self.defending = False
@@ -32,18 +34,14 @@ class Game:
         if self.player_turn:
             if action == 'attack':
                 damage, crit, miss = self.player.attack(self.enemy)
-                if miss:
-                    msg = "Player missed!"
-                elif crit:
-                    msg = f"Critical hit! Player deals {damage} damage."
-                else:
-                    msg = f"Player deals {damage} damage."
+                msg = ("Player missed!" if miss else
+                       f"Critical hit! Player deals {damage} damage." if crit else
+                       f"Player deals {damage} damage.")
                 self.add_to_log(msg)
                 self.last_action = msg
             elif action == 'heal':
                 if self.potions > 0:
-                    heal_amount = min(25, self.player_max_health - self.player.health)  # was 20
-                    self.player.health += heal_amount
+                    heal_amount = self.player.heal(self.player_max_health, 25)
                     self.potions -= 1
                     msg = f"Player uses potion for {heal_amount} HP! ({self.potions} left)"
                 else:
@@ -51,7 +49,7 @@ class Game:
                 self.add_to_log(msg)
                 self.last_action = msg
             elif action == 'defend':
-                self.defending = True
+                self.player.defend()
                 msg = "Player is defending! Next enemy attack is halved."
                 self.add_to_log(msg)
                 self.last_action = msg
@@ -60,11 +58,11 @@ class Game:
     def enemy_action(self):
         if not self.player_turn:
             damage, crit, miss = self.enemy.attack(self.player)
-            if self.defending:
+            if getattr(self.player, 'is_defending', False):
                 damage = damage // 2
                 self.player.health += damage  # Undo full damage
                 self.player.health -= damage  # Apply halved damage
-                self.defending = False
+                self.player.reset_defend()
                 msg = f"Enemy attacks, but damage is halved! ({damage} damage)"
             else:
                 if miss:
