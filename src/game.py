@@ -5,12 +5,21 @@ class Game:
         self.player = None
         self.enemy = None
 
+    def setup_enemy(self, wave):
+        from enemy import Enemy
+        # Increase enemy stats with each wave
+        base_health = 80 + wave * 20
+        base_attack = 15 + wave * 3
+        self.enemy_max_health = base_health
+        return Enemy(f"Goblin Lv.{wave+1}", base_health, base_attack)
+
     def setup(self):
         from player import Player
-        from enemy import Enemy
-        
         self.player = Player("Hero", 100, 20)
-        self.enemy = Enemy("Goblin", 80, 15)
+        self.wave = 0
+        self.score = 0
+        self.enemy = self.setup_enemy(self.wave)
+        self.player_max_health = self.player.health
 
     def player_action(self):
         if self.player_turn:
@@ -35,12 +44,16 @@ class Game:
             self.player_turn = True
 
     def update(self):
+        import pygame  # Ensure pygame is available
         if self.player.health <= 0:
             print("Player has been defeated!")
             return False
         elif self.enemy.health <= 0:
-            print("Enemy has been defeated!")
-            return False
+            self.score += 1
+            self.wave += 1
+            self.last_action = f"Enemy defeated! New enemy approaches!"
+            self.enemy = self.setup_enemy(self.wave)
+            pygame.time.wait(1000)
         return True
 
     def draw_health_bar(self, x, y, current, max_health, color, label):
@@ -64,8 +77,6 @@ class Game:
         clock = pygame.time.Clock()
         running = True
         action_ready = True  # Wait for player input
-        player_max = self.player.health
-        enemy_max = self.enemy.health
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -77,8 +88,11 @@ class Game:
                 break
             self.screen.fill((30, 30, 60))  # Dark blue background
             # Draw health bars
-            self.draw_health_bar(50, 60, self.player.health, player_max, (0,200,0), "Player")
-            self.draw_health_bar(50, 160, self.enemy.health, enemy_max, (200,0,0), "Enemy")
+            self.draw_health_bar(50, 60, self.player.health, self.player_max_health, (0,200,0), "Player")
+            self.draw_health_bar(50, 160, self.enemy.health, self.enemy_max_health, (200,0,0), self.enemy.name)
+            # Score and wave
+            display_text(self.screen, f"Score: {self.score}", (400, 30), font_size=32, color=(255,255,255))
+            display_text(self.screen, f"Wave: {self.wave+1}", (400, 70), font_size=28, color=(255,255,255))
             # Instructions
             display_text(self.screen, "Press SPACE to attack", (50, 250), font_size=28, color=(200,200,200))
             # Last action
