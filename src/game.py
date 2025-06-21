@@ -20,7 +20,8 @@ class Game:
         self.score = 0
         self.enemy = self.setup_enemy(self.wave)
         self.player_max_health = self.player.health
-        self.heals_left = 3  # Number of heals per game
+        self.potions = 0  # Healing potions
+        self.defending = False
 
     def player_action(self, action='attack'):
         if self.player_turn:
@@ -32,35 +33,52 @@ class Game:
                     self.last_action = f"Critical hit! Player deals {damage} damage."
                 else:
                     self.last_action = f"Player deals {damage} damage."
-            elif action == 'heal' and self.heals_left > 0:
-                heal_amount = min(20, self.player_max_health - self.player.health)
-                self.player.health += heal_amount
-                self.heals_left -= 1
-                self.last_action = f"Player heals for {heal_amount} HP! ({self.heals_left} heals left)"
-            else:
-                self.last_action = "No heals left!"
+            elif action == 'heal':
+                if self.potions > 0:
+                    heal_amount = min(20, self.player_max_health - self.player.health)
+                    self.player.health += heal_amount
+                    self.potions -= 1
+                    self.last_action = f"Player uses potion for {heal_amount} HP! ({self.potions} left)"
+                else:
+                    self.last_action = "No potions left!"
+            elif action == 'defend':
+                self.defending = True
+                self.last_action = "Player is defending! Next enemy attack is halved."
             self.player_turn = False
 
     def enemy_action(self):
         if not self.player_turn:
             damage, crit, miss = self.enemy.attack(self.player)
-            if miss:
-                self.last_action = "Enemy missed!"
-            elif crit:
-                self.last_action = f"Critical hit! Enemy deals {damage} damage."
+            if self.defending:
+                damage = damage // 2
+                self.player.health += damage  # Undo full damage
+                self.player.health -= damage  # Apply halved damage
+                self.defending = False
+                self.last_action = f"Enemy attacks, but damage is halved! ({damage} damage)"
             else:
-                self.last_action = f"Enemy deals {damage} damage."
+                if miss:
+                    self.last_action = "Enemy missed!"
+                elif crit:
+                    self.last_action = f"Critical hit! Enemy deals {damage} damage."
+                else:
+                    self.last_action = f"Enemy deals {damage} damage."
             self.player_turn = True
 
     def update(self):
         import pygame  # Ensure pygame is available
+        import random
         if self.player.health <= 0:
             print("Player has been defeated!")
             return False
         elif self.enemy.health <= 0:
             self.score += 1
             self.wave += 1
-            self.last_action = f"Enemy defeated! New enemy approaches!"
+            # 50% chance to drop a potion
+            if random.random() < 0.5:
+                self.potions += 1
+                self.last_action = f"Enemy defeated! Potion dropped! New enemy approaches!"
+            else:
+                self.last_action = f"Enemy defeated! New enemy approaches!"
             self.enemy = self.setup_enemy(self.wave)
             pygame.time.wait(1000)
         return True
@@ -96,9 +114,12 @@ class Game:
                     if event.key == pygame.K_SPACE:
                         action_ready = True
                         player_action_type = 'attack'
-                    if event.key == pygame.K_h:
+                    if event.key == pygame.K_p:
                         action_ready = True
                         player_action_type = 'heal'
+                    if event.key == pygame.K_d:
+                        action_ready = True
+                        player_action_type = 'defend'
             if not running:
                 break
             self.screen.fill((30, 30, 60))  # Dark blue background
@@ -109,8 +130,8 @@ class Game:
             display_text(self.screen, f"Score: {self.score}", (400, 30), font_size=32, color=(255,255,255))
             display_text(self.screen, f"Wave: {self.wave+1}", (400, 70), font_size=28, color=(255,255,255))
             # Instructions
-            display_text(self.screen, "SPACE: Attack    H: Heal", (50, 250), font_size=28, color=(200,200,200))
-            display_text(self.screen, f"Heals left: {self.heals_left}", (50, 290), font_size=24, color=(100,255,100))
+            display_text(self.screen, "SPACE: Attack    P: Potion    D: Defend", (50, 250), font_size=28, color=(200,200,200))
+            display_text(self.screen, f"Potions: {self.potions}", (50, 290), font_size=24, color=(100,255,100))
             # Last action
             if self.last_action:
                 display_text(self.screen, self.last_action, (50, 340), font_size=32, color=(255, 215, 0))
