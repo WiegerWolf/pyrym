@@ -7,9 +7,9 @@ class Game:
 
     def setup_enemy(self, wave):
         from enemy import Enemy
-        # Increase enemy stats with each wave
-        base_health = 80 + wave * 20
-        base_attack = 15 + wave * 3
+        # Slower enemy scaling
+        base_health = 80 + wave * 10  # was 20
+        base_attack = 15 + wave * 2   # was 3
         self.enemy_max_health = base_health
         return Enemy(f"Goblin Lv.{wave+1}", base_health, base_attack)
 
@@ -43,7 +43,7 @@ class Game:
                 self.last_action = msg
             elif action == 'heal':
                 if self.potions > 0:
-                    heal_amount = min(20, self.player_max_health - self.player.health)
+                    heal_amount = min(25, self.player_max_health - self.player.health)  # was 20
                     self.player.health += heal_amount
                     self.potions -= 1
                     msg = f"Player uses potion for {heal_amount} HP! ({self.potions} left)"
