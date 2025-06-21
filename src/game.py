@@ -110,7 +110,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     running = False
                     break
-                if event.type == pygame.KEYDOWN:
+                if self.player_turn and event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         action_ready = True
                         player_action_type = 'attack'
@@ -130,20 +130,23 @@ class Game:
             display_text(self.screen, f"Score: {self.score}", (400, 30), font_size=32, color=(255,255,255))
             display_text(self.screen, f"Wave: {self.wave+1}", (400, 70), font_size=28, color=(255,255,255))
             # Instructions
-            display_text(self.screen, "SPACE: Attack    P: Potion    D: Defend", (50, 250), font_size=28, color=(200,200,200))
+            if self.player_turn:
+                display_text(self.screen, "SPACE: Attack    P: Potion    D: Defend", (50, 250), font_size=28, color=(200,200,200))
+            else:
+                display_text(self.screen, "Enemy's turn...", (50, 250), font_size=28, color=(255,100,100))
             display_text(self.screen, f"Potions: {self.potions}", (50, 290), font_size=24, color=(100,255,100))
             # Last action
             if self.last_action:
                 display_text(self.screen, self.last_action, (50, 340), font_size=32, color=(255, 215, 0))
             pygame.display.flip()
-            if action_ready:
-                if self.player_turn:
-                    self.player_action(player_action_type)
-                else:
-                    self.enemy_action()
-                if not self.update():
-                    pygame.time.wait(1500)  # Pause to show result
-                    break
+            if self.player_turn and action_ready:
+                self.player_action(player_action_type)
                 action_ready = False
+            elif not self.player_turn:
+                pygame.time.wait(700)  # Short pause for enemy turn
+                self.enemy_action()
+            if not self.update():
+                pygame.time.wait(1500)  # Pause to show result
+                break
             clock.tick(60)
         pygame.quit()
