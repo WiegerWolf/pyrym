@@ -43,6 +43,19 @@ class Game:
             return False
         return True
 
+    def draw_health_bar(self, x, y, current, max_health, color, label):
+        import pygame
+        bar_width = 200
+        bar_height = 30
+        fill = int(bar_width * (current / max_health))
+        outline_rect = pygame.Rect(x, y, bar_width, bar_height)
+        fill_rect = pygame.Rect(x, y, fill, bar_height)
+        pygame.draw.rect(self.screen, color, fill_rect)
+        pygame.draw.rect(self.screen, (255,255,255), outline_rect, 2)
+        from utils import display_text
+        display_text(self.screen, label, (x, y - 28), font_size=32, color=color)
+        display_text(self.screen, f"{current} / {max_health}", (x + bar_width + 10, y), font_size=28, color=(255,255,255))
+
     def run(self):
         import pygame
         from utils import display_text
@@ -51,6 +64,8 @@ class Game:
         clock = pygame.time.Clock()
         running = True
         action_ready = True  # Wait for player input
+        player_max = self.player.health
+        enemy_max = self.enemy.health
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -60,13 +75,15 @@ class Game:
                     action_ready = True
             if not running:
                 break
-            self.screen.fill((0, 0, 0))  # Clear screen (black)
-            # Display player and enemy health
-            display_text(self.screen, f"Player: {self.player.health}", (50, 50))
-            display_text(self.screen, f"Enemy: {self.enemy.health}", (50, 100))
-            display_text(self.screen, "Press SPACE to attack", (50, 200), font_size=24, color=(200,200,200))
+            self.screen.fill((30, 30, 60))  # Dark blue background
+            # Draw health bars
+            self.draw_health_bar(50, 60, self.player.health, player_max, (0,200,0), "Player")
+            self.draw_health_bar(50, 160, self.enemy.health, enemy_max, (200,0,0), "Enemy")
+            # Instructions
+            display_text(self.screen, "Press SPACE to attack", (50, 250), font_size=28, color=(200,200,200))
+            # Last action
             if self.last_action:
-                display_text(self.screen, self.last_action, (50, 300), font_size=28, color=(255, 215, 0))
+                display_text(self.screen, self.last_action, (50, 320), font_size=32, color=(255, 215, 0))
             pygame.display.flip()
             if action_ready:
                 if self.player_turn:
