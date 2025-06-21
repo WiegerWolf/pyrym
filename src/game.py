@@ -20,16 +20,25 @@ class Game:
         self.score = 0
         self.enemy = self.setup_enemy(self.wave)
         self.player_max_health = self.player.health
+        self.heals_left = 3  # Number of heals per game
 
-    def player_action(self):
+    def player_action(self, action='attack'):
         if self.player_turn:
-            damage, crit, miss = self.player.attack(self.enemy)
-            if miss:
-                self.last_action = "Player missed!"
-            elif crit:
-                self.last_action = f"Critical hit! Player deals {damage} damage."
+            if action == 'attack':
+                damage, crit, miss = self.player.attack(self.enemy)
+                if miss:
+                    self.last_action = "Player missed!"
+                elif crit:
+                    self.last_action = f"Critical hit! Player deals {damage} damage."
+                else:
+                    self.last_action = f"Player deals {damage} damage."
+            elif action == 'heal' and self.heals_left > 0:
+                heal_amount = min(20, self.player_max_health - self.player.health)
+                self.player.health += heal_amount
+                self.heals_left -= 1
+                self.last_action = f"Player heals for {heal_amount} HP! ({self.heals_left} heals left)"
             else:
-                self.last_action = f"Player deals {damage} damage."
+                self.last_action = "No heals left!"
             self.player_turn = False
 
     def enemy_action(self):
@@ -77,13 +86,19 @@ class Game:
         clock = pygame.time.Clock()
         running = True
         action_ready = True  # Wait for player input
+        player_action_type = 'attack'
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
                     break
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                    action_ready = True
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        action_ready = True
+                        player_action_type = 'attack'
+                    if event.key == pygame.K_h:
+                        action_ready = True
+                        player_action_type = 'heal'
             if not running:
                 break
             self.screen.fill((30, 30, 60))  # Dark blue background
@@ -94,14 +109,15 @@ class Game:
             display_text(self.screen, f"Score: {self.score}", (400, 30), font_size=32, color=(255,255,255))
             display_text(self.screen, f"Wave: {self.wave+1}", (400, 70), font_size=28, color=(255,255,255))
             # Instructions
-            display_text(self.screen, "Press SPACE to attack", (50, 250), font_size=28, color=(200,200,200))
+            display_text(self.screen, "SPACE: Attack    H: Heal", (50, 250), font_size=28, color=(200,200,200))
+            display_text(self.screen, f"Heals left: {self.heals_left}", (50, 290), font_size=24, color=(100,255,100))
             # Last action
             if self.last_action:
-                display_text(self.screen, self.last_action, (50, 320), font_size=32, color=(255, 215, 0))
+                display_text(self.screen, self.last_action, (50, 340), font_size=32, color=(255, 215, 0))
             pygame.display.flip()
             if action_ready:
                 if self.player_turn:
-                    self.player_action()
+                    self.player_action(player_action_type)
                 else:
                     self.enemy_action()
                 if not self.update():
