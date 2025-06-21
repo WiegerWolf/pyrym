@@ -22,28 +22,40 @@ class Game:
         self.player_max_health = self.player.health
         self.potions = 0  # Healing potions
         self.defending = False
+        self.battle_log = []  # Store last 3 actions
+
+    def add_to_log(self, message):
+        self.battle_log.append(message)
+        if len(self.battle_log) > 5:
+            self.battle_log.pop(0)
 
     def player_action(self, action='attack'):
         if self.player_turn:
             if action == 'attack':
                 damage, crit, miss = self.player.attack(self.enemy)
                 if miss:
-                    self.last_action = "Player missed!"
+                    msg = "Player missed!"
                 elif crit:
-                    self.last_action = f"Critical hit! Player deals {damage} damage."
+                    msg = f"Critical hit! Player deals {damage} damage."
                 else:
-                    self.last_action = f"Player deals {damage} damage."
+                    msg = f"Player deals {damage} damage."
+                self.add_to_log(msg)
+                self.last_action = msg
             elif action == 'heal':
                 if self.potions > 0:
                     heal_amount = min(20, self.player_max_health - self.player.health)
                     self.player.health += heal_amount
                     self.potions -= 1
-                    self.last_action = f"Player uses potion for {heal_amount} HP! ({self.potions} left)"
+                    msg = f"Player uses potion for {heal_amount} HP! ({self.potions} left)"
                 else:
-                    self.last_action = "No potions left!"
+                    msg = "No potions left!"
+                self.add_to_log(msg)
+                self.last_action = msg
             elif action == 'defend':
                 self.defending = True
-                self.last_action = "Player is defending! Next enemy attack is halved."
+                msg = "Player is defending! Next enemy attack is halved."
+                self.add_to_log(msg)
+                self.last_action = msg
             self.player_turn = False
 
     def enemy_action(self):
@@ -54,14 +66,16 @@ class Game:
                 self.player.health += damage  # Undo full damage
                 self.player.health -= damage  # Apply halved damage
                 self.defending = False
-                self.last_action = f"Enemy attacks, but damage is halved! ({damage} damage)"
+                msg = f"Enemy attacks, but damage is halved! ({damage} damage)"
             else:
                 if miss:
-                    self.last_action = "Enemy missed!"
+                    msg = "Enemy missed!"
                 elif crit:
-                    self.last_action = f"Critical hit! Enemy deals {damage} damage."
+                    msg = f"Critical hit! Enemy deals {damage} damage."
                 else:
-                    self.last_action = f"Enemy deals {damage} damage."
+                    msg = f"Enemy deals {damage} damage."
+            self.add_to_log(msg)
+            self.last_action = msg
             self.player_turn = True
 
     def update(self):
@@ -76,9 +90,11 @@ class Game:
             # 50% chance to drop a potion
             if random.random() < 0.5:
                 self.potions += 1
-                self.last_action = f"Enemy defeated! Potion dropped! New enemy approaches!"
+                msg = f"Enemy defeated! Potion dropped! New enemy approaches!"
             else:
-                self.last_action = f"Enemy defeated! New enemy approaches!"
+                msg = f"Enemy defeated! New enemy approaches!"
+            self.add_to_log(msg)
+            self.last_action = msg
             self.enemy = self.setup_enemy(self.wave)
             pygame.time.wait(1000)
         return True
@@ -135,9 +151,10 @@ class Game:
             else:
                 display_text(self.screen, "Enemy's turn...", (50, 250), font_size=28, color=(255,100,100))
             display_text(self.screen, f"Potions: {self.potions}", (50, 290), font_size=24, color=(100,255,100))
-            # Last action
-            if self.last_action:
-                display_text(self.screen, self.last_action, (50, 340), font_size=32, color=(255, 215, 0))
+            # Battle log (last 3 actions, fading)
+            log_colors = [(255, 215, 0), (200, 200, 200), (120, 120, 120), (80, 80, 80), (50, 50, 50)]
+            for i, msg in enumerate(reversed(self.battle_log)):
+                display_text(self.screen, msg, (50, 340 + i*32), font_size=28, color=log_colors[i])
             pygame.display.flip()
             if self.player_turn and action_ready:
                 self.player_action(player_action_type)
