@@ -25,9 +25,8 @@ class Game:
         self.battle_log = []  # Store last 3 actions
 
     def add_to_log(self, message):
-        self.battle_log.append(message)
-        if len(self.battle_log) > 5:
-            self.battle_log.pop(0)
+        from utils import add_to_log
+        add_to_log(self.battle_log, message)
 
     def player_action(self, action='attack'):
         if self.player_turn:
@@ -101,17 +100,8 @@ class Game:
         return True
 
     def draw_health_bar(self, x, y, current, max_health, color, label):
-        import pygame
-        bar_width = 200
-        bar_height = 30
-        fill = int(bar_width * (current / max_health))
-        outline_rect = pygame.Rect(x, y, bar_width, bar_height)
-        fill_rect = pygame.Rect(x, y, fill, bar_height)
-        pygame.draw.rect(self.screen, color, fill_rect)
-        pygame.draw.rect(self.screen, (255,255,255), outline_rect, 2)
-        from utils import display_text
-        display_text(self.screen, label, (x, y - 28), font_size=32, color=color)
-        display_text(self.screen, f"{current} / {max_health}", (x + bar_width + 10, y), font_size=28, color=(255,255,255))
+        from utils import draw_health_bar
+        draw_health_bar(self.screen, x, y, current, max_health, color, label)
 
     def run(self):
         import pygame
