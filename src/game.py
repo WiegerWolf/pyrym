@@ -96,6 +96,7 @@ class Game:
             self.add_to_log(msg)
             self.last_action = msg
             self.enemy = self.setup_enemy(self.wave)
+            self.player_turn = True  # Player gets first move on new enemy
             pygame.time.wait(1000)
         return True
 
