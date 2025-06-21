@@ -1,4 +1,5 @@
 import pygame
+import config
 from ui import display_text, draw_health_bar
 
 def load_image(file_path):
@@ -11,7 +12,7 @@ def manage_game_settings(settings):
     # Placeholder for managing game settings
     pass
 
-def add_to_log(battle_log, message, max_log=5):
+def add_to_log(battle_log, message, max_log=config.MAX_LOG_MESSAGES):
     battle_log.append(message)
     if len(battle_log) > max_log:
         battle_log.pop(0)

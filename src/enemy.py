@@ -1,4 +1,5 @@
 import random
+import config
 
 
 class Enemy:
@@ -12,20 +13,20 @@ class Enemy:
         # Randomize damage: 70%-130% of attack_power
         crit = False
         miss = False
-        if random.random() < 0.1:
+        if random.random() < config.ENEMY_MISS_CHANCE:
             miss = True
             damage = 0
-        elif random.random() < 0.15:
+        elif random.random() < config.ENEMY_CRIT_CHANCE:
             crit = True
-            damage = int(self.attack_power * 1.5)
+            damage = int(self.attack_power * config.ENEMY_CRIT_MULTIPLIER)
         else:
-            damage = int(self.attack_power * random.uniform(0.7, 1.3))
+            damage = int(self.attack_power * random.uniform(*config.ENEMY_DMG_VARIATION))
         player.take_damage(damage)
         return damage, crit, miss
 
     def take_damage(self, damage):
         if self.is_defending:
-            damage = int(damage * 0.5)  # Reduce damage by 50% if defending
+            damage = int(damage * config.DEFEND_DAMAGE_REDUCTION)  # Reduce damage by 50% if defending
         self.health -= damage
         if self.health < 0:
             self.health = 0
