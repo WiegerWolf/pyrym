@@ -9,7 +9,9 @@ def process_events():
         "player_action_ready": False,
         "player_action_type": None,
         "enter_explore": False,
-        "return_battle": False
+        "c": False,
+        "b": False,
+        "p": False,
     }
 
     for event in pygame.event.get():
@@ -21,15 +23,16 @@ def process_events():
                 events["player_action_ready"] = True
                 events["player_action_type"] = 'attack'
             elif event.key == pygame.K_p:
-                events["player_action_ready"] = True
-                events["player_action_type"] = 'heal'
+                events["p"] = True
             elif event.key == pygame.K_d:
                 events["player_action_ready"] = True
                 events["player_action_type"] = 'defend'
             elif event.key == pygame.K_e:
                 events["enter_explore"] = True
             elif event.key == pygame.K_b:
-                events["return_battle"] = True
+                events["b"] = True
+            elif event.key == pygame.K_c:
+                events["c"] = True
 
 
     return events

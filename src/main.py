@@ -41,15 +41,9 @@ class GameManager:
             
             # --- State-independent Input Handling ---
             if signals["enter_explore"] and current_state == GameState.BATTLE:
-                self.state_obj = ExploreState(self.screen)
+                self.state_obj = ExploreState(self.player)
                 self.state_manager.set_state(GameState.EXPLORE)
                 print("Switched to EXPLORE state")
-            elif signals["return_battle"] and current_state == GameState.EXPLORE:
-                # We resume with the existing player stats
-                self.enemy = Enemy(wave=self.wave)
-                self.state_obj = Battle(self.screen, self.player, self.enemy, self.score, self.wave)
-                self.state_manager.set_state(GameState.BATTLE)
-                print("Switched back to BATTLE state")
 
             # --- State-specific Logic & Rendering ---
             if self.state_manager.get_state() == GameState.BATTLE:
@@ -71,13 +65,17 @@ class GameManager:
                     print("Game Over!")
 
             elif self.state_manager.get_state() == GameState.EXPLORE:
-                if not self.state_obj.update(signals):
-                     # In ExploreState, update returns False to signal a desire to switch back.
-                     self.enemy = Enemy(wave=self.wave)
-                     self.state_obj = Battle(self.screen, self.player, self.enemy, self.score, self.wave)
-                     self.state_manager.set_state(GameState.BATTLE)
+                result = self.state_obj.update(signals)
+                if result is False:
+                    self.state_manager.set_state(GameState.BATTLE)
+                    self.enemy = Enemy(wave=self.wave)
+                    self.state_obj = Battle(self.screen, self.player, self.enemy, self.score, self.wave)
+                elif result and result.get("encounter"):
+                    self.state_manager.set_state(GameState.BATTLE)
+                    self.enemy = Enemy(wave=self.wave)
+                    self.state_obj = Battle(self.screen, self.player, self.enemy, self.score, self.wave)
                 else:
-                     self.state_obj.render()
+                    self.state_obj.render(self.screen)
             
             pygame.display.flip()
             self.clock.tick(config.FPS)
