@@ -3,7 +3,7 @@ import random
 import random
 from src.core.game_state import GameState
 from src.entities import Player
-from src.enemy import Enemy
+from src.entities import Enemy
 from src.core.ui import render_battle_screen
 from src.utils import add_to_log
 from src.core import events

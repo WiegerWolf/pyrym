@@ -5,7 +5,7 @@ from src.states.battle import BattleState
 from src.states.explore import ExploreState
 from src.core.events import process_events
 from src.entities import Player
-from src.enemy import Enemy
+from src.entities import Enemy
 
 class Game:
     def __init__(self):
