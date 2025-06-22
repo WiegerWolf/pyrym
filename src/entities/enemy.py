@@ -11,8 +11,9 @@ class Enemy(Entity):
 
     def __init__(self, wave=1):
         base_health = config.ENEMY_BASE_HEALTH + (wave - 1) * config.ENEMY_HEALTH_SCALING
+        self.health = base_health
         base_attack = config.ENEMY_BASE_ATTACK + (wave - 1) * config.ENEMY_ATTACK_SCALING
-        super().__init__(name=f"Enemy Wave {wave}", health=base_health, attack=base_attack)
+        super().__init__(name=f"Enemy Wave {wave}", health=self.health, attack=base_attack)
         self.wave = wave
 
         # Abilities

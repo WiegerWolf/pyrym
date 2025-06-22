@@ -3,6 +3,7 @@ events.py
 Handles user input and game events.
 """
 import pygame
+# pylint: disable=no-member
 
 def process_events():
     """

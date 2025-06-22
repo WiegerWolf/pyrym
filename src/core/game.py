@@ -3,6 +3,8 @@ game.py
 Core game loop and state management.
 """
 import pygame
+
+# pylint: disable=no-member
 from .. import config
 from .game_state import GameState, StateManager
 from ..states.battle import BattleState
@@ -46,7 +48,7 @@ class Game:
             # --- State-specific Logic & Rendering ---
             if self.state_manager.get_state() == GameState.BATTLE:
                 result = self.state_obj.update(signals)
-                self.state_obj.render()
+                self.state_obj.render(self.screen)
 
                 if result['status'] == 'VICTORY':
                     self.score += 1
