@@ -23,7 +23,10 @@ def process_events():
                 events["player_action_ready"] = True
                 events["player_action_type"] = 'attack'
             elif event.key == pygame.K_p:
-                events["p"] = True
+                # Heal / use-potion action
+                events["p"] = True                 # remains needed for ExploreState
+                events["player_action_ready"] = True
+                events["player_action_type"] = "heal"
             elif event.key == pygame.K_d:
                 events["player_action_ready"] = True
                 events["player_action_type"] = 'defend'
