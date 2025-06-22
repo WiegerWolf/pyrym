@@ -27,5 +27,4 @@ class Enemy(Entity):
     def take_damage(self, damage: int):
         """Reduces enemy health by the given damage amount."""
         self.health -= damage
-        if self.health < 0:
-            self.health = 0
+        self.health = max(self.health, 0)

@@ -14,13 +14,13 @@ from .base import Ability
 if TYPE_CHECKING:
     from ..entities.base import Entity
 
-class PlayerAttackAbility(Ability):
+class PlayerAttackAbility(Ability):  # pylint: disable=too-few-public-methods
     """The player's basic attack."""
 
     def __init__(self):
         super().__init__(name="Attack")
 
-    def execute(self, actor: Entity, target: Entity) -> dict:
+    def execute(self, actor: Entity, target: Entity | None = None) -> dict:
         """
         Executes the attack, calculating damage, crit, and miss chances.
 
@@ -45,7 +45,7 @@ class PlayerAttackAbility(Ability):
 
         return {"damage": round(damage), "crit": crit, "miss": False}
 
-class PlayerDefendAbility(Ability):
+class PlayerDefendAbility(Ability):  # pylint: disable=too-few-public-methods
     """The player's defending ability."""
 
     def __init__(self):

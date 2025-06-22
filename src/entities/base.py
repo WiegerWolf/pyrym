@@ -10,6 +10,7 @@ class Entity(abc.ABC):
     Base class for any entity in the game, like Player or Enemy.
     """
     def __init__(self, name: str, health: int, attack: int):
+        """Initialize a base entity."""
         self.name = name
         self.max_health = health
         self.health = health
@@ -18,6 +19,7 @@ class Entity(abc.ABC):
 
     @abc.abstractmethod
     def take_damage(self, damage: int):
+        """Take damage from an attack."""
         raise NotImplementedError
 
     def heal(self, amount: int):
@@ -26,4 +28,5 @@ class Entity(abc.ABC):
             self.health = self.max_health
 
     def is_alive(self) -> bool:
+        """Check if the entity is alive."""
         return self.health > 0

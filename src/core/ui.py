@@ -25,7 +25,9 @@ class UI:
         item_counts = Counter(item.name for item in inventory)
         for item_name, qty in item_counts.items():
             text = f"{item_name} x{qty}"
-            UI.display_text(screen, text, (pos[0], pos[1] + y_offset), font_size=config.SMALL_FONT_SIZE)
+            UI.display_text(
+                screen, text, (pos[0], pos[1] + y_offset), font_size=config.SMALL_FONT_SIZE
+            )
             y_offset += 20
 
     @classmethod
@@ -42,7 +44,9 @@ class UI:
         return cls._last_message
 
     @staticmethod
-    def display_text(screen, text, position, font_size=config.DEFAULT_FONT_SIZE, color=config.TEXT_COLOR):
+    def display_text(
+        screen, text, position, font_size=config.DEFAULT_FONT_SIZE, color=config.TEXT_COLOR
+    ):
         """Display text on the screen at the specified position."""
         font = pygame.font.Font(None, font_size)
         text_surface = font.render(text, True, color)
@@ -53,19 +57,31 @@ class UI:
         """Draws a health bar using a HealthBarSpec."""
         bar_width = config.HEALTH_BAR_WIDTH
         bar_height = config.HEALTH_BAR_HEIGHT
-        
+
         # Prevent division by zero if max_val is 0
         fill_ratio = spec.current / spec.max_val if spec.max_val > 0 else 0
         fill = int(bar_width * fill_ratio)
 
         outline_rect = pygame.Rect(spec.x, spec.y, bar_width, bar_height)
         fill_rect = pygame.Rect(spec.x, spec.y, fill, bar_height)
-        
+
         pygame.draw.rect(screen, spec.color, fill_rect)
         pygame.draw.rect(screen, config.TEXT_COLOR, outline_rect, 2)
-        
-        UI.display_text(screen, spec.label, (spec.x, spec.y - config.HEALTH_BAR_LABEL_Y_OFFSET), font_size=config.LARGE_FONT_SIZE, color=spec.color)
-        UI.display_text(screen, f"{spec.current} / {spec.max_val}", (spec.x + bar_width + config.HEALTH_BAR_TEXT_X_OFFSET, spec.y), font_size=config.MEDIUM_FONT_SIZE, color=config.TEXT_COLOR)
+
+        UI.display_text(
+            screen,
+            spec.label,
+            (spec.x, spec.y - config.HEALTH_BAR_LABEL_Y_OFFSET),
+            font_size=config.LARGE_FONT_SIZE,
+            color=spec.color,
+        )
+        UI.display_text(
+            screen,
+            f"{spec.current} / {spec.max_val}",
+            (spec.x + bar_width + config.HEALTH_BAR_TEXT_X_OFFSET, spec.y),
+            font_size=config.MEDIUM_FONT_SIZE,
+            color=config.TEXT_COLOR,
+        )
 
     @staticmethod
     def render_battle_screen(screen, battle_state):
@@ -75,14 +91,36 @@ class UI:
         UI.render_inventory(screen, battle_state.player.inventory, pos=(10, 10))
 
         # Health bars
-        player_health_spec = HealthBarSpec(*config.BATTLE_PLAYER_HEALTH_POS, current=battle_state.player.health, max_val=battle_state.player_max_health, color=config.PLAYER_HEALTH_COLOR, label="Player")
-        enemy_health_spec = HealthBarSpec(*config.BATTLE_ENEMY_HEALTH_POS, current=battle_state.enemy.health, max_val=battle_state.enemy_max_health, color=config.ENEMY_HEALTH_COLOR, label=battle_state.enemy.name)
+        player_health_spec = HealthBarSpec(
+            *config.BATTLE_PLAYER_HEALTH_POS,
+            current=battle_state.player.health,
+            max_val=battle_state.player_max_health,
+            color=config.PLAYER_HEALTH_COLOR,
+            label="Player",
+        )
+        enemy_health_spec = HealthBarSpec(
+            *config.BATTLE_ENEMY_HEALTH_POS,
+            current=battle_state.enemy.health,
+            max_val=battle_state.enemy_max_health,
+            color=config.ENEMY_HEALTH_COLOR,
+            label=battle_state.enemy.name,
+        )
         UI.draw_health_bar(screen, player_health_spec)
         UI.draw_health_bar(screen, enemy_health_spec)
 
         # Score and wave
-        UI.display_text(screen, f"Score: {battle_state.meta.score}", config.BATTLE_SCORE_POS, font_size=config.LARGE_FONT_SIZE)
-        UI.display_text(screen, f"Wave: {battle_state.meta.wave + 1}", config.BATTLE_WAVE_POS, font_size=config.MEDIUM_FONT_SIZE)
+        UI.display_text(
+            screen,
+            f"Score: {battle_state.meta.score}",
+            config.BATTLE_SCORE_POS,
+            font_size=config.LARGE_FONT_SIZE,
+        )
+        UI.display_text(
+            screen,
+            f"Wave: {battle_state.meta.wave + 1}",
+            config.BATTLE_WAVE_POS,
+            font_size=config.MEDIUM_FONT_SIZE,
+        )
 
         # Instructions
         if battle_state.player_turn:
@@ -90,15 +128,33 @@ class UI:
             if battle_state.player.has_potion():
                 actions.append("P: Potion")
             actions.extend(["D: Defend", "F: Flee"])
-            UI.display_text(screen, "    ".join(actions), config.BATTLE_INSTRUCTIONS_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.UI_ACCENT_COLOR)
+            UI.display_text(
+                screen,
+                "    ".join(actions),
+                config.BATTLE_INSTRUCTIONS_POS,
+                font_size=config.MEDIUM_FONT_SIZE,
+                color=config.UI_ACCENT_COLOR,
+            )
         else:
-            UI.display_text(screen, "Enemy's turn...", config.BATTLE_INSTRUCTIONS_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.ENEMY_TURN_COLOR)
+            UI.display_text(
+                screen,
+                "Enemy's turn...",
+                config.BATTLE_INSTRUCTIONS_POS,
+                font_size=config.MEDIUM_FONT_SIZE,
+                color=config.ENEMY_TURN_COLOR,
+            )
 
 
         # Battle log (last 5 actions, fading)
         for i, msg in enumerate(reversed(battle_state.battle_log)):
             log_y = config.BATTLE_LOG_START_POS[1] + (i * config.BATTLE_LOG_LINE_SPACING)
-            UI.display_text(screen, msg, (config.BATTLE_LOG_START_POS[0], log_y), font_size=config.MEDIUM_FONT_SIZE, color=config.LOG_COLORS[i])
+            UI.display_text(
+                screen,
+                msg,
+                (config.BATTLE_LOG_START_POS[0], log_y),
+                font_size=config.MEDIUM_FONT_SIZE,
+                color=config.LOG_COLORS[i],
+            )
 
 def render_battle_screen(*args, **kwargs):
     """

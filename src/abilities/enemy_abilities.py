@@ -14,13 +14,13 @@ from .base import Ability
 if TYPE_CHECKING:
     from ..entities.base import Entity
 
-class EnemyAttackAbility(Ability):
+class EnemyAttackAbility(Ability):  # pylint: disable=too-few-public-methods
     """The enemy's basic attack."""
 
     def __init__(self):
         super().__init__(name="Attack")
 
-    def execute(self, actor: Entity, target: Entity) -> dict:
+    def execute(self, actor: Entity, target: Entity | None = None) -> dict:
         """
         Executes the attack, calculating damage, crit, and miss chances.
 

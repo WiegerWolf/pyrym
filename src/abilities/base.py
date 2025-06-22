@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..entities.base import Entity
 
-class Ability(abc.ABC):
+class Ability(abc.ABC):  # pylint: disable=too-few-public-methods
     """Base class for all abilities."""
 
     def __init__(self, name: str):

@@ -57,8 +57,7 @@ class Player(Entity):
     def take_damage(self, damage: int):
         """Reduces player health by the given damage amount."""
         self.health -= damage
-        if self.health < 0:
-            self.health = 0
+        self.health = max(self.health, 0)
 
     def reset(self):
         """Resets player stats to their base values."""

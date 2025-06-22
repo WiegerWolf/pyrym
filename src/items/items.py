@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from ..entities.player import Player
 
 
-class Item(ABC):
+class Item(ABC):  # pylint: disable=too-few-public-methods
     """Abstract base class for items."""
 
     def __init__(self, name: str, description: str = ""):
@@ -26,7 +26,7 @@ class Item(ABC):
         raise NotImplementedError
 
 
-class HealingPotion(Item):
+class HealingPotion(Item):  # pylint: disable=too-few-public-methods
     """A potion that heals the player."""
 
     def __init__(self, amount: int):
@@ -41,7 +41,7 @@ class HealingPotion(Item):
             player.health = min(player.max_health, player.health + self.heal_amount)
 
 
-class GoldPile(Item):
+class GoldPile(Item):  # pylint: disable=too-few-public-methods
     """A pile of gold."""
 
     def __init__(self, amount: int):
