@@ -105,4 +105,4 @@ class BattleState:
 
     def render(self):
         """Renders the battle screen."""
-        UI.render_battle_screen(self.screen, self)
+        render_battle_screen(self.screen, self)
