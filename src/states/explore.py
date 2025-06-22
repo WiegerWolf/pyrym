@@ -7,22 +7,26 @@ from random import randint
 
 from .. import config
 from ..config import BASE_ENCOUNTER_CHANCE, ENCOUNTER_INCREMENT, ITEM_FIND_CHANCE
-from ..items import HealingPotion, GoldPile
 from ..core.ui import UI
+from ..items import HealingPotion, GoldPile
 from ..utils import HealthBarSpec
+
 
 class ExploreState:
     """
     Manages the exploration phase of the game, where the player can find items
     or trigger encounters.
     """
-    def __init__(self, player):
+
+    def __init__(self, screen, player):
         """
         Initializes the exploration state.
 
         Args:
+            screen: The screen surface to draw on.
             player: The player character instance.
         """
+        self.screen = screen
         self.player = player
         self.base_chance = BASE_ENCOUNTER_CHANCE
         self.step = ENCOUNTER_INCREMENT
@@ -37,8 +41,7 @@ class ExploreState:
             signals (dict): A dictionary of input signals.
 
         Returns:
-            dict or bool: A dictionary with encounter/potion info, False to return to battle,
-                           or None if no action is taken.
+            dict or bool: A dictionary with encounter/potion info, or None.
         """
         if signals.get("attack"):  # Continue exploring
             return self._explore_turn()
@@ -49,7 +52,6 @@ class ExploreState:
                 return {"used_potion": True}
             return None
         return None
-
 
     def _explore_turn(self):
         """
@@ -72,16 +74,13 @@ class ExploreState:
         self.consecutive_turns += 1
         return {"encounter": False}
 
-    def render(self, surface):
+    def render(self):
         """
         Renders the exploration state.
-
-        Args:
-            surface: The surface to draw on.
         """
-        surface.fill(config.BG_COLOR)
+        self.screen.fill(config.BG_COLOR)
 
-        UI.render_inventory(surface, self.player.inventory, pos=(10, 10))
+        UI.render_inventory(self.screen, self.player.inventory, pos=(10, 10))
 
         # Display player health
         player_health_spec = HealthBarSpec(
@@ -91,14 +90,14 @@ class ExploreState:
             color=config.PLAYER_HEALTH_COLOR,
             label="Player"
         )
-        UI.draw_health_bar(surface, player_health_spec)
+        UI.draw_health_bar(self.screen, player_health_spec)
 
         # Display instructions
         instructions = ["Space: Continue"]
         if self.player.has_potion():
             instructions.append("P: Use Potion")
         UI.display_text(
-            surface, ", ".join(instructions),
+            self.screen, ", ".join(instructions),
             config.EXPLORE_INSTRUCTIONS_POS,
             font_size=config.MEDIUM_FONT_SIZE,
             color=config.UI_ACCENT_COLOR
@@ -106,7 +105,7 @@ class ExploreState:
 
         # Display encounter chance
         UI.display_text(
-            surface,
+            self.screen,
             f"Encounter Chance: {self.encounter_chance:.2f}",
             config.EXPLORE_ENCOUNTER_CHANCE_POS,
             font_size=config.MEDIUM_FONT_SIZE
@@ -116,7 +115,7 @@ class ExploreState:
         message = UI.get_last_message()
         if message:
             UI.display_text(
-                surface,
+                self.screen,
                 message,
                 config.EXPLORE_MESSAGE_POS,
                 font_size=config.MEDIUM_FONT_SIZE

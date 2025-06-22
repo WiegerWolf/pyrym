@@ -30,7 +30,7 @@ class Game:
         self.meta = EncounterMeta(score=0, wave=0)
 
         # Create the initial explore state
-        self.state_obj = ExploreState(self.player)
+        self.state_obj = ExploreState(self.screen, self.player)
         self.state_manager.set_state(GameState.EXPLORE)
 
     def run(self):
@@ -43,30 +43,31 @@ class Game:
                 running = False
 
             # --- State-specific Logic & Rendering ---
-            if self.state_manager.get_state() == GameState.BATTLE:
+            current_game_state = self.state_manager.get_state()
+
+            if current_game_state == GameState.BATTLE:
                 result = self.state_obj.update(signals)
-                self.state_obj.render()
                 if result['status'] == 'VICTORY':
                     self.meta.score += 1
                     self.meta.wave += 1
-                    self.state_obj = ExploreState(self.player)
+                    self.state_obj = ExploreState(self.screen, self.player)
                     self.state_manager.set_state(GameState.EXPLORE)
                 elif result['status'] == 'FLEE_SUCCESS':
-                    # No score/wave change on flee
-                    self.state_obj = ExploreState(self.player)
+                    self.state_obj = ExploreState(self.screen, self.player)
                     self.state_manager.set_state(GameState.EXPLORE)
                 elif result['status'] == 'GAME_OVER':
                     running = False
                     print("Game Over!")
 
-            elif self.state_manager.get_state() == GameState.EXPLORE:
+            elif current_game_state == GameState.EXPLORE:
                 result = self.state_obj.update(signals)
                 if result and result.get("encounter"):
                     self.state_manager.set_state(GameState.BATTLE)
                     enemy = Enemy(wave=self.meta.wave)
                     self.state_obj = BattleState(self.screen, self.player, enemy, self.meta)
-                else:
-                    self.state_obj.render(self.screen)
+
+            # All states now have a consistent render method
+            self.state_obj.render()
 
             pygame.display.flip()
             self.clock.tick(config.FPS)

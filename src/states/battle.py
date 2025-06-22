@@ -51,7 +51,8 @@ class BattleState:
                     return  # Don't flip turn
                 heal_amount = self.player.use_potion()
                 if heal_amount > 0:
-                    potion_count = sum(1 for item in self.player.inventory if isinstance(item, HealingPotion))
+                    potion_count = sum(1 for item in self.player.inventory
+                                     if isinstance(item, HealingPotion))
                     msg = f"Player uses potion for {heal_amount} HP! ({potion_count} left)"
                 else:
                     msg = "No potions left!"
@@ -93,7 +94,7 @@ class BattleState:
                 action_taken = 'defend'
             elif signals["heal"]:
                 action_taken = 'heal'
-            
+
             if action_taken:
                 self.player_action(action_taken)
             elif signals["flee"]:
@@ -104,7 +105,6 @@ class BattleState:
 
         return self.check_battle_status()
 
-
     def check_battle_status(self):
         """Checks the status of the battle (win, lose, ongoing)."""
         if self.enemy.health <= 0:
@@ -113,7 +113,6 @@ class BattleState:
             add_to_log(self.battle_log, "Player has been defeated!")
             return {'status': 'GAME_OVER'}
         return {'status': 'ONGOING'}
-
 
     def render(self):
         """Renders the battle screen."""
