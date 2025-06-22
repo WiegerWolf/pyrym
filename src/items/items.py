@@ -14,6 +14,8 @@ if TYPE_CHECKING:
 class Item(ABC):
     """Abstract base class for items."""
 
+    can_store: bool = True
+
     def __init__(self, name: str, cost: int, description: str = ""):
         self.name = name
         self.cost = cost
@@ -78,27 +80,28 @@ class HealingPotion(HealingSalve):
 
 
 class GoldPile(Item):
-    """Represents a pile of gold coins that can be found."""
+    """
+    Represents a pile of gold coins.
+    On pickup, it directly adds to the player's gold instead of being an inventory item.
+    """
 
-    def __init__(self, amount: int):
+    can_store: bool = False
+    amount: int = 10
+
+    def __init__(self, amount: int = 10):
         self.amount = amount
         super().__init__(
             name="Gold Pile",
             cost=0,  # Gold piles aren't bought, they are found.
             description=f"A pouch containing {self.amount} gold coins."
         )
-    
+
     def __repr__(self) -> str:
         return f"Gold Pile ({self.amount})"
 
-    def use(self, entity: Entity) -> dict:
-        """Adds the gold amount to the entity's game state."""
-        # This assumes the entity has a link to the game_state,
-        # which is typical for a player character in this structure.
-        if hasattr(entity, "game_state") and hasattr(entity.game_state, "adjust_gold"):
-            entity.game_state.adjust_gold(self.amount)
-            msg = f"Added {self.amount} gold."
-            return {"message": msg, "value": self.amount}
-        
-        msg = f"Could not add gold."
-        return {"message": msg, "value": 0}
+    def use(self, entity: "Entity") -> dict:
+        """Adds the gold amount to the game state."""
+        from ..core.game_state import StateManager
+        StateManager.adjust_gold(self.amount)
+        msg = f"Added {self.amount} gold."
+        return {"message": msg, "value": self.amount}

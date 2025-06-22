@@ -33,6 +33,14 @@ class ExploreState:
         self.consecutive_turns = 0
         self.encounter_chance = self.base_chance
 
+        # Retroactively convert any GoldPiles in inventory from old saves
+        # to gold.
+        for item in player.inventory[:]:
+            if isinstance(item, GoldPile):
+                item.use(player)
+                player.remove_item(item)
+                UI.notify(f"Converted {item.name} to {item.amount} gold.")
+
     def update(self, signals):
         """
         Updates the exploration state based on player input.
@@ -70,9 +78,15 @@ class ExploreState:
             return {"encounter": True}
         # Roll for item discovery
         if random.random() < ITEM_FIND_CHANCE:
-            item = random.choice([HealingPotion(20), GoldPile(randint(5, 20))])
-            self.player.add_item(item)
-            UI.notify(f"Found {item}")
+            loot = random.choice([HealingPotion(), GoldPile(randint(5, 20))])
+
+            # Non-storable items like GoldPile are used immediately.
+            if not loot.can_store:
+                result = loot.use(self.player)
+                UI.notify(f"+{loot.amount} Gold!")
+            else:
+                self.player.add_item(loot)
+                UI.notify(f"Found a {loot.name}.")
 
         # Increment encounter chance
         self.encounter_chance = min(1.0, self.encounter_chance + self.step)
