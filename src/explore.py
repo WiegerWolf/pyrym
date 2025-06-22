@@ -1,9 +1,9 @@
 import random
 from random import randint
 
-from src.config import BASE_ENCOUNTER_CHANCE, ENCOUNTER_INCREMENT, ITEM_FIND_CHANCE
-from src.items import HealingPotion, GoldPile
-from src.ui import ui
+from config import BASE_ENCOUNTER_CHANCE, ENCOUNTER_INCREMENT, ITEM_FIND_CHANCE
+from items import HealingPotion, GoldPile
+import ui
 
 class ExploreState:
     """
