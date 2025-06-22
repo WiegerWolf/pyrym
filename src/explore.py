@@ -1,6 +1,7 @@
 import random
 from random import randint
 
+import config
 from config import BASE_ENCOUNTER_CHANCE, ENCOUNTER_INCREMENT, ITEM_FIND_CHANCE
 from items import HealingPotion, GoldPile
 import ui
@@ -77,14 +78,18 @@ class ExploreState:
         Args:
             surface: The surface to draw on.
         """
-        if not surface:
-            print("Exploring... C: Continue, B: Back to Battle, P: Use Potion")
-            print(f"Encounter Chance: {self.encounter_chance:.2f}")
-            message = ui.get_last_message()
-            if message:
-                print(message)
-        else:
-            # Optional: Pygame rendering would go here
-            message = ui.get_last_message()
-            if message:
-                print(message) # For now, still print to console
+        surface.fill(config.BG_COLOR)
+        
+        # Display player health
+        ui.draw_health_bar(surface, *config.EXPLORE_PLAYER_HEALTH_POS, self.player.health, self.player.max_health, config.PLAYER_HEALTH_COLOR, "Player")
+
+        # Display instructions
+        ui.display_text(surface, "C: Continue, B: Battle, P: Use Potion", config.EXPLORE_INSTRUCTIONS_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.UI_ACCENT_COLOR)
+
+        # Display encounter chance
+        ui.display_text(surface, f"Encounter Chance: {self.encounter_chance:.2f}", config.EXPLORE_ENCOUNTER_CHANCE_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.TEXT_COLOR)
+
+        # Display last message
+        message = ui.get_last_message()
+        if message:
+            ui.display_text(surface, message, config.EXPLORE_MESSAGE_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.TEXT_COLOR)

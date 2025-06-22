@@ -25,9 +25,9 @@ class GameManager:
         self.score = 0
         self.wave = 0
 
-        # Create the initial battle state
-        self.state_obj = Battle(self.screen, self.player, self.enemy, self.score, self.wave)
-        self.state_manager.set_state(GameState.BATTLE)
+        # Create the initial explore state
+        self.state_obj = ExploreState(self.player)
+        self.state_manager.set_state(GameState.EXPLORE)
 
     def run(self):
         running = True
