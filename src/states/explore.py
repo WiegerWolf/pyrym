@@ -51,6 +51,9 @@ class ExploreState:
                 UI.notify(f"You used a healing potion and healed for {heal_amount} HP.")
                 return {"used_potion": True}
             return None
+        if signals.get("cheat_gold"):  # Cheat for gold
+            from src.core.game_state import StateManager
+            StateManager.adjust_gold(10)
         return None
 
     def _explore_turn(self):
@@ -92,10 +95,20 @@ class ExploreState:
         )
         UI.draw_health_bar(self.screen, player_health_spec)
 
+        # Gold display
+        from src.core.game_state import StateManager
+        UI.display_text(
+            self.screen,
+            f"Gold: {StateManager.gold}",
+            config.EXPLORE_GOLD_POS,
+            font_size=config.LARGE_FONT_SIZE,
+            color=config.TEXT_COLOR
+        )
+
         # Display instructions
-        instructions = ["Space: Continue"]
-        if self.player.has_potion():
-            instructions.append("P: Use Potion")
+        instructions = ["(S)earch", "(G)ain Gold (Cheat)"]
+        if self.player.inventory:
+            instructions.append("(I)nventory")
         UI.display_text(
             self.screen, ", ".join(instructions),
             config.EXPLORE_INSTRUCTIONS_POS,

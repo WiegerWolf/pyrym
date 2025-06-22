@@ -127,19 +127,38 @@ class UI:
             font_size=config.MEDIUM_FONT_SIZE,
         )
 
+        # Gold display
+        from src.core.game_state import StateManager
+        UI.display_text(
+            screen,
+            f"Gold: {StateManager.gold}",
+            config.BATTLE_GOLD_POS,
+            font_size=config.LARGE_FONT_SIZE,
+            color=config.TEXT_COLOR
+        )
+
         # Instructions
         if battle_state.player_turn:
-            actions = ["(A)ttack"]
-            if battle_state.player.has_potion():
-                actions.append("(P)otion")
-            actions.extend(["(D)efend", "(F)lee"])
-            UI.display_text(
-                screen,
-                "    ".join(actions),
-                config.BATTLE_INSTRUCTIONS_POS,
-                font_size=config.MEDIUM_FONT_SIZE,
-                color=config.UI_ACCENT_COLOR,
-            )
+            if battle_state.item_menu_open:
+                UI.display_text(
+                    screen,
+                    "Select an item (1-9) or (I) to cancel",
+                    config.BATTLE_INSTRUCTIONS_POS,
+                    font_size=config.MEDIUM_FONT_SIZE,
+                    color=config.UI_ACCENT_COLOR,
+                )
+            else:
+                actions = ["(A)ttack", "(D)efend"]
+                if battle_state.player.inventory:
+                    actions.append("(I)tem")
+                actions.append("(F)lee")
+                UI.display_text(
+                    screen,
+                    "    ".join(actions),
+                    config.BATTLE_INSTRUCTIONS_POS,
+                    font_size=config.MEDIUM_FONT_SIZE,
+                    color=config.UI_ACCENT_COLOR,
+                )
         else:
             UI.display_text(
                 screen,

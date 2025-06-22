@@ -15,9 +15,10 @@ def process_events():
         "quit": False,
         "attack": False,
         "defend": False,
-        "heal": False,
+        "use_item": False,
         "flee": False,
-        "p": False # For ExploreState potion use
+        "cheat_gold": False,
+        "number_keys": [],
     }
 
     for event in pygame.event.get():
@@ -27,12 +28,21 @@ def process_events():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_a or event.key == pygame.K_SPACE:
                 events["attack"] = True
+            if event.key == pygame.K_s:  # (S)earch, continue exploring
+                events["attack"] = True
             elif event.key == pygame.K_d:
                 events["defend"] = True
-            elif event.key == pygame.K_p:
-                events["heal"] = True
-                events["p"] = True
+            elif event.key == pygame.K_i:
+                events["use_item"] = True
+            elif event.key == pygame.K_g:
+                events["cheat_gold"] = True
             elif event.key == pygame.K_f:
                 events["flee"] = True
+            # For selecting items in the item menu
+            elif event.key in [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4,
+                                 pygame.K_5, pygame.K_6, pygame.K_7, pygame.K_8,
+                                 pygame.K_9]:
+                    events["number_keys"].append(event.key)
+
 
     return events

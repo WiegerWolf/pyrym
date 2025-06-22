@@ -3,10 +3,10 @@ battle.py
 Manages the state of a battle encounter.
 """
 import random
+import pygame
 
 from .. import config
-from ..core.ui import render_battle_screen
-from ..items import HealingPotion
+from ..core.ui import render_battle_screen, UI
 from ..utils import add_to_log, EncounterMeta
 
 
@@ -18,6 +18,7 @@ class BattleState:
         self.player = player
         self.enemy = enemy
         self.meta = encounter_meta
+        self.item_menu_open = False
 
         self.player_turn = True
         self.battle_log = []
@@ -102,21 +103,40 @@ class BattleState:
 
         # Handle button presses for actions
         if self.player_turn:
-            action_taken = None
-            if signals["attack"]:
-                action_taken = 'attack'
-            elif signals["defend"]:
-                action_taken = 'defend'
-            elif signals["heal"]:
-                action_taken = 'heal'
+            if self.item_menu_open:
+                if signals["number_keys"]:
+                    key = signals["number_keys"][0]
+                    index = key - pygame.K_1
+                    if 0 <= index < len(self.player.inventory):
+                        result = self.player.use_item(index)
+                        if result:
+                            add_to_log(self.battle_log, result["message"])
+                            self.item_menu_open = False
+                            self.player_turn = False
+                    else:
+                        add_to_log(self.battle_log, "Invalid item selection.")
+                # Allow closing menu with 'i' again or another key
+                if signals["use_item"]:
+                    self.item_menu_open = False
+            else:
+                action_taken = None
+                if signals["attack"]:
+                    action_taken = 'attack'
+                elif signals["defend"]:
+                    action_taken = 'defend'
+                elif signals["use_item"]:
+                    if self.player.inventory:
+                        self.item_menu_open = True
+                    else:
+                        add_to_log(self.battle_log, "Inventory is empty.")
 
-            if action_taken:
-                self.player_action(action_taken)
-            elif signals["flee"]:
-                if random.random() <= config.FLEE_SUCCESS_PROB:
-                    return {"status": "FLEE_SUCCESS"}
-                add_to_log(self.battle_log, "Flee failed!")
-                self.player_turn = False
+                if action_taken:
+                    self.player_action(action_taken)
+                elif signals["flee"]:
+                    if random.random() <= config.FLEE_SUCCESS_PROB:
+                        return {"status": "FLEE_SUCCESS"}
+                    add_to_log(self.battle_log, "Flee failed!")
+                    self.player_turn = False
 
         return self.check_battle_status()
 
@@ -132,3 +152,24 @@ class BattleState:
     def render(self):
         """Renders the battle screen."""
         render_battle_screen(self.screen, self)
+        if self.item_menu_open:
+            self._render_item_menu()
+
+    def _render_item_menu(self):
+        """Renders the item selection menu."""
+        menu_items = []
+        if not self.player.inventory:
+            menu_items.append("Inventory is empty.")
+        else:
+            for i, item in enumerate(self.player.inventory):
+                menu_items.append(f"({i+1}) {item.name}: {item.description}")
+
+        # Simple text menu for now
+        for i, text in enumerate(menu_items):
+            UI.display_text(
+                self.screen,
+                text,
+                (100, 400 + i * 30),
+                font_size=config.MEDIUM_FONT_SIZE,
+                color=config.TEXT_COLOR,
+            )

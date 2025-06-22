@@ -5,7 +5,7 @@ Defines the player character.
 from src import config
 from .base import Entity
 from ..abilities import PlayerAttackAbility, PlayerDefendAbility
-from ..items import Item, HealingPotion
+from ..items.items import Item
 
 
 class Player(Entity):
@@ -17,8 +17,7 @@ class Player(Entity):
             health=config.PLAYER_BASE_HEALTH,
             attack=config.PLAYER_BASE_ATTACK,
         )
-        self.gold = 0
-        self.inventory: list[Item] = [HealingPotion(20) for _ in range(3)]
+        self.inventory: list[Item] = []
 
         # Abilities
         self.attack_ability = PlayerAttackAbility()
@@ -45,23 +44,32 @@ class Player(Entity):
     def add_item(self, item: Item):
         """Adds an item to the player's inventory."""
         self.inventory.append(item)
+        print(f"Added {item.name} to inventory.")
 
-    def has_potion(self) -> bool:
-        """Checks if the player has any healing potions."""
-        return any(isinstance(item, HealingPotion) for item in self.inventory)
+    def remove_item(self, item: Item):
+        """Removes an item from the player's inventory."""
+        if item in self.inventory:
+            self.inventory.remove(item)
+            print(f"Removed {item.name} from inventory.")
 
-    def use_potion(self) -> int:
+    def use_item(self, index: int) -> dict | None:
         """
-        Uses a healing potion from the inventory and returns the amount healed.
-        Returns 0 if no potion was used.
+        Uses an item from the inventory by its index.
+        Returns the result from the item's use() method.
         """
-        for item in self.inventory:
-            if isinstance(item, HealingPotion):
-                heal_amount = item.heal_amount
-                item.apply(self)
-                self.inventory.remove(item)
-                return heal_amount
-        return 0
+        if 0 <= index < len(self.inventory):
+            item = self.inventory[index]
+            result = item.use(self)
+            self.remove_item(item)
+            return result
+        return None
+
+    def new_game_reset(self):
+        """Resets the player for a new game."""
+        self.health = self.max_health
+        self.stamina = 1
+        self.block_active = False
+        self.inventory = []
 
     def reset(self):
         """Resets player stats to their base values for a new battle."""

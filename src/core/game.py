@@ -29,6 +29,10 @@ class Game:
         self.player = Player()
         self.meta = EncounterMeta(score=0, wave=0)
 
+        from ..items.items import HealingSalve, StaminaPotion
+        self.player.add_item(HealingSalve())
+        self.player.add_item(StaminaPotion())
+
         # Create the initial explore state
         self.state_obj = ExploreState(self.screen, self.player)
         self.state_manager.set_state(GameState.EXPLORE)
