@@ -71,26 +71,25 @@ class Battle:
         """
         Runs one frame of battle logic. Returns a status dictionary.
         """
-        # Check for state change signal first
-        if signals.get("enter_explore"):
-            return {'status': 'SWITCH'}
-
-        # --- Player Turn ---
-        if self.player_turn and signals.get("player_action_ready"):
-            self.player_action(signals["player_action_type"])
-            # Action taken, check for win/loss
-            if self.enemy.health <= 0:
-                self.add_to_log("Enemy defeated!")
-                return {'status': 'VICTORY'}
-
-        # --- Enemy Turn ---
-        elif not self.player_turn:
+        if self.player_turn:
+            if signals.get("player_action_ready"):
+                self.player_action(signals["player_action_type"])
+            elif signals.get("flee"):
+                if random.random() < config.FLEE_SUCCESS_PROB:
+                    return {"status": "FLEE_SUCCESS"}
+                else:
+                    self.add_to_log("Player failed to flee!")
+                    self.player_turn = False
+    
+        if self.enemy.health <= 0:
+            return {"status": "VICTORY"}
+        
+        if not self.player_turn:
             self.enemy_action()
-            # Action taken, check for game over
             if self.player.health <= 0:
                 self.add_to_log("Player has been defeated!")
                 return {'status': 'GAME_OVER'}
-        
+    
         return {'status': 'ONGOING'}
 
     def render(self):

@@ -1,5 +1,16 @@
 import pygame
 import config
+from collections import Counter
+
+
+def render_inventory(screen, inventory, pos=(10, 10)):
+    """Draws each item name × qty."""
+    y_offset = 0
+    item_counts = Counter(item.name for item in inventory)
+    for item_name, qty in item_counts.items():
+        text = f"{item_name} x{qty}"
+        display_text(screen, text, (pos[0], pos[1] + y_offset), font_size=config.SMALL_FONT_SIZE)
+        y_offset += 20
 
 _last_message: str = ""
 
@@ -36,6 +47,8 @@ def render_battle_screen(screen, battle_state):
     """Renders all elements of the battle screen."""
     screen.fill(config.BG_COLOR)  # Dark blue background
 
+    render_inventory(screen, battle_state.player.inventory, pos=(10,10))
+
     # Draw health bars
     draw_health_bar(screen, *config.BATTLE_PLAYER_HEALTH_POS, battle_state.player.health, battle_state.player_max_health, config.PLAYER_HEALTH_COLOR, "Player")
     draw_health_bar(screen, *config.BATTLE_ENEMY_HEALTH_POS, battle_state.enemy.health, battle_state.enemy_max_health, config.ENEMY_HEALTH_COLOR, battle_state.enemy.name)
@@ -46,7 +59,7 @@ def render_battle_screen(screen, battle_state):
 
     # Instructions
     if battle_state.player_turn:
-        display_text(screen, "SPACE: Attack    P: Potion    D: Defend", config.BATTLE_INSTRUCTIONS_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.UI_ACCENT_COLOR)
+        display_text(screen, "SPACE: Attack    P: Potion    D: Defend    F: Flee", config.BATTLE_INSTRUCTIONS_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.UI_ACCENT_COLOR)
     else:
         display_text(screen, "Enemy's turn...", config.BATTLE_INSTRUCTIONS_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.ENEMY_TURN_COLOR)
 

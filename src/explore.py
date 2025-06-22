@@ -27,20 +27,17 @@ class ExploreState:
     def update(self, signals):
         """
         Updates the exploration state based on player input.
-
+    
         Args:
             signals (dict): A dictionary of input signals.
-
+    
         Returns:
             dict or bool: A dictionary with encounter/potion info, False to return to battle,
                           or None if no action is taken.
         """
-
+    
         if signals.get("c"):  # Continue exploring
             return self._explore_turn()
-        elif signals.get("b"):  # Back to battle
-            self.encounter_chance = self.base_chance  # Reset encounter chance
-            return False
         elif signals.get("p"):  # Use potion
             used_potion = self.player.use_potion()
             if used_potion:
@@ -74,18 +71,20 @@ class ExploreState:
     def render(self, surface):
         """
         Renders the exploration state.
-
+    
         Args:
             surface: The surface to draw on.
         """
         surface.fill(config.BG_COLOR)
         
+        ui.render_inventory(surface, self.player.inventory, pos=(10,10))
+    
         # Display player health
         ui.draw_health_bar(surface, *config.EXPLORE_PLAYER_HEALTH_POS, self.player.health, self.player.max_health, config.PLAYER_HEALTH_COLOR, "Player")
-
+    
         # Display instructions
-        ui.display_text(surface, "C: Continue, B: Battle, P: Use Potion", config.EXPLORE_INSTRUCTIONS_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.UI_ACCENT_COLOR)
-
+        ui.display_text(surface, "C: Continue, P: Use Potion", config.EXPLORE_INSTRUCTIONS_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.UI_ACCENT_COLOR)
+    
         # Display encounter chance
         ui.display_text(surface, f"Encounter Chance: {self.encounter_chance:.2f}", config.EXPLORE_ENCOUNTER_CHANCE_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.TEXT_COLOR)
 
