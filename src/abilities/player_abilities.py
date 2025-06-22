@@ -38,27 +38,6 @@ class PlayerAttackAbility(Ability):
         
         return {"damage": round(damage), "crit": crit, "miss": False}
 
-class PlayerHealAbility(Ability):
-    """The player's healing ability."""
-
-    def __init__(self):
-        super().__init__(name="Heal")
-
-    def execute(self, actor: Entity, target: Entity | None = None) -> dict:
-        """
-        Executes the heal, restoring health if potions are available.
-
-        :param actor: The player entity.
-        :param target: Ignored, player heals themself.
-        :return: Dictionary containing heal amount and success status.
-        """
-        if actor.potions > 0:
-            actor.potions -= 1
-            actor.heal(config.POTION_HEAL_AMOUNT)
-            return {"heal_amount": config.POTION_HEAL_AMOUNT, "success": True}
-        return {"heal_amount": 0, "success": False}
-
-
 class PlayerDefendAbility(Ability):
     """The player's defending ability."""
 

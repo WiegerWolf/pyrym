@@ -37,10 +37,10 @@ class Battle:
                 self.add_to_log(msg)
                 self.last_action = msg
             elif action == 'heal':
-                potion_count = sum(1 for item in self.player.inventory if isinstance(item, HealingPotion))
                 heal_amount = self.player.use_potion()
                 if heal_amount > 0:
-                    msg = f"Player uses potion for {heal_amount} HP! ({potion_count - 1} left)"
+                    potion_count = sum(1 for item in self.player.inventory if isinstance(item, HealingPotion))
+                    msg = f"Player uses potion for {heal_amount} HP! ({potion_count} left)"
                 else:
                     msg = "No potions left!"
                 self.add_to_log(msg)

@@ -1,6 +1,6 @@
 import config
 from entities import Entity
-from abilities import PlayerAttackAbility, PlayerHealAbility, PlayerDefendAbility
+from abilities import PlayerAttackAbility, PlayerDefendAbility
 from items import Item, HealingPotion
 
 
