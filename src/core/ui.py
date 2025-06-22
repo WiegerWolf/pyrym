@@ -2,9 +2,11 @@
 ui.py
 Handles all UI rendering for the game.
 """
-import pygame
-from src import config
 from collections import Counter
+
+import pygame
+
+from src import config
 
 
 class UI:

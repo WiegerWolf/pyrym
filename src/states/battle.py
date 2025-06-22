@@ -2,17 +2,12 @@
 battle.py
 Manages the state of a battle encounter.
 """
-import pygame
 import random
-import random
-from ..core.game_state import GameState
-from ..entities import Player
-from ..entities import Enemy
-from ..core.ui import render_battle_screen
-from ..utils import add_to_log
-from ..core import events
-from ..items import HealingPotion
+
 from .. import config
+from ..core.ui import render_battle_screen
+from ..items import HealingPotion
+from ..utils import add_to_log
 
 
 class BattleState:

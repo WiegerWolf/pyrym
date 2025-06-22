@@ -3,10 +3,13 @@ player_abilities.py
 Defines the player's abilities.
 """
 from __future__ import annotations
+
 import random
 from typing import TYPE_CHECKING
-from .base import Ability
+
 from src import config
+
+from .base import Ability
 
 if TYPE_CHECKING:
     from ..entities.base import Entity
