@@ -13,24 +13,17 @@ class Player(Entity):
             health=config.PLAYER_BASE_HEALTH,
             attack=config.PLAYER_BASE_ATTACK,
         )
-        self.potions = 3
         self.gold = 0
-        self.inventory: list[Item] = []
+        self.inventory: list[Item] = [HealingPotion(20) for _ in range(3)]
 
         # Abilities
         self.attack_ability = PlayerAttackAbility()
-        self.heal_ability = PlayerHealAbility()
         self.defend_ability = PlayerDefendAbility()
 
     def attack_action(self, target: Entity) -> tuple[int, bool, bool]:
         """Wrapper for the attack ability."""
         result = self.attack_ability.execute(self, target)
         return result["damage"], result["crit"], result["miss"]
-
-    def heal_action(self) -> int:
-        """Wrapper for the heal ability."""
-        result = self.heal_ability.execute(self)
-        return result["heal_amount"]
 
     def defend(self):
         """Wrapper for the defend ability."""
@@ -40,14 +33,18 @@ class Player(Entity):
         """Adds an item to the player's inventory."""
         self.inventory.append(item)
 
-    def use_potion(self) -> bool:
-        """Uses a healing potion from the inventory."""
+    def use_potion(self) -> int:
+        """
+        Uses a healing potion from the inventory and returns the amount healed.
+        Returns 0 if no potion was used.
+        """
         for item in self.inventory:
             if isinstance(item, HealingPotion):
+                heal_amount = item.heal_amount
                 item.apply(self)
                 self.inventory.remove(item)
-                return True
-        return False
+                return heal_amount
+        return 0
 
     def take_damage(self, damage: int):
         """Reduces player health by the given damage amount."""
@@ -59,4 +56,3 @@ class Player(Entity):
         """Resets player stats to their base values."""
         self.health = self.max_health
         self.is_defending = False
-        self.potions = 3

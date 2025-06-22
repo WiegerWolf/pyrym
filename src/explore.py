@@ -36,13 +36,15 @@ class ExploreState:
                           or None if no action is taken.
         """
     
-        if signals.get("c"):  # Continue exploring
+        if signals.get("player_action_ready") and signals.get("player_action_type") == 'attack': # Continue exploring
             return self._explore_turn()
         elif signals.get("p"):  # Use potion
-            used_potion = self.player.use_potion()
-            if used_potion:
-                ui.notify("You used a healing potion")
-            return {"used_potion": used_potion}
+            heal_amount = self.player.use_potion()
+            if heal_amount > 0:
+                ui.notify(f"You used a healing potion and healed for {heal_amount} HP.")
+            else:
+                ui.notify("You have no potions to use.")
+            return {"used_potion": heal_amount > 0}
         return None
 
 
@@ -83,7 +85,7 @@ class ExploreState:
         ui.draw_health_bar(surface, *config.EXPLORE_PLAYER_HEALTH_POS, self.player.health, self.player.max_health, config.PLAYER_HEALTH_COLOR, "Player")
     
         # Display instructions
-        ui.display_text(surface, "C: Continue, P: Use Potion", config.EXPLORE_INSTRUCTIONS_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.UI_ACCENT_COLOR)
+        ui.display_text(surface, "Space: Continue, P: Use Potion", config.EXPLORE_INSTRUCTIONS_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.UI_ACCENT_COLOR)
     
         # Display encounter chance
         ui.display_text(surface, f"Encounter Chance: {self.encounter_chance:.2f}", config.EXPLORE_ENCOUNTER_CHANCE_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.TEXT_COLOR)

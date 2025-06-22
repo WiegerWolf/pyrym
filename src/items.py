@@ -27,14 +27,14 @@ class HealingPotion(Item):
 
     def __init__(self, amount: int):
         super().__init__(name="Healing Potion", description=f"Heals for {amount} HP.")
-        self.amount = amount
+        self.heal_amount = amount
 
     def apply(self, player: Player) -> None:
         """Heal the player."""
         # Assuming player has a 'heal' method or similar attribute.
         # This might need to be adapted to the actual Player class implementation.
         if hasattr(player, 'health') and hasattr(player, 'max_health'):
-            player.health = min(player.max_health, player.health + self.amount)
+            player.health = min(player.max_health, player.health + self.heal_amount)
 
 
 class GoldPile(Item):

@@ -8,7 +8,6 @@ def process_events():
         "quit": False,
         "player_action_ready": False,
         "player_action_type": None,
-        "c": False,
         "p": False,
         "flee": False,
     }
@@ -29,10 +28,7 @@ def process_events():
             elif event.key == pygame.K_d:
                 events["player_action_ready"] = True
                 events["player_action_type"] = 'defend'
-            elif event.key == pygame.K_c:
-                events["c"] = True
             elif event.key == pygame.K_f:
                 events["flee"] = True
-
 
     return events

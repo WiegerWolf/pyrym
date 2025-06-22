@@ -6,6 +6,7 @@ from enemy import Enemy
 from ui import render_battle_screen
 from utils import add_to_log
 from events import process_events
+from items import HealingPotion
 
 class Battle:
     def __init__(self, screen, player, enemy, score, wave):
@@ -36,9 +37,10 @@ class Battle:
                 self.add_to_log(msg)
                 self.last_action = msg
             elif action == 'heal':
-                heal_amount = self.player.heal_action()
+                potion_count = sum(1 for item in self.player.inventory if isinstance(item, HealingPotion))
+                heal_amount = self.player.use_potion()
                 if heal_amount > 0:
-                    msg = f"Player uses potion for {heal_amount} HP! ({self.player.potions} left)"
+                    msg = f"Player uses potion for {heal_amount} HP! ({potion_count - 1} left)"
                 else:
                     msg = "No potions left!"
                 self.add_to_log(msg)

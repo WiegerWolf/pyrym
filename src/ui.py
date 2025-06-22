@@ -63,7 +63,6 @@ def render_battle_screen(screen, battle_state):
     else:
         display_text(screen, "Enemy's turn...", config.BATTLE_INSTRUCTIONS_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.ENEMY_TURN_COLOR)
 
-    display_text(screen, f"Potions: {battle_state.player.potions}", config.BATTLE_POTIONS_POS, font_size=config.SMALL_FONT_SIZE, color=config.POTION_COLOR)
 
     # Battle log (last 5 actions, fading)
     for i, msg in enumerate(reversed(battle_state.battle_log)):
