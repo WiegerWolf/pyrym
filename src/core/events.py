@@ -25,7 +25,7 @@ def process_events():
             events["quit"] = True
 
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_a:
+            if event.key == pygame.K_a or event.key == pygame.K_SPACE:
                 events["attack"] = True
             elif event.key == pygame.K_d:
                 events["defend"] = True

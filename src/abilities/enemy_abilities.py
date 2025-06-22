@@ -41,9 +41,9 @@ class EnemyAttackAbility(Ability):  # pylint: disable=too-few-public-methods
         if crit:
             damage *= config.ENEMY_CRIT_MULTIPLIER
 
-        if target.is_defending:
-            damage *= (1 - config.DEFEND_DAMAGE_REDUCTION)
-            target.is_defending = False
+        if target.block_active:
+            damage *= (1 - config.DEFEND_BLOCK)
+            target.block_active = False
 
         target.take_damage(round(damage))
 
