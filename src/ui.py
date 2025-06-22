@@ -59,7 +59,11 @@ def render_battle_screen(screen, battle_state):
 
     # Instructions
     if battle_state.player_turn:
-        display_text(screen, "SPACE: Attack    P: Potion    D: Defend    F: Flee", config.BATTLE_INSTRUCTIONS_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.UI_ACCENT_COLOR)
+        actions = ["SPACE: Attack"]
+        if battle_state.player.has_potion():
+            actions.append("P: Potion")
+        actions.extend(["D: Defend", "F: Flee"])
+        display_text(screen, "    ".join(actions), config.BATTLE_INSTRUCTIONS_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.UI_ACCENT_COLOR)
     else:
         display_text(screen, "Enemy's turn...", config.BATTLE_INSTRUCTIONS_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.ENEMY_TURN_COLOR)
 

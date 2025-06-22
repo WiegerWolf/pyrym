@@ -33,6 +33,10 @@ class Player(Entity):
         """Adds an item to the player's inventory."""
         self.inventory.append(item)
 
+    def has_potion(self) -> bool:
+        """Checks if the player has any healing potions."""
+        return any(isinstance(item, HealingPotion) for item in self.inventory)
+
     def use_potion(self) -> int:
         """
         Uses a healing potion from the inventory and returns the amount healed.

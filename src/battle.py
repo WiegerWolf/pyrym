@@ -37,11 +37,17 @@ class Battle:
                 self.add_to_log(msg)
                 self.last_action = msg
             elif action == 'heal':
+                if not self.player.has_potion():
+                    self.add_to_log("No potions left!")
+                    # Important: Do not flip player_turn, so the player can try another action
+                    return
+
                 heal_amount = self.player.use_potion()
                 if heal_amount > 0:
                     potion_count = sum(1 for item in self.player.inventory if isinstance(item, HealingPotion))
                     msg = f"Player uses potion for {heal_amount} HP! ({potion_count} left)"
                 else:
+                    # This case should not be reachable due to the has_potion() check
                     msg = "No potions left!"
                 self.add_to_log(msg)
                 self.last_action = msg
