@@ -1,27 +1,27 @@
 import random
 from random import randint
 
+from src.config import BASE_ENCOUNTER_CHANCE, ENCOUNTER_INCREMENT, ITEM_FIND_CHANCE
 from src.items import HealingPotion, GoldPile
+from src.ui import ui
 
 class ExploreState:
     """
     Manages the exploration phase of the game, where the player can find items
     or trigger encounters.
     """
-    def __init__(self, player, base_chance=0.10, step=0.05):
+    def __init__(self, player):
         """
         Initializes the exploration state.
 
         Args:
             player: The player character instance.
-            base_chance (float): The initial chance of an encounter.
-            step (float): The amount to increase the encounter chance by each turn.
         """
         self.player = player
-        self.base_chance = base_chance
-        self.step = step
+        self.base_chance = BASE_ENCOUNTER_CHANCE
+        self.step = ENCOUNTER_INCREMENT
         self.consecutive_turns = 0
-        self.encounter_chance = base_chance
+        self.encounter_chance = self.base_chance
 
     def update(self, signals):
         """
@@ -42,6 +42,8 @@ class ExploreState:
             return False
         elif signals.get("p"):  # Use potion
             used_potion = self.player.use_potion()
+            if used_potion:
+                ui.notify("You used a healing potion")
             return {"used_potion": used_potion}
         return None
 
@@ -58,10 +60,10 @@ class ExploreState:
             return {"encounter": True}
         else:
             # Roll for item discovery
-            if random.random() < 0.3:
+            if random.random() < ITEM_FIND_CHANCE:
                 item = random.choice([HealingPotion(20), GoldPile(randint(5, 20))])
                 self.player.add_item(item)
-                print(f"You found a {item.name}!") # Placeholder for now
+                ui.notify(f"Found {item}")
 
             # Increment encounter chance
             self.encounter_chance = min(1.0, self.encounter_chance + self.step)
@@ -70,10 +72,19 @@ class ExploreState:
 
     def render(self, surface):
         """
-        Renders the exploration state. (Currently placeholder)
+        Renders the exploration state.
 
         Args:
             surface: The surface to draw on.
         """
-        print("Exploring... C: Continue, B: Back to Battle, P: Use Potion")
-        print(f"Encounter Chance: {self.encounter_chance:.2f}")
+        if not surface:
+            print("Exploring... C: Continue, B: Back to Battle, P: Use Potion")
+            print(f"Encounter Chance: {self.encounter_chance:.2f}")
+            message = ui.get_last_message()
+            if message:
+                print(message)
+        else:
+            # Optional: Pygame rendering would go here
+            message = ui.get_last_message()
+            if message:
+                print(message) # For now, still print to console

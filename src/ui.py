@@ -1,6 +1,20 @@
 import pygame
 import config
 
+_last_message: str = ""
+
+def notify(text: str):
+    """
+    Store and print a short player-facing message.
+    """
+    global _last_message
+    _last_message = text
+    print(text)
+
+def get_last_message() -> str:
+    """Return the most recently stored notify message."""
+    return _last_message
+
 def display_text(screen, text, position, font_size=config.DEFAULT_FONT_SIZE, color=config.TEXT_COLOR):
     """Display text on the screen at the specified position."""
     font = pygame.font.Font(None, font_size)
@@ -17,6 +31,7 @@ def draw_health_bar(screen, x, y, current, max_health, color, label):
     pygame.draw.rect(screen, config.TEXT_COLOR, outline_rect, 2)
     display_text(screen, label, (x, y - config.HEALTH_BAR_LABEL_Y_OFFSET), font_size=config.LARGE_FONT_SIZE, color=color)
     display_text(screen, f"{current} / {max_health}", (x + bar_width + config.HEALTH_BAR_TEXT_X_OFFSET, y), font_size=config.MEDIUM_FONT_SIZE, color=config.TEXT_COLOR)
+
 def render_battle_screen(screen, battle_state):
     """Renders all elements of the battle screen."""
     screen.fill(config.BG_COLOR)  # Dark blue background
