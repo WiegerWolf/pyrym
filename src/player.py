@@ -1,6 +1,7 @@
 import config
 from entities import Entity
 from abilities import PlayerAttackAbility, PlayerHealAbility, PlayerDefendAbility
+from src.items import Item, HealingPotion
 
 
 class Player(Entity):
@@ -13,6 +14,8 @@ class Player(Entity):
             attack=config.PLAYER_BASE_ATTACK,
         )
         self.potions = 3
+        self.gold = 0
+        self.inventory: list[Item] = []
 
         # Abilities
         self.attack_ability = PlayerAttackAbility()
@@ -32,6 +35,19 @@ class Player(Entity):
     def defend(self):
         """Wrapper for the defend ability."""
         self.defend_ability.execute(self)
+
+    def add_item(self, item: Item):
+        """Adds an item to the player's inventory."""
+        self.inventory.append(item)
+
+    def use_potion(self) -> bool:
+        """Uses a healing potion from the inventory."""
+        for item in self.inventory:
+            if isinstance(item, HealingPotion):
+                item.apply(self)
+                self.inventory.remove(item)
+                return True
+        return False
 
     def take_damage(self, damage: int):
         """Reduces player health by the given damage amount."""
