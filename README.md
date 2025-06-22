@@ -3,8 +3,7 @@
 A lightweight turn-based RPG prototype built with [Pygame](https://www.pygame.org/).  
 Explore, find loot, and battle endless waves of enemies in a classic “explore → encounter → battle” gameplay loop.
 
-![Gameplay GIF](docs/preview.gif)  
-*(Add a short GIF or screenshot of gameplay here)*
+![Gameplay GIF](docs/preview.gif)
 
 ## Gameplay Overview
 
