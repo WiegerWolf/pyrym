@@ -1,6 +1,6 @@
-import config
-from entities import Entity
-from abilities import EnemyAttackAbility
+from src import config
+from src.entities.base import Entity
+from src.abilities.enemy_abilities import EnemyAttackAbility
 
 class Enemy(Entity):
     """The enemy entity."""

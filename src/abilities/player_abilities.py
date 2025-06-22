@@ -2,10 +2,10 @@ from __future__ import annotations
 import random
 from typing import TYPE_CHECKING
 from .base import Ability
-import config
+from src import config
 
 if TYPE_CHECKING:
-    from entities import Entity
+    from src.entities.base import Entity
 
 class PlayerAttackAbility(Ability):
     """The player's basic attack."""

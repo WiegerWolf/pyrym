@@ -1,6 +1,5 @@
 import pygame
-import config
-from ui import display_text, draw_health_bar
+from src import config
 
 def load_image(file_path):
     """Load an image from the specified file path."""

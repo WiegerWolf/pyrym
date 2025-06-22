@@ -1,14 +1,17 @@
 import pygame
 import random
-import config
-from player import Player
-from enemy import Enemy
-from ui import render_battle_screen
-from utils import add_to_log
-from events import process_events
-from items import HealingPotion
+import random
+from src.core.game_state import GameState
+from src.entities import Player
+from src.enemy import Enemy
+from src.core.ui import render_battle_screen
+from src.utils import add_to_log
+from src.core import events
+from src.items import HealingPotion
+import src.config as config
 
-class Battle:
+
+class BattleState:
     def __init__(self, screen, player, enemy, score, wave):
         self.screen = screen
         self.player = player
@@ -23,9 +26,6 @@ class Battle:
         self.battle_log = []
         self.add_to_log(f"A wild {self.enemy.name} appears!")
 
-
-    def add_to_log(self, message):
-        add_to_log(self.battle_log, message)
 
     def player_action(self, action='attack'):
         if self.player_turn:
@@ -79,30 +79,30 @@ class Battle:
         """
         Runs one frame of battle logic. Returns a status dictionary.
         """
+        if not self.player_turn and self.enemy.health > 0:
+            self.enemy_action()
+
+        # Handle button presses for actions
         if self.player_turn:
-            if signals.get("player_action_ready"):
-                self.player_action(signals["player_action_type"])
-            elif signals.get("flee"):
-                if random.random() < config.FLEE_SUCCESS_PROB:
-                    return {"status": "FLEE_SUCCESS"}
-                else:
-                    self.add_to_log("Player failed to flee!")
-                    self.player_turn = False
-    
+            if signals["attack"]:
+                self.player_action('attack')
+            elif signals["defend"]:
+                self.player_action('defend')
+            elif signals["heal"]:
+                self.player_action('heal')
+
+        return self.check_battle_status()
+
+
+    def check_battle_status(self):
         if self.enemy.health <= 0:
             return {"status": "VICTORY"}
-        
-        if not self.player_turn:
-            self.enemy_action()
-            if self.player.health <= 0:
-                self.add_to_log("Player has been defeated!")
-                return {'status': 'GAME_OVER'}
-    
+        if self.player.health <= 0:
+            self.add_to_log("Player has been defeated!")
+            return {'status': 'GAME_OVER'}
         return {'status': 'ONGOING'}
+
 
     def render(self):
         """Renders the battle screen."""
-        render_battle_screen(self.screen, self)
-
-    # Note: The main run() method with its own loop is now removed.
-    # The main game loop in main.py will call update() and render().
+        UI.render_battle_screen(self.screen, self)

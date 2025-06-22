@@ -3,7 +3,7 @@ import abc
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from entities import Entity
+    from src.entities.base import Entity
 
 class Ability(abc.ABC):
     """Base class for all abilities."""
