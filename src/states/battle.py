@@ -24,7 +24,7 @@ class BattleState:
         
         self.player_turn = True
         self.battle_log = []
-        self.add_to_log(f"A wild {self.enemy.name} appears!")
+        add_to_log(self.battle_log, f"A wild {self.enemy.name} appears!")
 
 
     def player_action(self, action='attack'):
@@ -34,11 +34,11 @@ class BattleState:
                 msg = ("Player missed!" if miss else
                        f"Critical hit! Player deals {damage} damage." if crit else
                        f"Player deals {damage} damage.")
-                self.add_to_log(msg)
+                add_to_log(self.battle_log, msg)
                 self.last_action = msg
             elif action == 'heal':
                 if not self.player.has_potion():
-                    self.add_to_log("No potions left!")
+                    add_to_log(self.battle_log, "No potions left!")
                     # Important: Do not flip player_turn, so the player can try another action
                     return
 
@@ -49,12 +49,12 @@ class BattleState:
                 else:
                     # This case should not be reachable due to the has_potion() check
                     msg = "No potions left!"
-                self.add_to_log(msg)
+                add_to_log(self.battle_log, msg)
                 self.last_action = msg
             elif action == 'defend':
                 self.player.defend()
                 msg = "Player is defending! Next enemy attack is halved."
-                self.add_to_log(msg)
+                add_to_log(self.battle_log, msg)
                 self.last_action = msg
             self.player_turn = False
 
@@ -71,7 +71,7 @@ class BattleState:
                 msg = f"Enemy attacks, but damage is reduced! ({damage} damage)"
             else:
                 msg = f"Enemy deals {damage} damage."
-            self.add_to_log(msg)
+            add_to_log(self.battle_log, msg)
             self.last_action = msg
             self.player_turn = True
 
@@ -98,7 +98,7 @@ class BattleState:
         if self.enemy.health <= 0:
             return {"status": "VICTORY"}
         if self.player.health <= 0:
-            self.add_to_log("Player has been defeated!")
+            add_to_log(self.battle_log, "Player has been defeated!")
             return {'status': 'GAME_OVER'}
         return {'status': 'ONGOING'}
 
