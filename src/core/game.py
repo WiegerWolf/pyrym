@@ -43,6 +43,8 @@ class Game:
             if self.state_manager.get_state() == GameState.BATTLE:
                 result = self.state_obj.update(signals)
                 self.state_obj.render()
+                # DEBUG: Inspect battle result dictionary
+                print("DEBUG result:", result)
                 
                 if result['status'] == 'VICTORY':
                     self.score += 1

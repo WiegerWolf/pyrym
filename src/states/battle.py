@@ -90,6 +90,15 @@ class BattleState:
                 self.player_action('defend')
             elif signals["heal"]:
                 self.player_action('heal')
+            elif signals["flee"]:
+                # Roll for flee success based on configured probability
+                if random.random() <= config.FLEE_SUCCESS_PROB:
+                    return {"status": "FLEE_SUCCESS"}
+                else:
+                    add_to_log(self.battle_log, "Flee failed!")
+                    self.last_action = "Flee failed!"
+                    # Failed flee consumes the player's turn
+                    self.player_turn = False
 
         return self.check_battle_status()
 
