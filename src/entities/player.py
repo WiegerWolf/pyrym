@@ -68,3 +68,8 @@ class Player(Entity):
         self.health = self.max_health
         self.stamina = 1
         self.block_active = False
+
+    @property
+    def is_defending(self):
+        """Returns True if the player is defending."""
+        return self.block_active
