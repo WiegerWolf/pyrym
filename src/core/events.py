@@ -29,5 +29,5 @@ def process_events():
                 events["p"] = True
             elif event.key == pygame.K_f:
                 events["flee"] = True
-                
+
     return events

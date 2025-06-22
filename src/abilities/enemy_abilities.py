@@ -5,7 +5,7 @@ from .base import Ability
 from src import config
 
 if TYPE_CHECKING:
-    from src.entities.base import Entity
+    from ..entities.base import Entity
 
 class EnemyAttackAbility(Ability):
     """The enemy's basic attack."""
@@ -27,10 +27,10 @@ class EnemyAttackAbility(Ability):
 
         crit = random.random() < config.ENEMY_CRIT_CHANCE
         base_damage = actor.attack
-        
+
         damage_multiplier = random.uniform(*config.ENEMY_DMG_VARIATION)
         damage = base_damage * damage_multiplier
-        
+
         if crit:
             damage *= config.ENEMY_CRIT_MULTIPLIER
 
@@ -39,5 +39,5 @@ class EnemyAttackAbility(Ability):
             target.is_defending = False
 
         target.take_damage(round(damage))
-        
+
         return {"damage": round(damage), "crit": crit, "miss": False}

@@ -1,9 +1,9 @@
 import random
 from random import randint
 
-from src import config
-from src.config import BASE_ENCOUNTER_CHANCE, ENCOUNTER_INCREMENT, ITEM_FIND_CHANCE
-from src.items import HealingPotion, GoldPile
+from .. import config
+from ..config import BASE_ENCOUNTER_CHANCE, ENCOUNTER_INCREMENT, ITEM_FIND_CHANCE
+from ..items import HealingPotion, GoldPile
 
 class ExploreState:
     """
@@ -26,16 +26,16 @@ class ExploreState:
     def update(self, signals):
         """
         Updates the exploration state based on player input.
-    
+
         Args:
             signals (dict): A dictionary of input signals.
-    
+
         Returns:
             dict or bool: A dictionary with encounter/potion info, False to return to battle,
                            or None if no action is taken.
         """
-        from src.core import UI
-    
+        from ..core import UI
+
         if signals.get("attack"):  # Continue exploring
             return self._explore_turn()
         elif signals.get("p") and self.player.has_potion():  # Use potion
@@ -54,7 +54,7 @@ class ExploreState:
         Returns:
             dict: A dictionary indicating if an encounter occurred.
         """
-        from src.core import UI
+        from ..core import UI
         if random.random() < self.encounter_chance:
             self.encounter_chance = self.base_chance  # Reset chance
             return {"encounter": True}
@@ -73,24 +73,24 @@ class ExploreState:
     def render(self, surface):
         """
         Renders the exploration state.
-    
+
         Args:
             surface: The surface to draw on.
         """
-        from src.core import UI
+        from ..core import UI
         surface.fill(config.BG_COLOR)
-        
+
         UI.render_inventory(surface, self.player.inventory, pos=(10,10))
-    
+
         # Display player health
         UI.draw_health_bar(surface, *config.EXPLORE_PLAYER_HEALTH_POS, self.player.health, self.player.max_health, config.PLAYER_HEALTH_COLOR, "Player")
-    
+
         # Display instructions
         instructions = ["Space: Continue"]
         if self.player.has_potion():
             instructions.append("P: Use Potion")
         UI.display_text(surface, ", ".join(instructions), config.EXPLORE_INSTRUCTIONS_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.UI_ACCENT_COLOR)
-    
+
         # Display encounter chance
         UI.display_text(surface, f"Encounter Chance: {self.encounter_chance:.2f}", config.EXPLORE_ENCOUNTER_CHANCE_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.TEXT_COLOR)
 

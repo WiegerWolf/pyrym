@@ -1,7 +1,7 @@
 from src import config
 from .base import Entity
-from src.abilities import PlayerAttackAbility, PlayerDefendAbility
-from src.items import Item, HealingPotion
+from ..abilities import PlayerAttackAbility, PlayerDefendAbility
+from ..items import Item, HealingPotion
 
 
 class Player(Entity):

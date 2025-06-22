@@ -1,14 +1,14 @@
 import pygame
 import random
 import random
-from src.core.game_state import GameState
-from src.entities import Player
-from src.entities import Enemy
-from src.core.ui import render_battle_screen
-from src.utils import add_to_log
-from src.core import events
-from src.items import HealingPotion
-import src.config as config
+from ..core.game_state import GameState
+from ..entities import Player
+from ..entities import Enemy
+from ..core.ui import render_battle_screen
+from ..utils import add_to_log
+from ..core import events
+from ..items import HealingPotion
+from .. import config
 
 
 class BattleState:
@@ -18,10 +18,10 @@ class BattleState:
         self.enemy = enemy
         self.score = score
         self.wave = wave
-        
+
         self.player_max_health = player.max_health
         self.enemy_max_health = enemy.health
-        
+
         self.player_turn = True
         self.battle_log = []
         add_to_log(self.battle_log, f"A wild {self.enemy.name} appears!")

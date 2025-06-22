@@ -1,4 +1,4 @@
-from src.core.game import Game
+from .core.game import Game
 
 def main():
     """Initialises and runs the game."""

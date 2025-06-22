@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.entities.player import Player
+    from ..entities.player import Player
 
 
 class Item(ABC):
