@@ -1,44 +1,26 @@
-import random
 import config
+from entities import Entity
+from abilities import EnemyAttackAbility
 
+class Enemy(Entity):
+    """The enemy entity."""
 
-class Enemy:
-    def __init__(self, name, health, attack_power):
-        self.name = name
-        self.health = health
-        self.attack_power = attack_power
-        self.is_defending = False
+    def __init__(self, wave=1):
+        base_health = config.ENEMY_BASE_HEALTH + (wave - 1) * config.ENEMY_HEALTH_SCALING
+        base_attack = config.ENEMY_BASE_ATTACK + (wave - 1) * config.ENEMY_ATTACK_SCALING
+        super().__init__(name=f"Enemy Wave {wave}", health=base_health, attack=base_attack)
+        self.wave = wave
 
-    def attack(self, player):
-        # Randomize damage: 70%-130% of attack_power
-        crit = False
-        miss = False
-        if random.random() < config.ENEMY_MISS_CHANCE:
-            miss = True
-            damage = 0
-        elif random.random() < config.ENEMY_CRIT_CHANCE:
-            crit = True
-            damage = int(self.attack_power * config.ENEMY_CRIT_MULTIPLIER)
-        else:
-            damage = int(self.attack_power * random.uniform(*config.ENEMY_DMG_VARIATION))
-        player.take_damage(damage)
-        return damage, crit, miss
+        # Abilities
+        self.attack_ability = EnemyAttackAbility()
 
-    def take_damage(self, damage):
-        if self.is_defending:
-            damage = int(damage * config.DEFEND_DAMAGE_REDUCTION)  # Reduce damage by 50% if defending
+    def attack_action(self, target: Entity) -> tuple[int, bool, bool]:
+        """Wrapper for the attack ability."""
+        result = self.attack_ability.execute(self, target)
+        return result["damage"], result["crit"], result["miss"]
+
+    def take_damage(self, damage: int):
+        """Reduces enemy health by the given damage amount."""
         self.health -= damage
         if self.health < 0:
             self.health = 0
-
-    def defend(self):
-        self.is_defending = True
-
-    def reset_defend(self):
-        self.is_defending = False
-
-    def is_alive(self):
-        return self.health > 0
-
-    def __str__(self):
-        return f"{self.name} (Health: {self.health}, Attack Power: {self.attack_power})"

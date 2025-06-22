@@ -1,46 +1,46 @@
-import random
 import config
+from entities import Entity
+from abilities import PlayerAttackAbility, PlayerHealAbility, PlayerDefendAbility
 
 
-class Player:
-    def __init__(self, name, health, attack_power):
-        self.name = name
-        self.health = health
-        self.attack_power = attack_power
-        self.is_defending = False
+class Player(Entity):
+    """The player entity."""
 
-    def attack(self, enemy):
-        # Randomize damage: 70%-130% of attack_power
-        crit = False
-        miss = False
-        if random.random() < config.PLAYER_MISS_CHANCE:
-            miss = True
-            damage = 0
-        elif random.random() < config.PLAYER_CRIT_CHANCE:
-            crit = True
-            damage = int(self.attack_power * config.PLAYER_CRIT_MULTIPLIER)
-        else:
-            damage = int(self.attack_power * random.uniform(*config.PLAYER_DMG_VARIATION))
-        enemy.take_damage(damage)
-        return damage, crit, miss
+    def __init__(self):
+        super().__init__(
+            name="Player",
+            health=config.PLAYER_BASE_HEALTH,
+            attack=config.PLAYER_BASE_ATTACK,
+        )
+        self.potions = 3
 
-    def take_damage(self, damage):
-        if self.is_defending:
-            damage = int(damage * config.DEFEND_DAMAGE_REDUCTION)  # Reduce damage by 50% when defending
+        # Abilities
+        self.attack_ability = PlayerAttackAbility()
+        self.heal_ability = PlayerHealAbility()
+        self.defend_ability = PlayerDefendAbility()
+
+    def attack_action(self, target: Entity) -> tuple[int, bool, bool]:
+        """Wrapper for the attack ability."""
+        result = self.attack_ability.execute(self, target)
+        return result["damage"], result["crit"], result["miss"]
+
+    def heal_action(self) -> int:
+        """Wrapper for the heal ability."""
+        result = self.heal_ability.execute(self)
+        return result["heal_amount"]
+
+    def defend(self):
+        """Wrapper for the defend ability."""
+        self.defend_ability.execute(self)
+
+    def take_damage(self, damage: int):
+        """Reduces player health by the given damage amount."""
         self.health -= damage
         if self.health < 0:
             self.health = 0
 
-    def is_alive(self):
-        return self.health > 0
-
-    def heal(self, max_health, amount):
-        heal_amount = min(amount, max_health - self.health)
-        self.health += heal_amount
-        return heal_amount
-
-    def defend(self):
-        self.is_defending = True
-
-    def reset_defend(self):
+    def reset(self):
+        """Resets player stats to their base values."""
+        self.health = self.max_health
         self.is_defending = False
+        self.potions = 3
