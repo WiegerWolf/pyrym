@@ -18,7 +18,8 @@ class StateManager:
     Uses a module-level (class) attribute to avoid the need
     for explicit instantiation at this stage of the refactor.
     """
-    _current_state: GameState = GameState.BATTLE
+    _current_state: GameState = GameState.EXPLORE
+    gold: int = 0
 
     @classmethod
     def get_state(cls) -> GameState:
@@ -29,3 +30,9 @@ class StateManager:
     def set_state(cls, state: GameState) -> None:
         """Set the current game state."""
         cls._current_state = state
+
+    @classmethod
+    def adjust_gold(cls, delta: int) -> None:
+        """Safely adjust player gold."""
+        cls.gold = max(0, cls.gold + delta)
+        print(f"Adjusted gold by {delta}. New balance: {cls.gold}")
