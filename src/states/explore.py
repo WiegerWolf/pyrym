@@ -36,7 +36,7 @@ class ExploreState:
         """
         from src.core import UI
     
-        if signals.get("player_action_ready") and signals.get("player_action_type") == 'attack': # Continue exploring
+        if signals.get("attack"):  # Continue exploring
             return self._explore_turn()
         elif signals.get("p") and self.player.has_potion():  # Use potion
             heal_amount = self.player.use_potion()
