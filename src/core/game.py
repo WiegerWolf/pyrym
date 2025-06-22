@@ -36,6 +36,7 @@ class Game:
         self.state_manager.set_state(GameState.EXPLORE)
 
     def run(self):
+        """Runs the main game loop."""
         running = True
         while running:
             signals = process_events()

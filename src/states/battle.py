@@ -27,6 +27,7 @@ class BattleState:
 
 
     def player_action(self, action='attack'):
+        """Executes a player action (attack, heal, or defend)."""
         if self.player_turn:
             if action == 'attack':
                 damage, crit, miss = self.player.attack_action(self.enemy)

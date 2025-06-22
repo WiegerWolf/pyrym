@@ -49,6 +49,7 @@ class UI:
 
     @staticmethod
     def draw_health_bar(screen, x, y, current, max_health, color, label):
+        """Draws a health bar for a player or enemy."""
         bar_width = config.HEALTH_BAR_WIDTH
         bar_height = config.HEALTH_BAR_HEIGHT
         fill = int(bar_width * (current / max_health))
