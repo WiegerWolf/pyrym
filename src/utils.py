@@ -10,12 +10,13 @@ def load_image(file_path):
     image = pygame.image.load(file_path)
     return image
 
-def manage_game_settings(settings):
+def manage_game_settings(_settings):
     """Manage game settings such as volume, difficulty, etc."""
     # Placeholder for managing game settings
-    pass
+
 
 def add_to_log(battle_log, message, max_log=config.MAX_LOG_MESSAGES):
+    """Add a message to the battle log, ensuring it doesn't exceed the max size."""
     battle_log.append(message)
     if len(battle_log) > max_log:
         battle_log.pop(0)
