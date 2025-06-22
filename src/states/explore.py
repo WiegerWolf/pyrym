@@ -42,7 +42,7 @@ class ExploreState:
 
         if signals.get("attack"):  # Continue exploring
             return self._explore_turn()
-        elif signals.get("p") and self.player.has_potion():  # Use potion
+        if signals.get("p") and self.player.has_potion():  # Use potion
             heal_amount = self.player.use_potion()
             if heal_amount > 0:
                 UI.notify(f"You used a healing potion and healed for {heal_amount} HP.")
@@ -62,17 +62,16 @@ class ExploreState:
         if random.random() < self.encounter_chance:
             self.encounter_chance = self.base_chance  # Reset chance
             return {"encounter": True}
-        else:
-            # Roll for item discovery
-            if random.random() < ITEM_FIND_CHANCE:
-                item = random.choice([HealingPotion(20), GoldPile(randint(5, 20))])
-                self.player.add_item(item)
-                UI.notify(f"Found {item}")
+        # Roll for item discovery
+        if random.random() < ITEM_FIND_CHANCE:
+            item = random.choice([HealingPotion(20), GoldPile(randint(5, 20))])
+            self.player.add_item(item)
+            UI.notify(f"Found {item}")
 
-            # Increment encounter chance
-            self.encounter_chance = min(1.0, self.encounter_chance + self.step)
-            self.consecutive_turns += 1
-            return {"encounter": False}
+        # Increment encounter chance
+        self.encounter_chance = min(1.0, self.encounter_chance + self.step)
+        self.consecutive_turns += 1
+        return {"encounter": False}
 
     def render(self, surface):
         """
