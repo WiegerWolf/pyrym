@@ -43,13 +43,15 @@ class ExploreState:
         Returns:
             dict or bool: A dictionary with encounter/potion info, or None.
         """
-        if signals.get("attack"):  # Continue exploring
+        if signals.get("search"):  # Continue exploring
             return self._explore_turn()
-        if signals.get("p") and self.player.has_potion():  # Use potion
-            heal_amount = self.player.use_potion()
-            if heal_amount > 0:
-                UI.notify(f"You used a healing potion and healed for {heal_amount} HP.")
-                return {"used_potion": True}
+        if signals.get("use_item") and self.player.inventory:
+            # This is a placeholder for a proper item menu in explore mode
+            # For now, we'll just use the first item.
+            used_item = self.player.use_item(0)
+            if used_item:
+                UI.notify(used_item["message"])
+                return {"used_item": True}
             return None
         if signals.get("cheat_gold"):  # Cheat for gold
             from src.core.game_state import StateManager
@@ -106,9 +108,9 @@ class ExploreState:
         )
 
         # Display instructions
-        instructions = ["(S)earch", "(G)ain Gold (Cheat)"]
+        instructions = ["(S)earch", "(G)old Cheat"]
         if self.player.inventory:
-            instructions.append("(I)nventory")
+            instructions.append("(I)tem")
         UI.display_text(
             self.screen, ", ".join(instructions),
             config.EXPLORE_INSTRUCTIONS_POS,

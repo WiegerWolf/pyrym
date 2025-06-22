@@ -33,7 +33,7 @@ class PlayerAttackAbility(Ability):  # pylint: disable=too-few-public-methods
             return {"damage": 0, "crit": False, "miss": True}
 
         crit = random.random() < config.PLAYER_CRIT_CHANCE
-        base_damage = actor.attack
+        base_damage = actor.attack + actor.power_strike_bonus
 
         damage_multiplier = random.uniform(*config.PLAYER_DMG_VARIATION)
         damage = base_damage * damage_multiplier

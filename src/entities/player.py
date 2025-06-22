@@ -18,6 +18,7 @@ class Player(Entity):
             attack=config.PLAYER_BASE_ATTACK,
         )
         self.inventory: list[Item] = []
+        self.power_strike_bonus: int = 0
 
         # Abilities
         self.attack_ability = PlayerAttackAbility()
@@ -66,10 +67,12 @@ class Player(Entity):
 
     def new_game_reset(self):
         """Resets the player for a new game."""
+        self.max_health = config.PLAYER_BASE_HEALTH
         self.health = self.max_health
         self.stamina = 1
         self.block_active = False
         self.inventory = []
+        self.power_strike_bonus = 0
 
     def reset(self):
         """Resets player stats to their base values for a new battle."""

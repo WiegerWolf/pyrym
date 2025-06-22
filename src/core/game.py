@@ -9,6 +9,7 @@ from .. import config
 from .game_state import GameState, StateManager
 from ..states.battle import BattleState
 from ..states.explore import ExploreState
+from ..states.shop import ShopState
 from .events import process_events
 from ..entities import Player
 from ..entities import Enemy
@@ -54,8 +55,9 @@ class Game:
                 if result['status'] == 'VICTORY':
                     self.meta.score += 1
                     self.meta.wave += 1
-                    self.state_obj = ExploreState(self.screen, self.player)
-                    self.state_manager.set_state(GameState.EXPLORE)
+                    # After victory, go to the shop
+                    self.state_obj = ShopState(self.screen, self.player)
+                    self.state_manager.set_state(GameState.SHOP)
                 elif result['status'] == 'FLEE_SUCCESS':
                     self.state_obj = ExploreState(self.screen, self.player)
                     self.state_manager.set_state(GameState.EXPLORE)
@@ -70,6 +72,12 @@ class Game:
                     enemy = Enemy(wave=self.meta.wave)
                     self.state_obj = BattleState(self.screen, self.player, enemy, self.meta)
 
+            elif current_game_state == GameState.SHOP:
+                result = self.state_obj.update(signals)
+                if result and result.get("next_state") == "EXPLORE":
+                    self.state_obj = ExploreState(self.screen, self.player)
+                    self.state_manager.set_state(GameState.EXPLORE)
+            
             # All states now have a consistent render method
             self.state_obj.render()
 

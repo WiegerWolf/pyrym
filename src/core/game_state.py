@@ -9,6 +9,7 @@ class GameState(Enum):
     """Enumeration of possible high-level game states."""
     BATTLE = auto()
     EXPLORE = auto()
+    SHOP = auto()
     GAME_OVER = auto()
 
 
@@ -20,6 +21,8 @@ class StateManager:
     """
     _current_state: GameState = GameState.EXPLORE
     gold: int = 0
+    # Holds flags for one-time purchases, e.g. {"max_hp_blessing": True}
+    purchased_flags: dict[str, bool] = {}
 
     @classmethod
     def get_state(cls) -> GameState:
