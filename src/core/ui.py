@@ -108,6 +108,11 @@ class UI:
         UI.draw_health_bar(screen, player_health_spec)
         UI.draw_health_bar(screen, enemy_health_spec)
 
+        # Stamina
+        stamina_text = f"STA: {battle_state.player.stamina}/{battle_state.player.max_stamina}"
+        UI.display_text(screen, stamina_text, (config.BATTLE_PLAYER_HEALTH_POS[0], config.BATTLE_PLAYER_HEALTH_POS[1] + 40))
+
+
         # Score and wave
         UI.display_text(
             screen,
@@ -124,10 +129,10 @@ class UI:
 
         # Instructions
         if battle_state.player_turn:
-            actions = ["SPACE: Attack"]
+            actions = ["(A)ttack"]
             if battle_state.player.has_potion():
-                actions.append("P: Potion")
-            actions.extend(["D: Defend", "F: Flee"])
+                actions.append("(P)otion")
+            actions.extend(["(D)efend", "(F)lee"])
             UI.display_text(
                 screen,
                 "    ".join(actions),

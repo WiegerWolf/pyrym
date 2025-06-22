@@ -30,8 +30,17 @@ class Player(Entity):
         return result["damage"], result["crit"], result["miss"]
 
     def defend(self):
-        """Wrapper for the defend ability."""
-        self.defend_ability.execute(self)
+        """Sets the block_active flag and gains stamina."""
+        self.block_active = True
+        self.gain_stamina(1)
+
+    def gain_stamina(self, amount: int):
+        """Gains stamina, up to the max."""
+        self.stamina = min(self.max_stamina, self.stamina + amount)
+
+    def spend_stamina(self, amount: int):
+        """Spends stamina."""
+        self.stamina = max(0, self.stamina - amount)
 
     def add_item(self, item: Item):
         """Adds an item to the player's inventory."""
@@ -54,12 +63,8 @@ class Player(Entity):
                 return heal_amount
         return 0
 
-    def take_damage(self, damage: int):
-        """Reduces player health by the given damage amount."""
-        self.health -= damage
-        self.health = max(self.health, 0)
-
     def reset(self):
-        """Resets player stats to their base values."""
+        """Resets player stats to their base values for a new battle."""
         self.health = self.max_health
-        self.is_defending = False
+        self.stamina = 1
+        self.block_active = False

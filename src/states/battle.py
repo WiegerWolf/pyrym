@@ -21,6 +21,10 @@ class BattleState:
 
         self.player_turn = True
         self.battle_log = []
+
+        # Reset entities for battle
+        self.player.reset()
+        # self.enemy.reset() # TODO: Add reset to Enemy
         add_to_log(self.battle_log, f"A wild {self.enemy.name} appears!")
 
     @property
@@ -58,25 +62,36 @@ class BattleState:
                     msg = "No potions left!"
             elif action == 'defend':
                 self.player.defend()
-                msg = "Player is defending! Next enemy attack is halved."
+                msg = "Player braces for the next attack, gaining 1 stamina."
             add_to_log(self.battle_log, msg)
             self.player_turn = False
 
     def enemy_action(self):
         """Executes the enemy's action and returns the message."""
-        if not self.player_turn:
+        if self.player_turn:
+            return
+
+        # AI: Decide whether to defend
+        should_defend = (
+            self.enemy.health < self.enemy.max_health * 0.35
+            and random.random() < 0.25
+        )
+
+        if should_defend:
+            self.enemy.defend()
+            add_to_log(self.battle_log, f"{self.enemy.name} is defending!")
+        else:
+            # Attack action
             damage, crit, miss = self.enemy.attack_action(self.player)
-            was_defending = self.player.is_defending
             if miss:
-                msg = "Enemy missed!"
+                msg = f"{self.enemy.name} missed!"
             elif crit:
-                msg = f"Critical hit! Enemy deals {damage} damage."
-            elif was_defending:
-                msg = f"Enemy attacks, but damage is reduced! ({damage} damage)"
+                msg = f"Critical hit! {self.enemy.name} deals {damage} damage."
             else:
-                msg = f"Enemy deals {damage} damage."
+                msg = f"{self.enemy.name} deals {damage} damage."
             add_to_log(self.battle_log, msg)
-            self.player_turn = True
+
+        self.player_turn = True
 
     def update(self, signals):
         """

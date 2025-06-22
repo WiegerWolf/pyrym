@@ -24,7 +24,15 @@ class Enemy(Entity):
         result = self.attack_ability.execute(self, target)
         return result["damage"], result["crit"], result["miss"]
 
-    def take_damage(self, damage: int):
-        """Reduces enemy health by the given damage amount."""
-        self.health -= damage
-        self.health = max(self.health, 0)
+    def defend(self):
+        """Sets the block_active flag and gains stamina."""
+        self.block_active = True
+        self.gain_stamina(1)
+
+    def gain_stamina(self, amount: int):
+        """Gains stamina, up to the max."""
+        self.stamina = min(self.max_stamina, self.stamina + amount)
+
+    def spend_stamina(self, amount: int):
+        """Spends stamina."""
+        self.stamina = max(0, self.stamina - amount)
