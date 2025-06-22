@@ -1,3 +1,7 @@
+"""
+battle.py
+Manages the state of a battle encounter.
+"""
 import pygame
 import random
 import random

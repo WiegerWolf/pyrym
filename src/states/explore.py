@@ -1,3 +1,7 @@
+"""
+explore.py
+Manages the exploration state where the player can find items or trigger encounters.
+"""
 import random
 from random import randint
 

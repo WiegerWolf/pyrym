@@ -1,3 +1,7 @@
+"""
+utils.py
+Utility helpers used throughout the game package.
+"""
 import pygame
 from src import config
 

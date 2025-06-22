@@ -1,3 +1,7 @@
+"""
+config.py
+Global configuration settings for the game.
+"""
 # -- Game Settings --
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600

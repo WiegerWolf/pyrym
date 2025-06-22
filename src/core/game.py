@@ -1,3 +1,7 @@
+"""
+game.py
+Core game loop and state management.
+"""
 import pygame
 from .. import config
 from .game_state import GameState, StateManager

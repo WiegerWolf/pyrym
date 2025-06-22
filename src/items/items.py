@@ -1,3 +1,7 @@
+"""
+items.py
+Defines all items in the game.
+"""
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING

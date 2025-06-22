@@ -1,3 +1,7 @@
+"""
+game_state.py
+Defines and manages game states.
+"""
 from enum import Enum, auto
 
 

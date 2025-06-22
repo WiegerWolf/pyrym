@@ -1,3 +1,7 @@
+"""
+base.py
+Base class for all entities in the game.
+"""
 from __future__ import annotations
 import abc
 

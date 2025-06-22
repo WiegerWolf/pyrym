@@ -1,3 +1,7 @@
+"""
+enemy.py
+Defines the enemy characters.
+"""
 from .. import config
 from .base import Entity
 from ..abilities.enemy_abilities import EnemyAttackAbility

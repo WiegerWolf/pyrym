@@ -1,3 +1,7 @@
+"""
+player_abilities.py
+Defines the player's abilities.
+"""
 from __future__ import annotations
 import random
 from typing import TYPE_CHECKING

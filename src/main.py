@@ -1,3 +1,7 @@
+"""
+main.py
+Main entry point for the game.
+"""
 from .core.game import Game
 
 def main():

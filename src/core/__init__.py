@@ -1,3 +1,6 @@
+"""
+Initializes the core game components package.
+"""
 from .game import Game
 from .events import *
 from .ui import UI

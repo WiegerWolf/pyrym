@@ -1,3 +1,7 @@
+"""
+player.py
+Defines the player character.
+"""
 from src import config
 from .base import Entity
 from ..abilities import PlayerAttackAbility, PlayerDefendAbility

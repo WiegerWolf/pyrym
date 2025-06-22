@@ -1,3 +1,7 @@
+"""
+events.py
+Handles user input and game events.
+"""
 import pygame
 
 def process_events():
