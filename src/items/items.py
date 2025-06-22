@@ -68,3 +68,37 @@ class StaminaPotion(Item):
             print(msg)
             return {"message": msg, "value": config.STAMINA_POTION_STAMINA_GAIN}
         return {"message": f"{entity.name} cannot gain stamina.", "value": 0}
+
+class HealingPotion(HealingSalve):
+    """Compatibility alias for HealingSalve for code still using the old name."""
+    def __init__(self, heal_amount=None):
+        super().__init__()
+        # The name is overridden to maintain the "Healing Potion" name in the UI.
+        self.name = "Healing Potion"
+
+
+class GoldPile(Item):
+    """Represents a pile of gold coins that can be found."""
+
+    def __init__(self, amount: int):
+        self.amount = amount
+        super().__init__(
+            name="Gold Pile",
+            cost=0,  # Gold piles aren't bought, they are found.
+            description=f"A pouch containing {self.amount} gold coins."
+        )
+    
+    def __repr__(self) -> str:
+        return f"Gold Pile ({self.amount})"
+
+    def use(self, entity: Entity) -> dict:
+        """Adds the gold amount to the entity's game state."""
+        # This assumes the entity has a link to the game_state,
+        # which is typical for a player character in this structure.
+        if hasattr(entity, "game_state") and hasattr(entity.game_state, "adjust_gold"):
+            entity.game_state.adjust_gold(self.amount)
+            msg = f"Added {self.amount} gold."
+            return {"message": msg, "value": self.amount}
+        
+        msg = f"Could not add gold."
+        return {"message": msg, "value": 0}
