@@ -23,6 +23,7 @@ class Entity(abc.ABC):
         raise NotImplementedError
 
     def heal(self, amount: int):
+        """Heal the entity for a given amount."""
         self.health += amount
         if self.health > self.max_health:
             self.health = self.max_health
