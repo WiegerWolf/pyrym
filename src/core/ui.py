@@ -7,6 +7,7 @@ from collections import Counter
 import pygame
 
 from src import config
+from ..utils import HealthBarSpec
 
 
 class UI:
@@ -48,32 +49,40 @@ class UI:
         screen.blit(text_surface, position)
 
     @staticmethod
-    def draw_health_bar(screen, x, y, current, max_health, color, label):
-        """Draws a health bar for a player or enemy."""
+    def draw_health_bar(screen, spec: HealthBarSpec):
+        """Draws a health bar using a HealthBarSpec."""
         bar_width = config.HEALTH_BAR_WIDTH
         bar_height = config.HEALTH_BAR_HEIGHT
-        fill = int(bar_width * (current / max_health))
-        outline_rect = pygame.Rect(x, y, bar_width, bar_height)
-        fill_rect = pygame.Rect(x, y, fill, bar_height)
-        pygame.draw.rect(screen, color, fill_rect)
+        
+        # Prevent division by zero if max_val is 0
+        fill_ratio = spec.current / spec.max_val if spec.max_val > 0 else 0
+        fill = int(bar_width * fill_ratio)
+
+        outline_rect = pygame.Rect(spec.x, spec.y, bar_width, bar_height)
+        fill_rect = pygame.Rect(spec.x, spec.y, fill, bar_height)
+        
+        pygame.draw.rect(screen, spec.color, fill_rect)
         pygame.draw.rect(screen, config.TEXT_COLOR, outline_rect, 2)
-        UI.display_text(screen, label, (x, y - config.HEALTH_BAR_LABEL_Y_OFFSET), font_size=config.LARGE_FONT_SIZE, color=color)
-        UI.display_text(screen, f"{current} / {max_health}", (x + bar_width + config.HEALTH_BAR_TEXT_X_OFFSET, y), font_size=config.MEDIUM_FONT_SIZE, color=config.TEXT_COLOR)
+        
+        UI.display_text(screen, spec.label, (spec.x, spec.y - config.HEALTH_BAR_LABEL_Y_OFFSET), font_size=config.LARGE_FONT_SIZE, color=spec.color)
+        UI.display_text(screen, f"{spec.current} / {spec.max_val}", (spec.x + bar_width + config.HEALTH_BAR_TEXT_X_OFFSET, spec.y), font_size=config.MEDIUM_FONT_SIZE, color=config.TEXT_COLOR)
 
     @staticmethod
     def render_battle_screen(screen, battle_state):
         """Renders all elements of the battle screen."""
-        screen.fill(config.BG_COLOR)  # Dark blue background
+        screen.fill(config.BG_COLOR)
 
-        UI.render_inventory(screen, battle_state.player.inventory, pos=(10,10))
+        UI.render_inventory(screen, battle_state.player.inventory, pos=(10, 10))
 
-        # Draw health bars
-        UI.draw_health_bar(screen, *config.BATTLE_PLAYER_HEALTH_POS, battle_state.player.health, battle_state.player_max_health, config.PLAYER_HEALTH_COLOR, "Player")
-        UI.draw_health_bar(screen, *config.BATTLE_ENEMY_HEALTH_POS, battle_state.enemy.health, battle_state.enemy_max_health, config.ENEMY_HEALTH_COLOR, battle_state.enemy.name)
+        # Health bars
+        player_health_spec = HealthBarSpec(*config.BATTLE_PLAYER_HEALTH_POS, current=battle_state.player.health, max_val=battle_state.player_max_health, color=config.PLAYER_HEALTH_COLOR, label="Player")
+        enemy_health_spec = HealthBarSpec(*config.BATTLE_ENEMY_HEALTH_POS, current=battle_state.enemy.health, max_val=battle_state.enemy_max_health, color=config.ENEMY_HEALTH_COLOR, label=battle_state.enemy.name)
+        UI.draw_health_bar(screen, player_health_spec)
+        UI.draw_health_bar(screen, enemy_health_spec)
 
         # Score and wave
-        UI.display_text(screen, f"Score: {battle_state.score}", config.BATTLE_SCORE_POS, font_size=config.LARGE_FONT_SIZE, color=config.TEXT_COLOR)
-        UI.display_text(screen, f"Wave: {battle_state.wave+1}", config.BATTLE_WAVE_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.TEXT_COLOR)
+        UI.display_text(screen, f"Score: {battle_state.meta.score}", config.BATTLE_SCORE_POS, font_size=config.LARGE_FONT_SIZE)
+        UI.display_text(screen, f"Wave: {battle_state.meta.wave + 1}", config.BATTLE_WAVE_POS, font_size=config.MEDIUM_FONT_SIZE)
 
         # Instructions
         if battle_state.player_turn:

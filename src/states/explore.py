@@ -8,6 +8,8 @@ from random import randint
 from .. import config
 from ..config import BASE_ENCOUNTER_CHANCE, ENCOUNTER_INCREMENT, ITEM_FIND_CHANCE
 from ..items import HealingPotion, GoldPile
+from ..core.ui import UI
+from ..utils import HealthBarSpec
 
 class ExploreState:
     """
@@ -38,8 +40,6 @@ class ExploreState:
             dict or bool: A dictionary with encounter/potion info, False to return to battle,
                            or None if no action is taken.
         """
-        from ..core import UI
-
         if signals.get("attack"):  # Continue exploring
             return self._explore_turn()
         if signals.get("p") and self.player.has_potion():  # Use potion
@@ -58,7 +58,6 @@ class ExploreState:
         Returns:
             dict: A dictionary indicating if an encounter occurred.
         """
-        from ..core import UI
         if random.random() < self.encounter_chance:
             self.encounter_chance = self.base_chance  # Reset chance
             return {"encounter": True}
@@ -80,24 +79,45 @@ class ExploreState:
         Args:
             surface: The surface to draw on.
         """
-        from ..core import UI
         surface.fill(config.BG_COLOR)
 
-        UI.render_inventory(surface, self.player.inventory, pos=(10,10))
+        UI.render_inventory(surface, self.player.inventory, pos=(10, 10))
 
         # Display player health
-        UI.draw_health_bar(surface, *config.EXPLORE_PLAYER_HEALTH_POS, self.player.health, self.player.max_health, config.PLAYER_HEALTH_COLOR, "Player")
+        player_health_spec = HealthBarSpec(
+            *config.EXPLORE_PLAYER_HEALTH_POS,
+            current=self.player.health,
+            max_val=self.player.max_health,
+            color=config.PLAYER_HEALTH_COLOR,
+            label="Player"
+        )
+        UI.draw_health_bar(surface, player_health_spec)
 
         # Display instructions
         instructions = ["Space: Continue"]
         if self.player.has_potion():
             instructions.append("P: Use Potion")
-        UI.display_text(surface, ", ".join(instructions), config.EXPLORE_INSTRUCTIONS_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.UI_ACCENT_COLOR)
+        UI.display_text(
+            surface, ", ".join(instructions),
+            config.EXPLORE_INSTRUCTIONS_POS,
+            font_size=config.MEDIUM_FONT_SIZE,
+            color=config.UI_ACCENT_COLOR
+        )
 
         # Display encounter chance
-        UI.display_text(surface, f"Encounter Chance: {self.encounter_chance:.2f}", config.EXPLORE_ENCOUNTER_CHANCE_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.TEXT_COLOR)
+        UI.display_text(
+            surface,
+            f"Encounter Chance: {self.encounter_chance:.2f}",
+            config.EXPLORE_ENCOUNTER_CHANCE_POS,
+            font_size=config.MEDIUM_FONT_SIZE
+        )
 
         # Display last message
         message = UI.get_last_message()
         if message:
-            UI.display_text(surface, message, config.EXPLORE_MESSAGE_POS, font_size=config.MEDIUM_FONT_SIZE, color=config.TEXT_COLOR)
+            UI.display_text(
+                surface,
+                message,
+                config.EXPLORE_MESSAGE_POS,
+                font_size=config.MEDIUM_FONT_SIZE
+            )

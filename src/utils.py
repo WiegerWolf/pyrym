@@ -2,8 +2,27 @@
 utils.py
 Utility helpers used throughout the game package.
 """
+from dataclasses import dataclass
+from typing import Tuple
+
 import pygame
 from src import config
+
+@dataclass
+class EncounterMeta:
+    """A dataclass to hold metadata for a battle encounter."""
+    score: int
+    wave: int
+
+@dataclass
+class HealthBarSpec:
+    """A dataclass to hold the specifications for rendering a health bar."""
+    x: int
+    y: int
+    current: int
+    max_val: int
+    color: Tuple[int, int, int]
+    label: str
 
 def load_image(file_path):
     """Load an image from the specified file path."""
