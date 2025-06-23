@@ -3,13 +3,17 @@ player.py
 Defines the player character.
 """
 from dataclasses import dataclass, field
+
 from src import config
+from src.abilities.player_abilities import (PlayerAttackAbility,
+                                            PlayerDefendAbility)
+
+from ..items.items import Item
 from .base import Entity
 from .mixins import ActionMixin
-from src.abilities.player_abilities import PlayerAttackAbility, PlayerDefendAbility
-from ..items.items import Item
 
 
+# pylint: disable=too-many-instance-attributes
 @dataclass
 class PlayerState:
     """A container for player-specific state."""
@@ -63,7 +67,6 @@ class Player(Entity, ActionMixin):
     def power_strike_bonus(self) -> int:
         """Forward the power_strike_bonus stored in the nested PlayerState."""
         return self.state.power_strike_bonus
-    
     @property
     def max_health(self) -> int:
         """Calculates max health with the multiplier."""
@@ -120,10 +123,6 @@ class Player(Entity, ActionMixin):
             return True
         return False
 
-    def regenerate_stamina(self, amount: int = 1):
-        """Called each turn to regenerate stamina."""
-        # This method is now found in the ActionMixin and is no longer needed here.
-        pass
 
     def reset(self):
         """Resets the player for a new game."""

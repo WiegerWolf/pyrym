@@ -100,7 +100,8 @@ class ShopState(BaseState):
 
     def update(self, signals: dict) -> None:
         """Update shop logic based on input signals."""
-        from .explore import ExploreState  # Lazy import
+        # pylint: disable=import-outside-toplevel
+        from .explore import ExploreState
 
         if self.purchase_message and pygame.time.get_ticks() - self.message_timer > 1500:
             self.purchase_message = ""
@@ -111,6 +112,7 @@ class ShopState(BaseState):
 
         if signals.get("number_keys"):
             key_pressed = signals["number_keys"][0]
+            # pylint: disable=no-member
             if pygame.K_1 <= key_pressed <= pygame.K_4:
                 self.purchase_item(chr(key_pressed))
 

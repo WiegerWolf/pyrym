@@ -1,3 +1,4 @@
+# pylint: disable=cyclic-import
 """
 battle.py
 Manages the state of a battle encounter.
@@ -143,8 +144,9 @@ class BattleState(BaseState):
 
     def check_battle_status(self) -> None:
         """Checks if the battle is over and transitions to the next state."""
-        from .victory import VictoryState  # Lazy import
-        from .game_over import GameOverState # Lazy import
+        # pylint: disable=import-outside-toplevel
+        from .game_over import GameOverState
+        from .victory import VictoryState
 
         if not self.enemy.is_alive():
             self._handle_victory()
@@ -182,7 +184,8 @@ class BattleState(BaseState):
 
     def _attempt_flee(self) -> None:
         """Handles the player's attempt to flee from battle."""
-        from .explore import ExploreState  # Lazy import to avoid circular dependency
+        # pylint: disable=import-outside-toplevel
+        from .explore import ExploreState
 
         if random.random() <= config.FLEE_SUCCESS_PROB:
             add_to_log(self.battle_log, "Fled successfully!")

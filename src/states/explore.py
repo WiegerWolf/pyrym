@@ -1,3 +1,4 @@
+# pylint: disable=cyclic-import
 """
 explore.py
 Manages the exploration state where the player can find items or trigger encounters.
@@ -81,8 +82,9 @@ class ExploreState(BaseState):  # pylint: disable=too-many-instance-attributes
         Handles the logic for a single turn of exploration.
         Triggers encounters or item discoveries.
         """
+        # pylint: disable=import-outside-toplevel
         from ..entities import Enemy
-        from .battle import BattleState  # Lazy import
+        from .battle import BattleState
 
         self.consecutive_turns += 1
         self.player.regenerate_stamina() # This is now handled by the ActionMixin

@@ -30,7 +30,8 @@ class VictoryState(BaseState):
         """
         Handles events in the victory state.
         """
-        from .shop import ShopState  # Lazy import
+        # pylint: disable=import-outside-toplevel
+        from .shop import ShopState
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:

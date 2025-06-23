@@ -4,14 +4,13 @@ Core game loop and state management.
 """
 import pygame
 
-# pylint: disable=no-member,too-many-branches,inconsistent-return-statements
+# pylint: disable=no-member,too-many-branches,inconsistent-return-statements,unnecessary-dunder-call
 from .. import config
 from .events import process_events
 from .state_machine import StateMachine
-from ..entities import Enemy, Player
+from ..entities import Player
 from ..items.items import HealingPotion, StaminaPotion
 from ..states.explore import ExploreState
-from ..states.game_over import GameOverState
 from ..utils import EncounterMeta
 
 

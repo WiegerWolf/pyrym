@@ -7,6 +7,8 @@ import abc
 from math import ceil
 from src import config
 
+
+# pylint: disable=cyclic-import
 class Entity(abc.ABC):
     """
     Base class for any entity in the game, like Player or Enemy.
