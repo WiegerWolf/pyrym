@@ -87,7 +87,8 @@ class BattleState:
             add_to_log(self.battle_log, f"{self.enemy.name} is defending!")
         else:
             # Attack action
-            damage, crit, miss = self.enemy.attack_action(self.player)
+            result = self.enemy.attack_action(self.player)
+            damage, crit, miss = result["damage"], result["crit"], result["miss"]
             if miss:
                 msg = f"{self.enemy.name} missed!"
             elif crit:
