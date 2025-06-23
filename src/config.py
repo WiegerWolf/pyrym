@@ -99,9 +99,9 @@ MAX_HP_BLESSING_AMOUNT = 10
 # -- Permanent Boosts (Percentage-based & Scaling Cost) --
 DAMAGE_BOOST_PCT = 0.05       # 5%
 MAX_HP_BOOST_PCT = 0.10       # 10%
-DAMAGE_BOOST_BASE_COST = 50   # XP
-HP_BOOST_BASE_COST = 90       # XP
-BOOST_COST_GROWTH = 1.9       # Exponential multiplier per level
+DAMAGE_BOOST_BASE_COST = 30   # XP
+HP_BOOST_BASE_COST = 50       # XP
+BOOST_COST_GROWTH = 1.5       # Exponential multiplier per level
 
 # -- Game Flow --
 DEBUG = True

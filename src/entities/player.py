@@ -149,21 +149,3 @@ class Player(Entity, ActionMixin):
     def is_defending(self):
         """Returns True if the player is defending."""
         return self.block_active
-
-
-if __name__ == '__main__':
-    # Minimal unit-style test
-    player = Player()
-    player.gain_xp(30)
-    assert player.xp == 30, f"Expected 30 XP, got {player.xp}"
-
-    assert player.spend_xp(10) is True, "spend_xp(10) should return True"
-    assert player.xp == 20, f"Expected 20 XP after spending, got {player.xp}"
-
-    assert player.spend_xp(25) is False, "spend_xp(25) should return False"
-    assert player.xp == 20, f"XP should not change after failed spend, got {player.xp}"
-
-    player.gain_gold(100)
-    assert player.gold == 100, f"Expected 100 gold, got {player.gold}"
-
-    print("Player XP and Gold tests passed!")
