@@ -7,7 +7,7 @@ from collections import Counter
 import pygame
 
 from src import config
-from ..utils import HealthBarSpec
+from ..utils import HealthBarSpec, group_inventory
 
 
 class UI:
@@ -202,14 +202,17 @@ class UI:
     def render_item_menu(screen, player, menu_pos=None):
         """
         Renders the item selection menu, dynamically positioning it to avoid
-        the activity log.
+        the activity log. Items are grouped by name.
         """
         menu_items = []
-        if not player.inventory:
+        grouped = group_inventory(player.inventory)
+
+        if not grouped:
             menu_items.append("Inventory is empty.")
         else:
-            for i, item in enumerate(player.inventory):
-                menu_items.append(f"({i + 1}) {item.name}: {item.description}")
+            for i, (item, qty, _) in enumerate(grouped):
+                name = f"{item.name} x{qty}" if qty > 1 else item.name
+                menu_items.append(f"({i + 1}) {name}: {item.description}")
 
         # Default position and layout values
         line_height = 30
