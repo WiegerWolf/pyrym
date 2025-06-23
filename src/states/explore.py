@@ -4,6 +4,7 @@ Manages the exploration state where the player can find items or trigger encount
 """
 import random
 from random import randint
+import pygame
 
 from .. import config
 from ..config import BASE_ENCOUNTER_CHANCE, ENCOUNTER_INCREMENT, ITEM_FIND_CHANCE
@@ -33,6 +34,7 @@ class ExploreState:
         self.step = ENCOUNTER_INCREMENT
         self.consecutive_turns = 0
         self.encounter_chance = self.base_chance
+        self.item_menu_open = False
 
         # Retroactively convert any GoldPiles in inventory from old saves
         # to gold.
@@ -45,23 +47,38 @@ class ExploreState:
     def update(self, signals):
         """
         Updates the exploration state based on player input.
-
-        Args:
-            signals (dict): A dictionary of input signals.
-
-        Returns:
-            dict or bool: A dictionary with encounter/potion info, or None.
         """
+        if self.item_menu_open:
+            return self._handle_item_menu(signals)
+        else:
+            return self._handle_player_actions(signals)
+
+    def _handle_item_menu(self, signals):
+        """Handle input when the item menu is open."""
+        if signals.get("use_item"):
+            self.item_menu_open = False
+        elif signals.get("number_keys"):
+            key = signals["number_keys"][0]
+            index = key - pygame.key.key_code("1")
+            if 0 <= index < len(self.player.inventory):
+                result = self.player.use_item(index)
+                if result:
+                    UI.notify(result["message"])
+                    self.item_menu_open = False
+                    return {"used_item": True}
+            else:
+                UI.notify("Invalid item selection.")
+        return None
+
+    def _handle_player_actions(self, signals):
+        """Handle player actions when the item menu is closed."""
         if signals.get("search"):  # Continue exploring
             return self._explore_turn()
-        if signals.get("use_item") and self.player.inventory:
-            # This is a placeholder for a proper item menu in explore mode
-            # For now, we'll just use the first item.
-            used_item = self.player.use_item(0)
-            if used_item:
-                UI.notify(used_item["message"])
-                return {"used_item": True}
-            return None
+        if signals.get("use_item"):
+            if self.player.inventory:
+                self.item_menu_open = True
+            else:
+                UI.notify("Inventory is empty.")
         if signals.get("cheat_gold"):  # Cheat for gold
             StateManager.adjust_gold(10)
         return None

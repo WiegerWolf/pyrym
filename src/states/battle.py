@@ -167,23 +167,4 @@ class BattleState:
         """Renders the battle screen."""
         render_battle_screen(self.screen, self)
         if self.item_menu_open:
-            self._render_item_menu()
-
-    def _render_item_menu(self):
-        """Renders the item selection menu."""
-        menu_items = []
-        if not self.player.inventory:
-            menu_items.append("Inventory is empty.")
-        else:
-            for i, item in enumerate(self.player.inventory):
-                menu_items.append(f"({i+1}) {item.name}: {item.description}")
-
-        # Simple text menu for now
-        for i, text in enumerate(menu_items):
-            UI.display_text(
-                self.screen,
-                text,
-                (100, 400 + i * 30),
-                font_size=config.MEDIUM_FONT_SIZE,
-                color=config.TEXT_COLOR,
-            )
+            UI.render_item_menu(self.screen, self.player)

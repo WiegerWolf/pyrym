@@ -178,6 +178,7 @@ class UI:
 
         # Battle log (last 5 actions, fading)
         # Battle log (last 5 actions, fading)
+        # Battle log (last 5 actions, fading)
         for i, msg in enumerate(reversed(battle_state.battle_log)):
             log_y = (config.BATTLE_LOG_START_POS[1] +
                      (i * config.BATTLE_LOG_LINE_SPACING))
@@ -188,6 +189,26 @@ class UI:
                 font_size=config.MEDIUM_FONT_SIZE,
                 color=config.LOG_COLORS[i],
             )
+
+    @staticmethod
+    def render_item_menu(screen, player, menu_pos=(100, 400)):
+        """Renders the item selection menu."""
+        menu_items = []
+        if not player.inventory:
+            menu_items.append("Inventory is empty.")
+        else:
+            for i, item in enumerate(player.inventory):
+                menu_items.append(f"({i+1}) {item.name}: {item.description}")
+
+        for i, text in enumerate(menu_items):
+            UI.display_text(
+                screen,
+                text,
+                (menu_pos[0], menu_pos[1] + i * 30),
+                font_size=config.MEDIUM_FONT_SIZE,
+                color=config.TEXT_COLOR,
+            )
+
 
 def render_battle_screen(*args, **kwargs):
     """
