@@ -220,7 +220,6 @@ class UI:
 
         # Default position and layout values
         line_height = 30
-        menu_width = 400  # Estimated width, can be calculated if needed
         x_pos = 100
 
         # Calculate menu height and starting Y position to avoid overlap

@@ -13,7 +13,7 @@ from ..items import HealingPotion, GoldPile
 from ..utils import HealthBarSpec, handle_item_use, add_to_log
 
 
-class ExploreState:
+class ExploreState:  # pylint: disable=too-many-instance-attributes
     """
     Manages the exploration phase of the game, where the player can find items
     or trigger encounters.

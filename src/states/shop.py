@@ -145,7 +145,7 @@ class ShopState:
 
             color = config.TEXT_COLOR
             currency_suffix = "XP" if item.get("price_type") == "xp" else "G"
-            
+
             can_afford = False
             if item.get("price_type") == "xp":
                 can_afford = self.player.xp >= item['cost']
@@ -154,7 +154,7 @@ class ShopState:
 
             if not can_afford or is_disabled:
                 color = (150, 150, 150)  # Greyed out
-            
+
             text = f"{key}) {item['name']} - {item['cost']} {currency_suffix}"
             if is_disabled:
                 text += " (Purchased)"
@@ -197,4 +197,3 @@ class ShopState:
 
         # Render inventory below the stats
         UI.render_inventory(self.screen, self.player.inventory, pos=(10, 40))
-
