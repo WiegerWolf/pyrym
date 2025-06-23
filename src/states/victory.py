@@ -5,7 +5,6 @@ import pygame
 from src import config
 from src.core.state_machine import BaseState
 from src.core.ui import UI
-from .shop import ShopState
 
 
 class VictoryState(BaseState):
@@ -31,6 +30,7 @@ class VictoryState(BaseState):
         """
         Handles events in the victory state.
         """
+        from .shop import ShopState  # Lazy import
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:

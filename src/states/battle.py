@@ -9,8 +9,6 @@ from ..core.state_machine import BaseState
 from ..core.ui import render_battle_screen, UI
 from ..items.items import HealingPotion
 from ..utils import add_to_log, EncounterMeta, handle_item_use
-from .game_over import GameOverState
-from .victory import VictoryState
 
 
 class BattleState(BaseState):
@@ -145,6 +143,9 @@ class BattleState(BaseState):
 
     def check_battle_status(self) -> None:
         """Checks if the battle is over and transitions to the next state."""
+        from .victory import VictoryState  # Lazy import
+        from .game_over import GameOverState # Lazy import
+
         if not self.enemy.is_alive():
             self._handle_victory()
             self.machine.change(

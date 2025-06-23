@@ -10,7 +10,6 @@ from src import config
 from src.core.state_machine import BaseState
 from src.core.ui import UI
 from src.items.items import HealingPotion, StaminaPotion
-from .explore import ExploreState
 
 
 class ShopState(BaseState):
@@ -91,6 +90,8 @@ class ShopState(BaseState):
 
     def update(self, signals: dict) -> None:
         """Update shop logic based on input signals."""
+        from .explore import ExploreState  # Lazy import
+
         if self.purchase_message and pygame.time.get_ticks() - self.message_timer > 1500:
             self.purchase_message = ""
 

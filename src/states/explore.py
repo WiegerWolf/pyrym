@@ -11,7 +11,6 @@ from ..core.state_machine import BaseState
 from ..core.ui import UI
 from ..items import HealingPotion, GoldPile
 from ..utils import HealthBarSpec, handle_item_use, add_to_log
-from .battle import BattleState
 
 
 class ExploreState(BaseState):  # pylint: disable=too-many-instance-attributes
@@ -82,7 +81,8 @@ class ExploreState(BaseState):  # pylint: disable=too-many-instance-attributes
         Handles the logic for a single turn of exploration.
         Triggers encounters or item discoveries.
         """
-        from ..entities import Enemy  # Lazy import to avoid circular dependency
+        from ..entities import Enemy
+        from .battle import BattleState  # Lazy import
 
         self.consecutive_turns += 1
         self.player.regenerate_stamina()
