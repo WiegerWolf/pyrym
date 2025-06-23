@@ -10,12 +10,12 @@ from ..abilities.enemy_abilities import EnemyAttackAbility
 class Enemy(Entity, ActionMixin):
     """The enemy entity."""
 
-    def __init__(self, wave=1):
-        base_health = config.ENEMY_BASE_HEALTH + (wave - 1) * config.ENEMY_HEALTH_SCALING
+    def __init__(self, encounter_index=1):
+        base_health = config.ENEMY_BASE_HEALTH + (encounter_index - 1) * config.ENEMY_HEALTH_SCALING
         self.health = base_health
-        base_attack = config.ENEMY_BASE_ATTACK + (wave - 1) * config.ENEMY_ATTACK_SCALING
-        super().__init__(name=f"Enemy lvl {wave}", health=self.health, attack=base_attack)
-        self.wave = wave
+        base_attack = config.ENEMY_BASE_ATTACK + (encounter_index - 1) * config.ENEMY_ATTACK_SCALING
+        super().__init__(name=f"Enemy lvl {encounter_index}", health=self.health, attack=base_attack)
+        self.encounter_index = encounter_index
 
         # Abilities
         self.attack_ability = EnemyAttackAbility()

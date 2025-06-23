@@ -12,7 +12,7 @@ from src import config
 class EncounterMeta:
     """A dataclass to hold metadata for a battle encounter."""
     score: int
-    wave: int
+    encounter_index: int
     fled: bool = False
 
     def reset(self):

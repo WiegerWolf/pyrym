@@ -122,19 +122,19 @@ class UI:
                          config.BATTLE_PLAYER_HEALTH_POS[1] + 40))
 
 
-        # Score and wave
+        # Score
         UI.display_text(
             screen,
             f"Score: {battle_state.meta.score}",
             config.BATTLE_SCORE_POS,
             font_size=config.LARGE_FONT_SIZE,
         )
-        UI.display_text(
-            screen,
-            f"Wave: {battle_state.meta.wave + 1}",
-            config.BATTLE_WAVE_POS,
-            font_size=config.MEDIUM_FONT_SIZE,
-        )
+        # UI.display_text(
+        #     screen,
+        #     f"Encounter: {battle_state.meta.encounter_index + 1}",
+        #     config.BATTLE_WAVE_POS,
+        #     font_size=config.MEDIUM_FONT_SIZE,
+        # )
 
         # Gold display
         UI.display_text(
@@ -206,20 +206,37 @@ class UI:
             )
 
     @staticmethod
-    def render_item_menu(screen, player, menu_pos=(100, 400)):
-        """Renders the item selection menu."""
+    def render_item_menu(screen, player, menu_pos=None):
+        """
+        Renders the item selection menu, dynamically positioning it to avoid
+        the activity log.
+        """
         menu_items = []
         if not player.inventory:
             menu_items.append("Inventory is empty.")
         else:
             for i, item in enumerate(player.inventory):
-                menu_items.append(f"({i+1}) {item.name}: {item.description}")
+                menu_items.append(f"({i + 1}) {item.name}: {item.description}")
+
+        # Default position and layout values
+        line_height = 30
+        menu_width = 400  # Estimated width, can be calculated if needed
+        x_pos = 100
+
+        # Calculate menu height and starting Y position to avoid overlap
+        menu_height = len(menu_items) * line_height
+        log_top_y = config.BATTLE_LOG_START_POS[1]
+        y_pos = log_top_y - menu_height - 10  # 10px buffer
+
+        # If a specific menu_pos is provided, use it instead
+        if menu_pos:
+            x_pos, y_pos = menu_pos[0], menu_pos[1]
 
         for i, text in enumerate(menu_items):
             UI.display_text(
                 screen,
                 text,
-                (menu_pos[0], menu_pos[1] + i * 30),
+                (x_pos, y_pos + i * line_height),
                 font_size=config.MEDIUM_FONT_SIZE,
                 color=config.TEXT_COLOR,
             )

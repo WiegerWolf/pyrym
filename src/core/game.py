@@ -29,7 +29,7 @@ class Game:
 
         self.state_manager = StateManager()
         self.player = Player()
-        self.meta = EncounterMeta(score=0, wave=0)
+        self.meta = EncounterMeta(score=0, encounter_index=0)
 
         self.player.add_item(HealingPotion())
         self.player.add_item(StaminaPotion())
@@ -54,7 +54,7 @@ class Game:
                 result = self.state_obj.update(signals)
                 if result['status'] == 'VICTORY':
                     self.meta.score += 1
-                    self.meta.wave += 1
+                    self.meta.encounter_index += 1
                     # After victory, go to the shop
                     self.state_obj = ShopState(self.screen, self.player)
                     self.state_manager.set_state(GameState.SHOP)
@@ -70,7 +70,7 @@ class Game:
                 result = self.state_obj.update(signals)
                 if result and result.get("encounter"):
                     self.state_manager.set_state(GameState.BATTLE)
-                    enemy = Enemy(wave=self.meta.wave)
+                    enemy = Enemy(encounter_index=self.meta.encounter_index)
                     self.state_obj = BattleState(self.screen, self.player, enemy, self.meta)
 
             elif current_game_state == GameState.SHOP:
