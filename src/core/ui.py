@@ -7,6 +7,7 @@ from collections import Counter
 import pygame
 
 from src import config
+from src.core.game_state import StateManager
 from ..utils import HealthBarSpec
 
 
@@ -45,7 +46,9 @@ class UI:
 
     @staticmethod
     def display_text(
-        screen, text, position, font_size=config.DEFAULT_FONT_SIZE, color=config.TEXT_COLOR
+        screen, text, position,
+        font_size=config.DEFAULT_FONT_SIZE,
+        color=config.TEXT_COLOR
     ):
         """Display text on the screen at the specified position."""
         font = pygame.font.Font(None, font_size)
@@ -109,8 +112,13 @@ class UI:
         UI.draw_health_bar(screen, enemy_health_spec)
 
         # Stamina
-        stamina_text = f"STA: {battle_state.player.stamina}/{battle_state.player.max_stamina}"
-        UI.display_text(screen, stamina_text, (config.BATTLE_PLAYER_HEALTH_POS[0], config.BATTLE_PLAYER_HEALTH_POS[1] + 40))
+        stamina_text = (
+            f"STA: {battle_state.player.stamina}/"
+            f"{battle_state.player.max_stamina}"
+        )
+        UI.display_text(screen, stamina_text,
+                        (config.BATTLE_PLAYER_HEALTH_POS[0],
+                         config.BATTLE_PLAYER_HEALTH_POS[1] + 40))
 
 
         # Score and wave
@@ -128,7 +136,6 @@ class UI:
         )
 
         # Gold display
-        from src.core.game_state import StateManager
         UI.display_text(
             screen,
             f"Gold: {StateManager.gold}",
@@ -170,8 +177,10 @@ class UI:
 
 
         # Battle log (last 5 actions, fading)
+        # Battle log (last 5 actions, fading)
         for i, msg in enumerate(reversed(battle_state.battle_log)):
-            log_y = config.BATTLE_LOG_START_POS[1] + (i * config.BATTLE_LOG_LINE_SPACING)
+            log_y = (config.BATTLE_LOG_START_POS[1] +
+                     (i * config.BATTLE_LOG_LINE_SPACING))
             UI.display_text(
                 screen,
                 msg,

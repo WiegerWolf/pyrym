@@ -13,6 +13,7 @@ from ..states.shop import ShopState
 from .events import process_events
 from ..entities import Player
 from ..entities import Enemy
+from ..items.items import HealingPotion, StaminaPotion
 from ..utils import EncounterMeta
 
 
@@ -30,8 +31,7 @@ class Game:
         self.player = Player()
         self.meta = EncounterMeta(score=0, wave=0)
 
-        from ..items.items import HealingSalve, StaminaPotion
-        self.player.add_item(HealingSalve())
+        self.player.add_item(HealingPotion())
         self.player.add_item(StaminaPotion())
 
         # Create the initial explore state
@@ -77,7 +77,7 @@ class Game:
                 if result and result.get("next_state") == "EXPLORE":
                     self.state_obj = ExploreState(self.screen, self.player)
                     self.state_manager.set_state(GameState.EXPLORE)
-            
+
             # All states now have a consistent render method
             self.state_obj.render()
 

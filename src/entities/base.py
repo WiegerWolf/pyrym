@@ -27,11 +27,11 @@ class Entity(abc.ABC):
         This can be overridden for more complex logic.
         """
         if self.block_active:
-            final_damage = ceil(raw_damage * (1-config.DEFEND_BLOCK))
-            self.block_active = False # Block is consumed
+            final_damage = ceil(raw_damage * (1 - config.DEFEND_BLOCK))
+            self.block_active = False  # Block is consumed
         else:
             final_damage = raw_damage
-        
+
         self.health -= final_damage
         self.health = max(self.health, 0)
 

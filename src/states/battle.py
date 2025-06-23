@@ -7,6 +7,7 @@ import pygame
 
 from .. import config
 from ..core.ui import render_battle_screen, UI
+from ..items.items import HealingPotion
 from ..utils import add_to_log, EncounterMeta
 
 
@@ -25,7 +26,7 @@ class BattleState:
 
         # Reset entities for battle
         self.player.reset()
-        # self.enemy.reset() # TODO: Add reset to Enemy
+        self.enemy.reset()
         add_to_log(self.battle_log, f"A wild {self.enemy.name} appears!")
 
     @property
@@ -101,47 +102,60 @@ class BattleState:
         if not self.player_turn and self.enemy.health > 0:
             self.enemy_action()
 
-        # Handle button presses for actions
         if self.player_turn:
             if self.item_menu_open:
-                if signals["number_keys"]:
-                    key = signals["number_keys"][0]
-                    index = key - pygame.K_1
-                    if 0 <= index < len(self.player.inventory):
-                        result = self.player.use_item(index)
-                        if result:
-                            add_to_log(self.battle_log, result["message"])
-                            self.item_menu_open = False
-                            self.player_turn = False
-                    else:
-                        add_to_log(self.battle_log, "Invalid item selection.")
-                # Allow closing menu with 'i' again or another key
-                if signals["use_item"]:
-                    self.item_menu_open = False
+                self._handle_item_menu(signals)
             else:
-                action_taken = None
-                if signals["attack"]:
-                    action_taken = 'attack'
-                elif signals["defend"]:
-                    action_taken = 'defend'
-                elif signals["use_item"]:
-                    if self.player.inventory:
-                        self.item_menu_open = True
-                    else:
-                        add_to_log(self.battle_log, "Inventory is empty.")
-
-                if action_taken:
-                    self.player_action(action_taken)
-                elif signals["flee"]:
-                    if random.random() <= config.FLEE_SUCCESS_PROB:
-                        return {"status": "FLEE_SUCCESS"}
-                    add_to_log(self.battle_log, "Flee failed!")
-                    self.player_turn = False
+                self._handle_player_actions(signals)
 
         return self.check_battle_status()
 
+    def _handle_item_menu(self, signals):
+        """Handle input when the item menu is open."""
+        if signals["number_keys"]:
+            key = signals["number_keys"][0]
+            index = key - pygame.key.key_code("1")
+            if 0 <= index < len(self.player.inventory):
+                result = self.player.use_item(index)
+                if result:
+                    add_to_log(self.battle_log, result["message"])
+                    self.item_menu_open = False
+                    self.player_turn = False
+            else:
+                add_to_log(self.battle_log, "Invalid item selection.")
+        if signals["use_item"]:
+            self.item_menu_open = False
+
+    def _handle_player_actions(self, signals):
+        """Handle player actions when the item menu is closed."""
+        action_taken = None
+        if signals["attack"]:
+            action_taken = 'attack'
+        elif signals["defend"]:
+            action_taken = 'defend'
+        elif signals["use_item"]:
+            if self.player.inventory:
+                self.item_menu_open = True
+            else:
+                add_to_log(self.battle_log, "Inventory is empty.")
+
+        if action_taken:
+            self.player_action(action_taken)
+        elif signals["flee"]:
+            if random.random() <= config.FLEE_SUCCESS_PROB:
+                # This return is problematic for state management.
+                # It should set a state that the main loop can check.
+                # For now, we'll assume the caller handles this dict.
+                # A better approach would be a state machine.
+                self.meta.fled = True  # Set a flag instead of returning
+            else:
+                add_to_log(self.battle_log, "Flee failed!")
+                self.player_turn = False
+
     def check_battle_status(self):
         """Checks the status of the battle (win, lose, ongoing)."""
+        if self.meta.fled:
+            return {"status": "FLEE_SUCCESS"}
         if self.enemy.health <= 0:
             return {"status": "VICTORY"}
         if self.player.health <= 0:

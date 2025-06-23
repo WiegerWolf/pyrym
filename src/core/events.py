@@ -37,7 +37,7 @@ def process_events():
                 events["use_item"] = True
             elif event.key == pygame.K_f:
                 events["flee"] = True
-            
+
             # Explore
             elif event.key == pygame.K_s:
                 events["search"] = True
@@ -49,12 +49,13 @@ def process_events():
             # Cheats / Debug
             elif event.key == pygame.K_g:
                 events["cheat_gold"] = True
-            
-            # Universal number keys
-            elif event.key in [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4,
-                                 pygame.K_5, pygame.K_6, pygame.K_7, pygame.K_8,
-                                 pygame.K_9]:
-                events["number_keys"].append(event.key)
 
+            # Universal number keys
+            elif event.key in [
+                pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4,
+                pygame.K_5, pygame.K_6, pygame.K_7, pygame.K_8,
+                pygame.K_9
+            ]:
+                events["number_keys"].append(event.key)
 
     return events

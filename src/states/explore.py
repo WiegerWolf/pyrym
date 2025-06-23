@@ -7,6 +7,7 @@ from random import randint
 
 from .. import config
 from ..config import BASE_ENCOUNTER_CHANCE, ENCOUNTER_INCREMENT, ITEM_FIND_CHANCE
+from ..core.game_state import StateManager
 from ..core.ui import UI
 from ..items import HealingPotion, GoldPile
 from ..utils import HealthBarSpec
@@ -62,7 +63,6 @@ class ExploreState:
                 return {"used_item": True}
             return None
         if signals.get("cheat_gold"):  # Cheat for gold
-            from src.core.game_state import StateManager
             StateManager.adjust_gold(10)
         return None
 
@@ -82,7 +82,7 @@ class ExploreState:
 
             # Non-storable items like GoldPile are used immediately.
             if not loot.can_store:
-                result = loot.use(self.player)
+                loot.use(self.player)
                 UI.notify(f"+{loot.amount} Gold!")
             else:
                 self.player.add_item(loot)
@@ -112,7 +112,6 @@ class ExploreState:
         UI.draw_health_bar(self.screen, player_health_spec)
 
         # Gold display
-        from src.core.game_state import StateManager
         UI.display_text(
             self.screen,
             f"Gold: {StateManager.gold}",

@@ -4,9 +4,10 @@ Defines the enemy characters.
 """
 from .. import config
 from .base import Entity
+from .mixins import ActionMixin
 from ..abilities.enemy_abilities import EnemyAttackAbility
 
-class Enemy(Entity):
+class Enemy(Entity, ActionMixin):
     """The enemy entity."""
 
     def __init__(self, wave=1):
@@ -19,20 +20,8 @@ class Enemy(Entity):
         # Abilities
         self.attack_ability = EnemyAttackAbility()
 
-    def attack_action(self, target: Entity) -> tuple[int, bool, bool]:
-        """Wrapper for the attack ability."""
-        result = self.attack_ability.execute(self, target)
-        return result["damage"], result["crit"], result["miss"]
-
-    def defend(self):
-        """Sets the block_active flag and gains stamina."""
-        self.block_active = True
-        self.gain_stamina(1)
-
-    def gain_stamina(self, amount: int):
-        """Gains stamina, up to the max."""
-        self.stamina = min(self.max_stamina, self.stamina + amount)
-
-    def spend_stamina(self, amount: int):
-        """Spends stamina."""
-        self.stamina = max(0, self.stamina - amount)
+    def reset(self):
+        """Resets the enemy's stats for a new encounter."""
+        self.health = self.max_health
+        self.stamina = 1
+        self.block_active = False

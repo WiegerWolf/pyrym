@@ -6,6 +6,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 from src import config
+from ..core.game_state import StateManager
 
 if TYPE_CHECKING:
     from ..entities.base import Entity
@@ -34,15 +35,18 @@ class Item(ABC):
         raise NotImplementedError
 
 
-class HealingSalve(Item):
+class HealingPotion(Item):
     """An item that restores HP."""
 
     def __init__(self):
         super().__init__(
-            name="Healing Salve",
+            name="Healing Potion",
             cost=config.HEALING_SALVE_COST,
             description=f"Heals for {config.HEALING_SALVE_HEAL_AMOUNT} HP."
         )
+
+    def __repr__(self) -> str:
+        return f"{self.name} (Cost: {self.cost})"
 
     def use(self, entity: Entity) -> dict:
         """Heal the entity."""
@@ -62,6 +66,9 @@ class StaminaPotion(Item):
             description=f"Gains {config.STAMINA_POTION_STAMINA_GAIN} stamina."
         )
 
+    def __repr__(self) -> str:
+        return f"{self.name} (Cost: {self.cost})"
+
     def use(self, entity: Entity) -> dict:
         """Add stamina to the entity."""
         if hasattr(entity, 'gain_stamina'):
@@ -70,14 +77,6 @@ class StaminaPotion(Item):
             print(msg)
             return {"message": msg, "value": config.STAMINA_POTION_STAMINA_GAIN}
         return {"message": f"{entity.name} cannot gain stamina.", "value": 0}
-
-class HealingPotion(HealingSalve):
-    """Compatibility alias for HealingSalve for code still using the old name."""
-    def __init__(self, heal_amount=None):
-        super().__init__()
-        # The name is overridden to maintain the "Healing Potion" name in the UI.
-        self.name = "Healing Potion"
-
 
 class GoldPile(Item):
     """
@@ -101,7 +100,6 @@ class GoldPile(Item):
 
     def use(self, entity: "Entity") -> dict:
         """Adds the gold amount to the game state."""
-        from ..core.game_state import StateManager
         StateManager.adjust_gold(self.amount)
         msg = f"Added {self.amount} gold."
         return {"message": msg, "value": self.amount}
