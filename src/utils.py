@@ -13,6 +13,7 @@ class EncounterMeta:
     """A dataclass to hold metadata for a battle encounter."""
     score: int
     wave: int
+    fled: bool = False
 
 @dataclass
 class HealthBarSpec:

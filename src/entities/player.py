@@ -37,6 +37,11 @@ class Player(Entity, ActionMixin):
         """Backwards compatibility for inventory access."""
         return self.state.inventory
 
+    @property
+    def power_strike_bonus(self) -> int:
+        """Forward the power_strike_bonus stored in the nested PlayerState."""
+        return self.state.power_strike_bonus
+
     def add_item(self, item: Item):
         """Adds an item to the player's inventory."""
         self.state.inventory.append(item)
