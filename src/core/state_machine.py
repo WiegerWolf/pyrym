@@ -53,6 +53,7 @@ class StateMachine:
 
     def __init__(self, initial_state: BaseState):
         self._state: Optional[BaseState] = None
+        self.purchased_flags = {}
         self.change(initial_state)
 
     def change(self, new_state: BaseState, **kwargs) -> None:

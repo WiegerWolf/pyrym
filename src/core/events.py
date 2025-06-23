@@ -18,7 +18,7 @@ def process_events():
         "flee": False,
         "number_keys": [],
         "quit_shop": False,
-        "search": False,
+        "explore": False,
     }
 
     for event in raw_events:
@@ -37,8 +37,8 @@ def process_events():
                 events["flee"] = True
 
             # Explore
-            elif event.key == pygame.K_s:
-                events["search"] = True
+            elif event.key == pygame.K_e:
+                events["explore"] = True
 
             # Shop
             elif event.key == pygame.K_q:

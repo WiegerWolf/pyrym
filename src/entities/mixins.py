@@ -31,6 +31,11 @@ class ActionMixin:
         self.block_active = True
         self.gain_stamina(1)
 
+    def regenerate_stamina(self, amount: int = 1):
+        """Called each turn to regenerate stamina."""
+        if not getattr(self, "block_active", False):
+            self.gain_stamina(amount)
+
     def gain_stamina(self, amount: int):
         """Gains stamina, up to the max."""
         self.stamina = min(self.max_stamina, self.stamina + amount)

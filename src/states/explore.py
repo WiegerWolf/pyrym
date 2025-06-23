@@ -85,7 +85,7 @@ class ExploreState(BaseState):  # pylint: disable=too-many-instance-attributes
         from .battle import BattleState  # Lazy import
 
         self.consecutive_turns += 1
-        self.player.regenerate_stamina()
+        self.player.regenerate_stamina() # This is now handled by the ActionMixin
 
         # Check for encounter
         if random.random() < self.encounter_chance:
@@ -103,6 +103,7 @@ class ExploreState(BaseState):  # pylint: disable=too-many-instance-attributes
             add_to_log(self.log, "You find nothing of interest.")
 
         self.encounter_chance += self.step
+        # self.player.defend_ability.reset() # This is now handled by the ActionMixin
 
     def _find_item(self) -> None:
         """Generates and awards a random item to the player."""

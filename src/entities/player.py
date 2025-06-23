@@ -105,6 +105,11 @@ class Player(Entity, ActionMixin):
             return True
         return False
 
+    def regenerate_stamina(self, amount: int = 1):
+        """Called each turn to regenerate stamina."""
+        # This method is now found in the ActionMixin and is no longer needed here.
+        pass
+
     def reset(self):
         """Resets the player for a new game."""
         self.max_health = config.PLAYER_BASE_HEALTH
