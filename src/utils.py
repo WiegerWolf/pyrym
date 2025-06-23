@@ -74,7 +74,7 @@ def group_inventory(inventory: list) -> list[tuple[any, int, int]]:
 
     # Convert to the desired output format
     result = []
-    for name, data in grouped.items():
+    for _, data in grouped.items():
         first_index = min(data['indices'])
         result.append((data['item'], data['qty'], first_index))
 
