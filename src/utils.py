@@ -12,7 +12,6 @@ from src import config
 @dataclass
 class EncounterMeta:
     """A dataclass to hold metadata for a battle encounter."""
-    score: int
     encounter_index: int
     fled: bool = False
     turns: int = 0

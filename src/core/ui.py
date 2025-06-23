@@ -122,12 +122,6 @@ class UI:
 
 
         # Score
-        UI.display_text(
-            screen,
-            f"Score: {battle_state.meta.score}",
-            config.BATTLE_SCORE_POS,
-            font_size=config.LARGE_FONT_SIZE,
-        )
 
         # Gold display
         UI.display_text(

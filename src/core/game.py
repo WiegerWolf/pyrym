@@ -27,7 +27,7 @@ class Game:
 
         # Core game data
         self.player = Player()
-        self.meta = EncounterMeta(score=0, encounter_index=0)
+        self.meta = EncounterMeta(encounter_index=0)
 
         # Add starting items
         self.player.add_item(HealingPotion())
