@@ -14,10 +14,13 @@ class EncounterMeta:
     score: int
     encounter_index: int
     fled: bool = False
+    turns: int = 0
+    battles_won: int = 0
 
     def reset(self):
         """Resets transient flags for a new encounter."""
         self.fled = False
+        self.turns = 0
 
 @dataclass
 class HealthBarSpec:

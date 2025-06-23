@@ -69,6 +69,7 @@ class BattleState:
                 self.player.defend()
                 msg = "Player braces for the next attack, gaining 1 stamina."
             add_to_log(self.battle_log, msg)
+            self.meta.turns += 1
             self.player_turn = False
 
     def enemy_action(self):
@@ -96,7 +97,7 @@ class BattleState:
             else:
                 msg = f"{self.enemy.name} deals {damage} damage."
             add_to_log(self.battle_log, msg)
-
+        self.meta.turns += 1
         self.player_turn = True
 
     def update(self, signals):
@@ -169,8 +170,14 @@ class BattleState:
         gold_award = (self.enemy.encounter_index + 1) * 5
         self.player.gain_xp(xp_award)
         self.player.gain_gold(gold_award)
+        self.meta.battles_won += 1
         add_to_log(self.battle_log, f"You have defeated the {self.enemy.name}!")
         add_to_log(self.battle_log, f"You gain {xp_award} XP and {gold_award} gold.")
+
+        if random.random() < 0.10:
+            potion = HealingPotion()
+            self.player.add_item(potion)
+            add_to_log(self.battle_log, f"The enemy dropped {potion.name}!")
 
     def render(self):
         """Renders the battle screen."""

@@ -10,6 +10,7 @@ class GameState(Enum):
     BATTLE = auto()
     EXPLORE = auto()
     SHOP = auto()
+    VICTORY = auto()
     GAME_OVER = auto()
 
 

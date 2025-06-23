@@ -10,6 +10,8 @@ from .game_state import GameState, StateManager
 from ..states.battle import BattleState
 from ..states.explore import ExploreState
 from ..states.shop import ShopState
+from ..states.victory import VictoryState
+from ..states.game_over import GameOverState
 from .events import process_events
 from ..entities import Player
 from ..entities import Enemy
@@ -55,16 +57,27 @@ class Game:
                 if result['status'] == 'VICTORY':
                     self.meta.score += 1
                     self.meta.encounter_index += 1
-                    # After victory, go to the shop
-                    self.state_obj = ShopState(self.screen, self.player)
-                    self.state_manager.set_state(GameState.SHOP)
+                    self.state_obj = VictoryState(self.player, self.meta, self.state_obj.battle_log)
+                    self.state_manager.set_state(GameState.VICTORY)
                 elif result['status'] == 'FLEE_SUCCESS':
-                    self.meta.reset()  # Reset the 'fled' flag
+                    self.meta.reset()
                     self.state_obj = ExploreState(self.screen, self.player)
                     self.state_manager.set_state(GameState.EXPLORE)
                 elif result['status'] == 'GAME_OVER':
-                    running = False
-                    print("Game Over!")
+                    self.state_obj = GameOverState(self.player, self.meta)
+                    self.state_manager.set_state(GameState.GAME_OVER)
+
+            elif current_game_state == GameState.VICTORY:
+                status = self.state_obj.handle_events(pygame.event.get())
+                if status == "TO_SHOP":
+                    self.state_obj = ShopState(self.screen, self.player)
+                    self.state_manager.set_state(GameState.SHOP)
+
+            elif current_game_state == GameState.GAME_OVER:
+                status = self.state_obj.handle_events(pygame.event.get())
+                if status == "RESTART":
+                    self.__init__()  # Re-initialize the game
+                    return self.run()
 
             elif current_game_state == GameState.EXPLORE:
                 result = self.state_obj.update(signals)
