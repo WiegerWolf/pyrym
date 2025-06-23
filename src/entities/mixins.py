@@ -3,7 +3,7 @@ mixins.py
 Provides mixin classes for entities.
 """
 from __future__ import annotations
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .base import Entity
