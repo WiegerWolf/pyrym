@@ -39,11 +39,11 @@ class ShopState:
             "desc": f"Grants +{config.STAMINA_POTION_STAMINA_GAIN} stamina."
         }
         inventory['3'] = {
-            "name": "Power-Strike Upgrade",
+            "name": "Damage Upgrade",
             "cost": config.POWER_STRIKE_UPGRADE_COST,
             "effect": self._buy_power_strike_upgrade,
             "desc": f"Permanently +{config.POWER_STRIKE_UPGRADE_AMOUNT} "
-                    "dmg to Power Strike."
+                    "base damage to ALL attacks."
         }
         inventory['4'] = {
             "name": "Max-HP Blessing",
@@ -66,7 +66,7 @@ class ShopState:
     def _buy_power_strike_upgrade(self):
         """Buy a power strike upgrade."""
         self.player.state.power_strike_bonus += config.POWER_STRIKE_UPGRADE_AMOUNT
-        self._show_purchase_message("Power-Strike Upgraded!")
+        self._show_purchase_message("Damage Upgraded!")
 
     def _buy_max_hp_blessing(self):
         """Buy a max HP blessing."""
