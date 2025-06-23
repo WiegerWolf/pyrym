@@ -18,7 +18,7 @@ This game blends classic RPG elements with modern mechanics. For a deep dive int
 
 1.  **Explore** – Press **E** to take a step. Each step may trigger an enemy encounter or uncover an item.
 2.  **Battle** – When an encounter starts, you fight in a turn-based system.
-    *   **Space** – Attack the enemy (costs 1 stamina).
+    *   **A** – Attack the enemy (costs 1 stamina).
     *   **D** – Defend to halve the next hit and recover 1 stamina.
     *   **F** – Attempt to flee the battle.
     *   **1-9** – Use an item from your quick-slots.
@@ -30,7 +30,7 @@ This game blends classic RPG elements with modern mechanics. For a deep dive int
 | Key     | Context          | Action                           |
 |---------|------------------|----------------------------------|
 | `E`     | Explore          | Take a step / Advance            |
-| `Space` | Battle           | Attack the enemy                 |
+| `A`     | Battle           | Attack the enemy                 |
 | `D`     | Battle           | Defend (reduces damage, adds stamina) |
 | `F`     | Battle           | Attempt to flee                  |
 | `1`-`9` | Explore & Battle | Use item in corresponding slot     |
@@ -118,4 +118,4 @@ This project is licensed under the **MIT License** – see [`LICENSE`](LICENSE) 
 
 ## Acknowledgements
 
-Built with [Pygame](https://www.pygame.org/) and lots of coffee ☕.
+Built with [Pygame](https://www.pygame.org/) in collaboration with LLM agents.
