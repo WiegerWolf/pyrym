@@ -71,3 +71,7 @@ def handle_item_use(player, key, logger_callback) -> dict:
 
     logger_callback("Invalid item selection.")
     return {"success": False, "used_item": False}
+
+def scaled_cost(base: int, level: int, growth: float) -> int:
+    """Calculates the scaling cost for leveled upgrades."""
+    return int(round(base * (growth ** level)))

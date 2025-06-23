@@ -89,10 +89,19 @@ POTION_DROP_CHANCE = 0.5
 HEALING_POTION_COST = 15
 STAMINA_POTION_COST = 20
 STAMINA_POTION_STAMINA_GAIN = 2
+
+# -- Deprecated Boosts (retained for save compatibility if needed) --
 POWER_STRIKE_UPGRADE_COST = 50
 POWER_STRIKE_UPGRADE_AMOUNT = 5
 MAX_HP_BLESSING_COST = 40
 MAX_HP_BLESSING_AMOUNT = 10
+
+# -- Permanent Boosts (Percentage-based & Scaling Cost) --
+DAMAGE_BOOST_PCT = 0.05       # 5%
+MAX_HP_BOOST_PCT = 0.10       # 10%
+DAMAGE_BOOST_BASE_COST = 50   # XP
+HP_BOOST_BASE_COST = 90       # XP
+BOOST_COST_GROWTH = 1.9       # Exponential multiplier per level
 
 # -- Game Flow --
 DEBUG = True

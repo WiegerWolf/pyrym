@@ -10,6 +10,7 @@ from src import config
 from src.core.state_machine import BaseState
 from src.core.ui import UI
 from src.items.items import HealingPotion, StaminaPotion
+from src.utils import scaled_cost
 
 
 class ShopState(BaseState):
@@ -24,40 +25,48 @@ class ShopState(BaseState):
         self.screen = screen
         self.purchase_message = ""
         self.message_timer = 0
-        self.items = self._build_inventory()
+        self.items = OrderedDict()
+        self._build_inventory()
 
     def enter(self, prev_state, **kwargs):
         """Display a welcome message when entering the shop."""
         self.purchase_message = "Welcome to the shop!"
         self.message_timer = pygame.time.get_ticks()
+        self._build_inventory() # Rebuild to reflect player's current stats
 
-    def _build_inventory(self) -> OrderedDict:
-        """Builds the shop's inventory list."""
-        inventory = OrderedDict()
-        inventory['1'] = {
+    def _build_inventory(self):
+        """Dynamically builds the shop's inventory list."""
+        self.items.clear()
+        self.items['1'] = {
             "name": "Healing Potion", "cost": config.HEALING_POTION_COST,
             "effect": self._buy_healing_potion, "price_type": "gold",
             "desc": f"Heals {config.HEALING_POTION_HEAL_AMOUNT} HP."
         }
-        inventory['2'] = {
+        self.items['2'] = {
             "name": "Stamina Potion", "cost": config.STAMINA_POTION_COST,
             "effect": self._buy_stamina_potion, "price_type": "gold",
             "desc": f"Grants +{config.STAMINA_POTION_STAMINA_GAIN} stamina."
         }
-        inventory['3'] = {
-            "name": "Damage Upgrade",
-            "cost": config.POWER_STRIKE_UPGRADE_COST, "price_type": "xp",
-            "effect": self._buy_power_strike_upgrade,
-            "desc": f"Permanently +{config.POWER_STRIKE_UPGRADE_AMOUNT} "
-                    "base damage to ALL attacks."
+
+        # Damage Boost
+        dmg_level = self.player.state.damage_boost_lvl
+        dmg_cost = scaled_cost(config.DAMAGE_BOOST_BASE_COST, dmg_level, config.BOOST_COST_GROWTH)
+        self.items['3'] = {
+            "name": "Damage Boost",
+            "cost": dmg_cost, "price_type": "xp",
+            "effect": self._buy_damage_boost,
+            "desc": f"Lvl {dmg_level + 1}: +{config.DAMAGE_BOOST_PCT:.0%} total damage."
         }
-        inventory['4'] = {
-            "name": "Max-HP Blessing",
-            "cost": config.MAX_HP_BLESSING_COST, "price_type": "xp",
-            "effect": self._buy_max_hp_blessing,
-            "desc": f"+{config.MAX_HP_BLESSING_AMOUNT} max HP (one-time)."
+
+        # HP Boost
+        hp_level = self.player.state.hp_boost_lvl
+        hp_cost = scaled_cost(config.HP_BOOST_BASE_COST, hp_level, config.BOOST_COST_GROWTH)
+        self.items['4'] = {
+            "name": "Max-HP Boost",
+            "cost": hp_cost, "price_type": "xp",
+            "effect": self._buy_max_hp_boost,
+            "desc": f"Lvl {hp_level + 1}: +{config.MAX_HP_BOOST_PCT:.0%} max HP & full heal."
         }
-        return inventory
 
     def _buy_healing_potion(self):
         """Buy a healing potion."""
@@ -69,19 +78,20 @@ class ShopState(BaseState):
         self.player.add_item(StaminaPotion())
         self._show_purchase_message("Purchased Stamina Potion!")
 
-    def _buy_power_strike_upgrade(self):
-        """Buy a power strike upgrade."""
-        self.player.state.power_strike_bonus += config.POWER_STRIKE_UPGRADE_AMOUNT
-        self._show_purchase_message("Damage Upgraded!")
+    def _buy_damage_boost(self):
+        """Buy a damage boost upgrade."""
+        self.player.state.damage_boost_lvl += 1
+        self.player.damage_mult += config.DAMAGE_BOOST_PCT
+        self._show_purchase_message("Damage Boosted!")
+        self._build_inventory() # Refresh costs and descriptions
 
-    def _buy_max_hp_blessing(self):
-        """Buy a max HP blessing."""
-        self.player.max_health += config.MAX_HP_BLESSING_AMOUNT
+    def _buy_max_hp_boost(self):
+        """Buy a max HP boost upgrade."""
+        self.player.state.hp_boost_lvl += 1
+        self.player.max_hp_mult += config.MAX_HP_BOOST_PCT
         self.player.heal(self.player.max_health)  # Heal to full
-        # This flag should be stored more centrally, perhaps on the player or a game session object.
-        # For now, we'll attach it to the StateMachine for persistence across states.
-        self.machine.purchased_flags['max_hp_blessing'] = True
-        self._show_purchase_message("Max-HP Increased!")
+        self._show_purchase_message("Max-HP Boosted!")
+        self._build_inventory() # Refresh costs and descriptions
 
     def _show_purchase_message(self, message):
         """Displays a temporary purchase confirmation message."""
@@ -110,11 +120,6 @@ class ShopState(BaseState):
         if not item:
             return
 
-        is_one_time = item["name"] == "Max-HP Blessing"
-        if is_one_time and getattr(self.machine, "purchased_flags", {}).get("max_hp_blessing"):
-            self._show_purchase_message("Already purchased!")
-            return
-
         price_type = item.get("price_type", "gold")
         if price_type == "xp":
             if self.player.spend_xp(item["cost"]):
@@ -141,11 +146,6 @@ class ShopState(BaseState):
         # Items
         y_offset = 0
         for key, item in self.items.items():
-            is_one_time_purchased = (item["name"] == "Max-HP Blessing" and
-                                     getattr(self.machine, "purchased_flags", {}).get("max_hp_blessing"))
-
-            is_disabled = is_one_time_purchased
-
             color = config.TEXT_COLOR
             currency_suffix = "XP" if item.get("price_type") == "xp" else "G"
 
@@ -155,12 +155,10 @@ class ShopState(BaseState):
             else:
                 can_afford = self.player.gold >= item['cost']
 
-            if not can_afford or is_disabled:
+            if not can_afford:
                 color = (150, 150, 150)  # Greyed out
 
             text = f"{key}) {item['name']} - {item['cost']} {currency_suffix}"
-            if is_disabled:
-                text += " (Purchased)"
 
             UI.display_text(
                 screen, text,

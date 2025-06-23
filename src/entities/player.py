@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from src import config
 from .base import Entity
 from .mixins import ActionMixin
-from ..abilities import PlayerAttackAbility, PlayerDefendAbility
+from src.abilities.player_abilities import PlayerAttackAbility, PlayerDefendAbility
 from ..items.items import Item
 
 
@@ -17,6 +17,9 @@ class PlayerState:
     power_strike_bonus: int = 0
     xp: int = 0
     gold: int = 0
+    # Boost levels for scaling costs
+    damage_boost_lvl: int = 0
+    hp_boost_lvl: int = 0
 
 
 class Player(Entity, ActionMixin):
@@ -29,6 +32,9 @@ class Player(Entity, ActionMixin):
             attack=config.PLAYER_BASE_ATTACK,
         )
         self.state = PlayerState()
+        # Multipliers for percentage-based boosts
+        self.damage_mult = 1.0
+        self.max_hp_mult = 1.0
 
         # Abilities
         self.attack_ability = PlayerAttackAbility()
@@ -57,6 +63,17 @@ class Player(Entity, ActionMixin):
     def power_strike_bonus(self) -> int:
         """Forward the power_strike_bonus stored in the nested PlayerState."""
         return self.state.power_strike_bonus
+    
+    @property
+    def max_health(self) -> int:
+        """Calculates max health with the multiplier."""
+        base_max = self._max_health
+        return int(base_max * self.max_hp_mult)
+
+    @max_health.setter
+    def max_health(self, value):
+        """Sets the base max health."""
+        self._max_health = value
 
     def add_item(self, item: Item):
         """Adds an item to the player's inventory."""
@@ -115,6 +132,8 @@ class Player(Entity, ActionMixin):
         self.stamina = 1
         self.block_active = False
         self.state = PlayerState()
+        self.damage_mult = 1.0
+        self.max_hp_mult = 1.0
 
     def battle_reset(self):
         """Resets player stats for a new battle, preserving health."""
