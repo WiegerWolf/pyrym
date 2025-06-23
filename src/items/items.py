@@ -6,10 +6,10 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 from src import config
-from ..core.game_state import StateManager
 
 if TYPE_CHECKING:
     from ..entities.base import Entity
+    from ..entities.player import Player
 
 
 class Item(ABC):
@@ -98,8 +98,8 @@ class GoldPile(Item):
     def __repr__(self) -> str:
         return f"Gold Pile ({self.amount})"
 
-    def use(self, entity: "Entity") -> dict:
+    def use(self, entity: "Player") -> dict:
         """Adds the gold amount to the game state."""
-        StateManager.adjust_gold(self.amount)
+        entity.gain_gold(self.amount)
         msg = f"Added {self.amount} gold."
         return {"message": msg, "value": self.amount}

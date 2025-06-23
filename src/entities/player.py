@@ -98,6 +98,13 @@ class Player(Entity, ActionMixin):
         if amount > 0:
             self.state.gold += amount
 
+    def spend_gold(self, amount: int) -> bool:
+        """Spends gold if available."""
+        if self.state.gold >= amount:
+            self.state.gold -= amount
+            return True
+        return False
+
     def reset(self):
         """Resets the player for a new game."""
         self.max_health = config.PLAYER_BASE_HEALTH
@@ -108,8 +115,14 @@ class Player(Entity, ActionMixin):
 
     def battle_reset(self):
         """Resets player stats for a new battle, preserving health."""
-        self.stamina = 1
+        # Cap stamina at max, but don't reset it.
+        self.stamina = min(self.stamina, config.MAX_STAMINA)
         self.block_active = False
+
+    def gain_stamina(self, amount: int):
+        """Adds stamina to the player."""
+        if amount > 0:
+            self.stamina = min(self.stamina + amount, config.MAX_STAMINA)
 
     @property
     def is_defending(self):

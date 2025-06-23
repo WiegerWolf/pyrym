@@ -21,7 +21,6 @@ class StateManager:
     for explicit instantiation at this stage of the refactor.
     """
     _current_state: GameState = GameState.EXPLORE
-    gold: int = 0
     # Holds flags for one-time purchases, e.g. {"max_hp_blessing": True}
     purchased_flags: dict[str, bool] = {}
 
@@ -36,7 +35,7 @@ class StateManager:
         cls._current_state = state
 
     @classmethod
-    def adjust_gold(cls, delta: int) -> None:
-        """Safely adjust player gold."""
-        cls.gold = max(0, cls.gold + delta)
-        print(f"Adjusted gold by {delta}. New balance: {cls.gold}")
+    def reset(cls) -> None:
+        """Resets all static data for a new game."""
+        cls._current_state = GameState.EXPLORE
+        cls.purchased_flags = {}

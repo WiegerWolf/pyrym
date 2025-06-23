@@ -65,7 +65,7 @@ class Game:
                     self.state_obj = ExploreState(self.screen, self.player)
                     self.state_manager.set_state(GameState.EXPLORE)
                 elif result['status'] == 'GAME_OVER':
-                    self.state_obj = GameOverState(self.screen, self.player, self.meta)
+                    self.state_obj = GameOverState(self.screen, self.player, self.meta, self.state_obj.battle_log)
                     self.state_manager.set_state(GameState.GAME_OVER)
 
             elif current_game_state == GameState.VICTORY:
@@ -77,8 +77,11 @@ class Game:
             elif current_game_state == GameState.GAME_OVER:
                 status = self.state_obj.handle_events(raw_events)
                 if status == "RESTART":
+                    self.state_manager.reset()
                     self.__init__()  # Re-initialize the game
                     return self.run()
+                elif status == "QUIT":
+                    running = False
 
             elif current_game_state == GameState.EXPLORE:
                 result = self.state_obj.update(signals)

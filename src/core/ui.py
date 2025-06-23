@@ -139,7 +139,7 @@ class UI:
         # Gold display
         UI.display_text(
             screen,
-            f"Gold: {StateManager.gold}",
+            f"Gold: {battle_state.player.gold}",
             config.BATTLE_GOLD_POS,
             font_size=config.LARGE_FONT_SIZE,
             color=config.TEXT_COLOR

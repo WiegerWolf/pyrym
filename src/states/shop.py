@@ -9,7 +9,7 @@ import pygame
 from src import config
 from src.core.ui import UI
 from src.core.game_state import StateManager
-from src.items.items import HealingPotion
+from src.items.items import HealingPotion, StaminaPotion
 
 
 class ShopState:
@@ -58,7 +58,7 @@ class ShopState:
 
     def _buy_stamina_potion(self):
         """Buy a stamina potion."""
-        self.player.gain_stamina(config.STAMINA_POTION_STAMINA_GAIN)
+        self.player.add_item(StaminaPotion())
         self._show_purchase_message("Purchased Stamina Potion!")
 
     def _buy_power_strike_upgrade(self):
@@ -117,8 +117,7 @@ class ShopState:
             else:
                 self._show_purchase_message("Not enough XP!")
         else:
-            if StateManager.gold >= item["cost"]:
-                StateManager.adjust_gold(-item["cost"])
+            if self.player.spend_gold(item["cost"]):
                 item["effect"]()
             else:
                 self._show_purchase_message("Not enough gold!")
@@ -148,7 +147,7 @@ class ShopState:
             if item.get("price_type") == "xp":
                 can_afford = self.player.xp >= item['cost']
             else:
-                can_afford = StateManager.gold >= item['cost']
+                can_afford = self.player.gold >= item['cost']
 
             if not can_afford or is_disabled:
                 color = (150, 150, 150)  # Greyed out
@@ -189,7 +188,7 @@ class ShopState:
     def _render_player_stats(self, screen):
         """Renders the player's current stats (HP, Gold, XP) and inventory."""
         stats_line_1 = (f"HP  {self.player.health} / {self.player.max_health}    "
-                        f"Gold  {StateManager.gold} G    "
+                        f"Gold  {self.player.gold} G    "
                         f"XP  {self.player.xp}")
         UI.display_text(screen, stats_line_1, (10, 10))
 

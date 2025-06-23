@@ -128,7 +128,7 @@ class ExploreState:  # pylint: disable=too-many-instance-attributes
         # Gold display
         UI.display_text(
             screen,
-            f"Gold: {StateManager.gold}",
+            f"Gold: {self.player.gold}",
             config.EXPLORE_GOLD_POS,
             font_size=config.LARGE_FONT_SIZE,
             color=config.TEXT_COLOR
