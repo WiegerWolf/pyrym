@@ -78,8 +78,8 @@ class BattleState:
 
         # AI: Decide whether to defend
         should_defend = (
-            self.enemy.health < self.enemy.max_health * 0.35
-            and random.random() < 0.25
+            self.enemy.stamina == 0 or
+            (self.enemy.health < self.enemy.max_health * 0.35 and random.random() < 0.25)
         )
 
         if should_defend:
