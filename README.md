@@ -1,36 +1,53 @@
 # Turn-Based Pygame Adventure
 
-A lightweight turn-based RPG prototype built with [Pygame](https://www.pygame.org/).  
-Explore, find loot, and battle endless waves of enemies in a classic “explore → encounter → battle” gameplay loop.
+A lightweight turn-based RPG prototype built with [Pygame](https://www.pygame.org/).
+Explore, find loot, and battle endless waves of enemies in a classic “explore → encounter → battle” gameplay loop. Built around a modular finite-state machine and percentage-based character progression.
 
 ![Gameplay GIF](docs/preview.gif)
 
 ## Core Mechanics
 
-*   **Experience (XP):** Earned from defeating enemies, used to buy permanent upgrades and blessings.
-*   **Gold:** Found while exploring, used to buy consumables.
+This game blends classic RPG elements with modern mechanics. For a deep dive into the architecture and design choices, see the [Architecture & Mechanics Overview](docs/overview.md).
+
+*   **Exploration & Encounters:** Press **E** to explore. Each step increases the chance of a random enemy encounter, which resets after a battle. You might also find items or gold.
+*   **Turn-Based Battle:** Combat is strategic, with a focus on managing Stamina. You can attack, defend to regain stamina and halve incoming damage, or attempt to flee.
+*   **Always-Visible Inventory:** Your first nine item groups are always visible and usable via number keys (**1-9**), both in and out of combat. See the [Always-Visible Inventory Spec](docs/always_visible_inventory.md) for details.
+*   **Experience (XP) & Gold:** The game uses two currencies. **Gold** buys consumables, while **XP** is spent on permanent, percentage-based upgrades. [Read more on the economy](docs/experience_and_currency.md).
+*   **Permanent Boosts:** Instead of small, flat bonuses, you can buy repeatable, percentage-based upgrades for damage and health. The cost for these boosts scales exponentially. [Read the Boosts Rework Plan](docs/boosts_rework_plan.md).
 ## Gameplay Overview
 
-1. **Explore** – Press **Space** to take a step. Each step may:
-   * Trigger a random enemy encounter (chance starts at 10 % and rises with every safe step)
-   * Find a random item (healing potion or gold pile)
-2. **Battle** – Turn-based combat where you can:
-   * **Space** – Attack the enemy  
-   * **D** – Defend to halve the next enemy hit  
-   * **P** – Drink a healing potion (if available)  
-   * **F** – Attempt to flee (25 % base chance)
-3. Defeat the enemy to increase your **score** and advance the **wave**.  
-4. If your HP drops to zero the game ends. Close the window or press the OS window close button to quit at any time.
+1.  **Explore** – Press **E** to take a step. Each step may trigger an enemy encounter or uncover an item.
+2.  **Battle** – When an encounter starts, you fight in a turn-based system.
+    *   **Space** – Attack the enemy (costs 1 stamina).
+    *   **D** – Defend to halve the next hit and recover 1 stamina.
+    *   **F** – Attempt to flee the battle.
+    *   **1-9** – Use an item from your quick-slots.
+3.  **Upgrade** – After winning battles, spend your earned XP and Gold at the shop for permanent boosts and consumable items.
+4.  If your HP drops to zero, the game ends.
 
 ## Controls
 
-| Key | Context  | Action                |
-|-----|----------|-----------------------|
-| `Space` | Explore & Battle | Advance / Attack |
-| `P` | Both | Use potion / Heal |
-| `D` | Battle | Defend |
-| `F` | Battle | Attempt to flee |
-| *Window close* | Any | Quit game |
+| Key     | Context          | Action                           |
+|---------|------------------|----------------------------------|
+| `E`     | Explore          | Take a step / Advance            |
+| `Space` | Battle           | Attack the enemy                 |
+| `D`     | Battle           | Defend (reduces damage, adds stamina) |
+| `F`     | Battle           | Attempt to flee                  |
+| `1`-`9` | Explore & Battle | Use item in corresponding slot     |
+| *Window close* | Any       | Quit game                        |
+
+## Design & Mechanics Docs
+
+The `docs/` directory contains detailed design specifications for key game systems.
+
+| Topic                      | File                                                 |
+|----------------------------|------------------------------------------------------|
+| **Architecture Overview**  | [docs/overview.md](docs/overview.md)                 |
+| Always-Visible Inventory   | [docs/always_visible_inventory.md](docs/always_visible_inventory.md) |
+| Boosts & Upgrades        | [docs/boosts_rework_plan.md](docs/boosts_rework_plan.md)     |
+| Experience & Currency      | [docs/experience_and_currency.md](docs/experience_and_currency.md) |
+| Finite-State Machine (FSM) | [docs/fsm_spec.md](docs/fsm_spec.md)                 |
+| Inventory Grouping         | [docs/inventory_grouping_plan.md](docs/inventory_grouping_plan.md)|
 
 ## Installation
 
