@@ -164,6 +164,7 @@ class BattleState(BaseState):
         self.player.gain_xp(xp_award)
         self.player.gain_gold(gold_award)
         self.meta.battles_won += 1
+        self.meta.encounter_index += 1
         add_to_log(self.battle_log, f"You have defeated the {self.enemy.name}!")
         add_to_log(self.battle_log, f"You gain {xp_award} XP and {gold_award} gold.")
 
