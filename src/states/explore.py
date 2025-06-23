@@ -157,7 +157,7 @@ class ExploreState:
         )
 
         if self.item_menu_open:
-            UI.render_item_menu(self.player.inventory, self.screen)
+            UI.render_item_menu(self.screen, self.player)
 
         # Display last message
         message = UI.get_last_message()
