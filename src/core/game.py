@@ -59,6 +59,7 @@ class Game:
                     self.state_obj = ShopState(self.screen, self.player)
                     self.state_manager.set_state(GameState.SHOP)
                 elif result['status'] == 'FLEE_SUCCESS':
+                    self.meta.reset()  # Reset the 'fled' flag
                     self.state_obj = ExploreState(self.screen, self.player)
                     self.state_manager.set_state(GameState.EXPLORE)
                 elif result['status'] == 'GAME_OVER':

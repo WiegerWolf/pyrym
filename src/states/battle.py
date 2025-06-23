@@ -25,7 +25,7 @@ class BattleState:
         self.battle_log = []
 
         # Reset entities for battle
-        self.player.reset()
+        self.player.battle_reset()
         self.enemy.reset()
         add_to_log(self.battle_log, f"A wild {self.enemy.name} appears!")
 

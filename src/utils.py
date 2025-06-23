@@ -15,6 +15,10 @@ class EncounterMeta:
     wave: int
     fled: bool = False
 
+    def reset(self):
+        """Resets transient flags for a new encounter."""
+        self.fled = False
+
 @dataclass
 class HealthBarSpec:
     """A dataclass to hold the specifications for rendering a health bar."""

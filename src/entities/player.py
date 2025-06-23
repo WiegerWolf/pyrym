@@ -65,7 +65,7 @@ class Player(Entity, ActionMixin):
             return result
         return None
 
-    def new_game_reset(self):
+    def reset(self):
         """Resets the player for a new game."""
         self.max_health = config.PLAYER_BASE_HEALTH
         self.health = self.max_health
@@ -73,9 +73,8 @@ class Player(Entity, ActionMixin):
         self.block_active = False
         self.state = PlayerState()
 
-    def reset(self):
-        """Resets player stats to their base values for a new battle."""
-        self.health = self.max_health
+    def battle_reset(self):
+        """Resets player stats for a new battle, preserving health."""
         self.stamina = 1
         self.block_active = False
 
