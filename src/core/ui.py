@@ -129,12 +129,6 @@ class UI:
             config.BATTLE_SCORE_POS,
             font_size=config.LARGE_FONT_SIZE,
         )
-        # UI.display_text(
-        #     screen,
-        #     f"Encounter: {battle_state.meta.encounter_index + 1}",
-        #     config.BATTLE_WAVE_POS,
-        #     font_size=config.MEDIUM_FONT_SIZE,
-        # )
 
         # Gold display
         UI.display_text(
