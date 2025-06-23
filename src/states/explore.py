@@ -106,7 +106,7 @@ class ExploreState(BaseState):  # pylint: disable=too-many-instance-attributes
         """
         screen.fill(config.BG_COLOR)
 
-        inventory_pos = (config.SCREEN_WIDTH - 150, config.SCREEN_HEIGHT - 110)
+        inventory_pos = (config.SCREEN_WIDTH - 250, config.SCREEN_HEIGHT - 210)
         UI.render_inventory(screen, self.player.inventory, pos=inventory_pos)
 
         # Display player health
@@ -139,13 +139,13 @@ class ExploreState(BaseState):  # pylint: disable=too-many-instance-attributes
         )
 
         # Display log messages
-        log_pos_x = config.EXPLORE_LOG_POS[0]
-        log_pos_y = config.EXPLORE_LOG_POS[1]
-        for i, message in enumerate(self.log[-config.MAX_LOG_MESSAGES:]):
+        for i, msg in enumerate(reversed(self.log[-config.MAX_LOG_MESSAGES:])):
+            log_y = (config.EXPLORE_LOG_POS[1] +
+                     (i * config.BATTLE_LOG_LINE_SPACING))
             UI.display_text(
                 screen,
-                message,
-                (log_pos_x, log_pos_y + i * 20),
-                font_size=config.SMALL_FONT_SIZE,
-                color=config.TEXT_COLOR
+                msg,
+                (config.EXPLORE_LOG_POS[0], log_y),
+                font_size=config.MEDIUM_FONT_SIZE,
+                color=config.LOG_COLORS[i],
             )

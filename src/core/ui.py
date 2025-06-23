@@ -29,6 +29,12 @@ class UI:
                 screen, text, (pos[0], pos[1] + y_offset), font_size=config.SMALL_FONT_SIZE
             )
             y_offset += 20
+            desc_text = f"  {item.description}"
+            UI.display_text(
+                screen, desc_text, (pos[0], pos[1] + y_offset),
+                font_size=config.SMALL_FONT_SIZE - 4, color=config.UI_ACCENT_COLOR
+            )
+            y_offset += 20
 
     @classmethod
     def notify(cls, text: str):
@@ -90,7 +96,7 @@ class UI:
         """Renders all elements of the battle screen."""
         screen.fill(config.BG_COLOR)
 
-        inventory_pos = (config.SCREEN_WIDTH - 150, config.SCREEN_HEIGHT - 110)
+        inventory_pos = (config.SCREEN_WIDTH - 250, config.SCREEN_HEIGHT - 210)
         UI.render_inventory(screen, battle_state.player.inventory, pos=inventory_pos)
 
         # Health bars
