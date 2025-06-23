@@ -17,7 +17,6 @@ def process_events():
         "defend": False,
         "use_item": False,
         "flee": False,
-        "cheat_gold": False,
         "number_keys": [],
         "quit_shop": False,
         "search": False,
@@ -45,10 +44,6 @@ def process_events():
             # Shop
             elif event.key == pygame.K_q:
                 events["quit_shop"] = True
-
-            # Cheats / Debug
-            elif event.key == pygame.K_g:
-                events["cheat_gold"] = True
 
             # Universal number keys
             elif event.key in [

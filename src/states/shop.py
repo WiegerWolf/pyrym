@@ -88,8 +88,6 @@ class ShopState:
 
         if signals.get("quit_shop"):
             return {"next_state": "EXPLORE"}
-        if signals.get("cheat_gold") and config.DEBUG:
-            StateManager.adjust_gold(100)
 
         if signals.get("number_keys"):
             key_pressed = signals["number_keys"][0]

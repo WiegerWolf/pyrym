@@ -3,12 +3,11 @@ battle.py
 Manages the state of a battle encounter.
 """
 import random
-import pygame
 
 from .. import config
 from ..core.ui import render_battle_screen, UI
 from ..items.items import HealingPotion
-from ..utils import add_to_log, EncounterMeta
+from ..utils import add_to_log, EncounterMeta, handle_item_use
 
 
 class BattleState:
@@ -112,18 +111,13 @@ class BattleState:
 
     def _handle_item_menu(self, signals):
         """Handle input when the item menu is open."""
-        if signals["number_keys"]:
+        if signals.get("number_keys"):
             key = signals["number_keys"][0]
-            index = key - pygame.key.key_code("1")
-            if 0 <= index < len(self.player.inventory):
-                result = self.player.use_item(index)
-                if result:
-                    add_to_log(self.battle_log, result["message"])
-                    self.item_menu_open = False
-                    self.player_turn = False
-            else:
-                add_to_log(self.battle_log, "Invalid item selection.")
-        if signals["use_item"]:
+            result = handle_item_use(self.player, key, lambda msg: add_to_log(self.battle_log, msg))
+            if result.get("success"):
+                self.item_menu_open = False
+                self.player_turn = False
+        elif signals.get("use_item"):
             self.item_menu_open = False
 
     def _handle_player_actions(self, signals):

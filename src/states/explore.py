@@ -4,14 +4,13 @@ Manages the exploration state where the player can find items or trigger encount
 """
 import random
 from random import randint
-import pygame
 
 from .. import config
 from ..config import BASE_ENCOUNTER_CHANCE, ENCOUNTER_INCREMENT, ITEM_FIND_CHANCE
 from ..core.game_state import StateManager
 from ..core.ui import UI
 from ..items import HealingPotion, GoldPile
-from ..utils import HealthBarSpec
+from ..utils import HealthBarSpec, handle_item_use
 
 
 class ExploreState:
@@ -50,8 +49,7 @@ class ExploreState:
         """
         if self.item_menu_open:
             return self._handle_item_menu(signals)
-        else:
-            return self._handle_player_actions(signals)
+        return self._handle_player_actions(signals)
 
     def _handle_item_menu(self, signals):
         """Handle input when the item menu is open."""
@@ -59,15 +57,10 @@ class ExploreState:
             self.item_menu_open = False
         elif signals.get("number_keys"):
             key = signals["number_keys"][0]
-            index = key - pygame.key.key_code("1")
-            if 0 <= index < len(self.player.inventory):
-                result = self.player.use_item(index)
-                if result:
-                    UI.notify(result["message"])
-                    self.item_menu_open = False
-                    return {"used_item": True}
-            else:
-                UI.notify("Invalid item selection.")
+            result = handle_item_use(self.player, key, UI.notify)
+            if result.get("success"):
+                self.item_menu_open = False
+                return {"used_item": True}
         return None
 
     def _handle_player_actions(self, signals):
@@ -79,8 +72,6 @@ class ExploreState:
                 self.item_menu_open = True
             else:
                 UI.notify("Inventory is empty.")
-        if signals.get("cheat_gold"):  # Cheat for gold
-            StateManager.adjust_gold(10)
         return None
 
     def _explore_turn(self):
@@ -116,7 +107,8 @@ class ExploreState:
         """
         self.screen.fill(config.BG_COLOR)
 
-        UI.render_inventory(self.screen, self.player.inventory, pos=(10, 10))
+        inventory_pos = (config.SCREEN_WIDTH - 150, 10)
+        UI.render_inventory(self.screen, self.player.inventory, pos=inventory_pos)
 
         # Display player health
         player_health_spec = HealthBarSpec(
@@ -138,7 +130,7 @@ class ExploreState:
         )
 
         # Display instructions
-        instructions = ["(S)earch", "(G)old Cheat"]
+        instructions = ["(S)earch"]
         if self.player.inventory:
             instructions.append("(I)tem")
         UI.display_text(
