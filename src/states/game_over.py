@@ -1,16 +1,37 @@
+# pylint: disable=no-member
+"""game_over.py: Displays the game over screen and handles restart/quit."""
 import pygame
-import pygame
-from src.core.ui import UI
+
 from src import config
+from src.core.ui import UI
 
 
 class GameOverState:
-    def __init__(self, screen, player, meta, last_battle_log=None):
+    """Represents the state when the game is over."""
+
+    def __init__(self, _screen, player, meta, last_battle_log=None):
+        """
+        Initializes the game over state.
+        Args:
+            _screen: The screen surface (unused).
+            player: The player character.
+            meta: The encounter metadata.
+            last_battle_log: The log from the last battle.
+        """
         self.player = player
         self.meta = meta
         self.battle_log = last_battle_log or []
 
     def handle_events(self, events):
+        """
+        Handles events in the game over state.
+
+        Args:
+            events: A list of pygame events.
+
+        Returns:
+            A string indicating the next state, or None.
+        """
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
@@ -20,6 +41,12 @@ class GameOverState:
         return None
 
     def render(self, screen):
+        """
+        Renders the game over screen.
+
+        Args:
+            screen: The screen surface to draw on.
+        """
         screen.fill((0, 0, 0))
         UI.display_text(
             screen, "GAME OVER", (screen.get_width()//2 - 100, 50),

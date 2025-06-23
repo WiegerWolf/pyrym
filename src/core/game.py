@@ -4,7 +4,7 @@ Core game loop and state management.
 """
 import pygame
 
-# pylint: disable=no-member
+# pylint: disable=no-member,too-many-branches,inconsistent-return-statements
 from .. import config
 from .game_state import GameState, StateManager
 from ..states.battle import BattleState
@@ -58,14 +58,18 @@ class Game:
                 if result['status'] == 'VICTORY':
                     self.meta.score += 1
                     self.meta.encounter_index += 1
-                    self.state_obj = VictoryState(self.screen, self.player, self.meta, self.state_obj.battle_log)
+                    self.state_obj = VictoryState(
+                        self.screen, self.player, self.meta, self.state_obj.battle_log
+                    )
                     self.state_manager.set_state(GameState.VICTORY)
                 elif result['status'] == 'FLEE_SUCCESS':
                     self.meta.reset()
                     self.state_obj = ExploreState(self.screen, self.player)
                     self.state_manager.set_state(GameState.EXPLORE)
                 elif result['status'] == 'GAME_OVER':
-                    self.state_obj = GameOverState(self.screen, self.player, self.meta, self.state_obj.battle_log)
+                    self.state_obj = GameOverState(
+                        self.screen, self.player, self.meta, self.state_obj.battle_log
+                    )
                     self.state_manager.set_state(GameState.GAME_OVER)
 
             elif current_game_state == GameState.VICTORY:
@@ -78,9 +82,9 @@ class Game:
                 status = self.state_obj.handle_events(raw_events)
                 if status == "RESTART":
                     self.state_manager.reset()
-                    self.__init__()  # Re-initialize the game
-                    return self.run()
-                elif status == "QUIT":
+                    self.__init__()  # pylint: disable=unnecessary-dunder-call
+                    return
+                if status == "QUIT":
                     running = False
 
             elif current_game_state == GameState.EXPLORE:

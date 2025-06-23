@@ -13,7 +13,7 @@ from ..utils import add_to_log, EncounterMeta, handle_item_use
 class BattleState:
     """Manages the state of a single battle encounter."""
 
-    def __init__(self, screen, player, enemy, encounter_meta: EncounterMeta):
+    def __init__(self, _screen, player, enemy, encounter_meta: EncounterMeta):
         self.player = player
         self.enemy = enemy
         self.meta = encounter_meta

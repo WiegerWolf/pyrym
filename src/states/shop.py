@@ -17,7 +17,7 @@ class ShopState:
     Manages the shop state, allowing the player to purchase items and upgrades.
     """
 
-    def __init__(self, screen, player):
+    def __init__(self, _screen, player):
         self.player = player
         self.purchase_message = ""
         self.message_timer = 0

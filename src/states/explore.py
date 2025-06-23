@@ -7,7 +7,6 @@ from random import randint
 
 from .. import config
 from ..config import BASE_ENCOUNTER_CHANCE, ENCOUNTER_INCREMENT, ITEM_FIND_CHANCE
-from ..core.game_state import StateManager
 from ..core.ui import UI
 from ..items import HealingPotion, GoldPile
 from ..utils import HealthBarSpec, handle_item_use, add_to_log
@@ -19,12 +18,12 @@ class ExploreState:  # pylint: disable=too-many-instance-attributes
     or trigger encounters.
     """
 
-    def __init__(self, screen, player):
+    def __init__(self, _screen, player):
         """
         Initializes the exploration state.
 
         Args:
-            screen: The screen surface to draw on.
+            _screen: The screen surface to draw on (unused).
             player: The player character instance.
         """
         # The screen is now passed to render()

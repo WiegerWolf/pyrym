@@ -7,7 +7,6 @@ from collections import Counter
 import pygame
 
 from src import config
-from src.core.game_state import StateManager
 from ..utils import HealthBarSpec
 
 
