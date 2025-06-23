@@ -9,6 +9,7 @@ import pygame
 from src import config
 from src.core.ui import UI
 from src.core.game_state import StateManager
+from src.items.items import HealingPotion
 
 
 class ShopState:
@@ -28,9 +29,9 @@ class ShopState:
         """Builds the shop's inventory list."""
         inventory = OrderedDict()
         inventory['1'] = {
-            "name": "Healing Salve", "cost": config.HEALING_SALVE_COST,
-            "effect": self._buy_healing_salve,
-            "desc": f"Heals {config.HEALING_SALVE_HEAL_AMOUNT} HP."
+            "name": "Healing Potion", "cost": config.HEALING_POTION_COST,
+            "effect": self._buy_healing_potion,
+            "desc": f"Heals {config.HEALING_POTION_HEAL_AMOUNT} HP."
         }
         inventory['2'] = {
             "name": "Stamina Potion", "cost": config.STAMINA_POTION_COST,
@@ -51,10 +52,11 @@ class ShopState:
             "desc": f"+{config.MAX_HP_BLESSING_AMOUNT} max HP (one-time)."
         }
         return inventory
-    def _buy_healing_salve(self):
-        """Buy a healing salve."""
-        self.player.heal(config.HEALING_SALVE_HEAL_AMOUNT)
-        self._show_purchase_message("Purchased Healing Salve!")
+
+    def _buy_healing_potion(self):
+        """Buy a healing potion."""
+        self.player.add_item(HealingPotion())
+        self._show_purchase_message("Purchased Healing Potion!")
 
     def _buy_stamina_potion(self):
         """Buy a stamina potion."""

@@ -91,7 +91,7 @@ class UI:
         """Renders all elements of the battle screen."""
         screen.fill(config.BG_COLOR)
 
-        inventory_pos = (config.SCREEN_WIDTH - 150, 10)
+        inventory_pos = (config.SCREEN_WIDTH - 150, config.SCREEN_HEIGHT - 110)
         UI.render_inventory(screen, battle_state.player.inventory, pos=inventory_pos)
 
         # Health bars

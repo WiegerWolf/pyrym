@@ -41,8 +41,8 @@ class HealingPotion(Item):
     def __init__(self):
         super().__init__(
             name="Healing Potion",
-            cost=config.HEALING_SALVE_COST,
-            description=f"Heals for {config.HEALING_SALVE_HEAL_AMOUNT} HP."
+            cost=config.HEALING_POTION_COST,
+            description=f"Heals for {config.HEALING_POTION_HEAL_AMOUNT} HP."
         )
 
     def __repr__(self) -> str:
@@ -50,10 +50,10 @@ class HealingPotion(Item):
 
     def use(self, entity: Entity) -> dict:
         """Heal the entity."""
-        entity.heal(config.HEALING_SALVE_HEAL_AMOUNT)
-        msg = f"Used {self.name}, healing {config.HEALING_SALVE_HEAL_AMOUNT} HP."
+        entity.heal(config.HEALING_POTION_HEAL_AMOUNT)
+        msg = f"Used {self.name}, healing {config.HEALING_POTION_HEAL_AMOUNT} HP."
         print(msg)
-        return {"message": msg, "value": config.HEALING_SALVE_HEAL_AMOUNT}
+        return {"message": msg, "value": config.HEALING_POTION_HEAL_AMOUNT}
 
 
 class StaminaPotion(Item):

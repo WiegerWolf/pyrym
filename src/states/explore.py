@@ -107,7 +107,7 @@ class ExploreState:
         """
         self.screen.fill(config.BG_COLOR)
 
-        inventory_pos = (config.SCREEN_WIDTH - 150, 10)
+        inventory_pos = (config.SCREEN_WIDTH - 150, config.SCREEN_HEIGHT - 110)
         UI.render_inventory(self.screen, self.player.inventory, pos=inventory_pos)
 
         # Display player health

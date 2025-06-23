@@ -46,7 +46,11 @@ class BattleState:
         msg = ""  # Default message if no action is taken
         if self.player_turn:
             if action == 'attack':
-                damage, crit, miss = self.player.attack_action(self.enemy)
+                result = self.player.attack_action(self.enemy)
+                if result.get("no_stamina"):
+                    add_to_log(self.battle_log, "Too tired to attack!")
+                    return  # Don't flip turn
+                damage, crit, miss = result["damage"], result["crit"], result["miss"]
                 msg = ("Player missed!" if miss else
                        f"Critical hit! Player deals {damage} damage." if crit else
                        f"Player deals {damage} damage.")
