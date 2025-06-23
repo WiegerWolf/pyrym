@@ -5,6 +5,10 @@ Explore, find loot, and battle endless waves of enemies in a classic “explore 
 
 ![Gameplay GIF](docs/preview.gif)
 
+## Core Mechanics
+
+*   **Experience (XP):** Earned from defeating enemies, used to buy permanent upgrades and blessings.
+*   **Gold:** Found while exploring, used to buy consumables.
 ## Gameplay Overview
 
 1. **Explore** – Press **Space** to take a step. Each step may:
