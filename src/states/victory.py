@@ -3,41 +3,38 @@
 import pygame
 
 from src import config
+from src.core.state_machine import BaseState
 from src.core.ui import UI
+from .shop import ShopState
 
 
-class VictoryState:
+class VictoryState(BaseState):
     """Represents the state of the game after a victorious battle."""
 
-    def __init__(self, _screen, player, meta, last_battle_log):
+    def __init__(self, player, meta, screen, last_battle_log):
         """
         Initializes the victory state.
 
         Args:
-            _screen: The screen surface (unused).
             player: The player character.
             meta: The encounter metadata.
+            screen: The screen surface to draw on.
             last_battle_log: The log from the last battle.
         """
+        super().__init__()
         self.player = player
         self.meta = meta
+        self.screen = screen
         self.last_battle_log = last_battle_log
 
     def handle_events(self, events):
         """
         Handles events in the victory state.
-
-        Args:
-            events: A list of pygame events.
-
-        Returns:
-            A string indicating the next state, or None.
         """
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    return "TO_SHOP"
-        return None
+                    self.machine.change(ShopState(self.player, self.meta, self.screen))
 
     def render(self, screen):
         """

@@ -7,21 +7,30 @@ from collections import OrderedDict
 import pygame
 
 from src import config
+from src.core.state_machine import BaseState
 from src.core.ui import UI
-from src.core.game_state import StateManager
 from src.items.items import HealingPotion, StaminaPotion
+from .explore import ExploreState
 
 
-class ShopState:
+class ShopState(BaseState):
     """
     Manages the shop state, allowing the player to purchase items and upgrades.
     """
 
-    def __init__(self, _screen, player):
+    def __init__(self, player, meta, screen):
+        super().__init__()
         self.player = player
+        self.meta = meta
+        self.screen = screen
         self.purchase_message = ""
         self.message_timer = 0
         self.items = self._build_inventory()
+
+    def enter(self, prev_state, **kwargs):
+        """Display a welcome message when entering the shop."""
+        self.purchase_message = "Welcome to the shop!"
+        self.message_timer = pygame.time.get_ticks()
 
     def _build_inventory(self) -> OrderedDict:
         """Builds the shop's inventory list."""
@@ -70,7 +79,9 @@ class ShopState:
         """Buy a max HP blessing."""
         self.player.max_health += config.MAX_HP_BLESSING_AMOUNT
         self.player.heal(self.player.max_health)  # Heal to full
-        StateManager.purchased_flags['max_hp_blessing'] = True
+        # This flag should be stored more centrally, perhaps on the player or a game session object.
+        # For now, we'll attach it to the StateMachine for persistence across states.
+        self.machine.purchased_flags['max_hp_blessing'] = True
         self._show_purchase_message("Max-HP Increased!")
 
     def _show_purchase_message(self, message):
@@ -78,25 +89,19 @@ class ShopState:
         self.purchase_message = message
         self.message_timer = pygame.time.get_ticks()
 
-    def update(self, signals):
-        """
-        Update shop logic based on input signals.
-        Returns a dictionary indicating the next state, or None.
-        """
-        if self.purchase_message and pygame.time.get_ticks() - self.message_timer > 1000:
+    def update(self, signals: dict) -> None:
+        """Update shop logic based on input signals."""
+        if self.purchase_message and pygame.time.get_ticks() - self.message_timer > 1500:
             self.purchase_message = ""
 
         if signals.get("quit_shop"):
-            return {"next_state": "EXPLORE"}
+            self.machine.change(ExploreState(self.player, self.meta, self.screen))
+            return
 
         if signals.get("number_keys"):
             key_pressed = signals["number_keys"][0]
-            key_1 = pygame.key.key_code("1")
-            key_4 = pygame.key.key_code("4")
-            if key_1 <= key_pressed <= key_4:
+            if pygame.K_1 <= key_pressed <= pygame.K_4:
                 self.purchase_item(chr(key_pressed))
-
-        return None
 
     def purchase_item(self, key: str):
         """Attempts to purchase an item based on the key pressed."""
@@ -105,7 +110,7 @@ class ShopState:
             return
 
         is_one_time = item["name"] == "Max-HP Blessing"
-        if is_one_time and StateManager.purchased_flags.get("max_hp_blessing"):
+        if is_one_time and getattr(self.machine, "purchased_flags", {}).get("max_hp_blessing"):
             self._show_purchase_message("Already purchased!")
             return
 
@@ -136,7 +141,7 @@ class ShopState:
         y_offset = 0
         for key, item in self.items.items():
             is_one_time_purchased = (item["name"] == "Max-HP Blessing" and
-                                     StateManager.purchased_flags.get("max_hp_blessing"))
+                                     getattr(self.machine, "purchased_flags", {}).get("max_hp_blessing"))
 
             is_disabled = is_one_time_purchased
 

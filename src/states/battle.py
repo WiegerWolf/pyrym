@@ -5,24 +5,29 @@ Manages the state of a battle encounter.
 import random
 
 from .. import config
+from ..core.state_machine import BaseState
 from ..core.ui import render_battle_screen, UI
 from ..items.items import HealingPotion
 from ..utils import add_to_log, EncounterMeta, handle_item_use
+from .game_over import GameOverState
+from .victory import VictoryState
 
 
-class BattleState:
+class BattleState(BaseState):
     """Manages the state of a single battle encounter."""
 
-    def __init__(self, _screen, player, enemy, encounter_meta: EncounterMeta):
+    def __init__(self, player, enemy, encounter_meta: EncounterMeta, screen):
+        super().__init__()
         self.player = player
         self.enemy = enemy
         self.meta = encounter_meta
+        self.screen = screen
         self.item_menu_open = False
-
         self.player_turn = True
         self.battle_log = []
 
-        # Reset entities for battle
+    def enter(self, prev_state, **kwargs):
+        """Reset entities and prepare for battle."""
         self.player.battle_reset()
         self.enemy.reset()
         add_to_log(self.battle_log, f"A wild {self.enemy.name} appears!")
@@ -99,11 +104,9 @@ class BattleState:
         self.meta.turns += 1
         self.player_turn = True
 
-    def update(self, signals):
-        """
-        Runs one frame of battle logic. Returns a status dictionary.
-        """
-        if not self.player_turn and self.enemy.health > 0:
+    def update(self, signals: dict) -> None:
+        """Runs one frame of battle logic."""
+        if not self.player_turn and self.enemy.is_alive():
             self.enemy_action()
 
         if self.player_turn:
@@ -112,7 +115,7 @@ class BattleState:
             else:
                 self._handle_player_actions(signals)
 
-        return self.check_battle_status()
+        self.check_battle_status()
 
     def _handle_item_menu(self, signals):
         """Handle input when the item menu is open."""
@@ -125,43 +128,33 @@ class BattleState:
         elif signals.get("use_item"):
             self.item_menu_open = False
 
-    def _handle_player_actions(self, signals):
+    def _handle_player_actions(self, signals: dict) -> None:
         """Handle player actions when the item menu is closed."""
         action_taken = None
-        if signals["attack"]:
+        if signals.get("attack"):
             action_taken = 'attack'
-        elif signals["defend"]:
+        elif signals.get("defend"):
             action_taken = 'defend'
-        elif signals["use_item"]:
-            if self.player.inventory:
-                self.item_menu_open = True
-            else:
-                add_to_log(self.battle_log, "Inventory is empty.")
+        elif signals.get("use_item"):
+            self._toggle_item_menu()
 
         if action_taken:
             self.player_action(action_taken)
-        elif signals["flee"]:
-            if random.random() <= config.FLEE_SUCCESS_PROB:
-                # This return is problematic for state management.
-                # It should set a state that the main loop can check.
-                # For now, we'll assume the caller handles this dict.
-                # A better approach would be a state machine.
-                self.meta.fled = True  # Set a flag instead of returning
-            else:
-                add_to_log(self.battle_log, "Flee failed!")
-                self.player_turn = False
+        elif signals.get("flee"):
+            self._attempt_flee()
 
-    def check_battle_status(self):
-        """Checks the status of the battle (win, lose, ongoing)."""
-        if self.meta.fled:
-            return {"status": "FLEE_SUCCESS"}
-        if self.enemy.health <= 0:
+    def check_battle_status(self) -> None:
+        """Checks if the battle is over and transitions to the next state."""
+        if not self.enemy.is_alive():
             self._handle_victory()
-            return {"status": "VICTORY"}
-        if self.player.health <= 0:
+            self.machine.change(
+                VictoryState(self.player, self.meta, self.screen, self.battle_log)
+            )
+        elif not self.player.is_alive():
             add_to_log(self.battle_log, "Player has been defeated!")
-            return {'status': 'GAME_OVER'}
-        return {'status': 'ONGOING'}
+            self.machine.change(
+                GameOverState(self.player, self.meta, self.screen, self.battle_log)
+            )
 
     def _handle_victory(self):
         """Handles the logic for when the player wins a battle."""
@@ -178,7 +171,26 @@ class BattleState:
             self.player.add_item(potion)
             add_to_log(self.battle_log, f"The enemy dropped {potion.name}!")
 
-    def render(self, screen):
+    def _toggle_item_menu(self) -> None:
+        """Opens or closes the item menu."""
+        if self.player.inventory:
+            self.item_menu_open = not self.item_menu_open
+        else:
+            add_to_log(self.battle_log, "Inventory is empty.")
+
+    def _attempt_flee(self) -> None:
+        """Handles the player's attempt to flee from battle."""
+        from .explore import ExploreState  # Lazy import to avoid circular dependency
+
+        if random.random() <= config.FLEE_SUCCESS_PROB:
+            add_to_log(self.battle_log, "Fled successfully!")
+            self.meta.reset()  # Reset encounter metadata
+            self.machine.change(ExploreState(self.player, self.meta, self.screen))
+        else:
+            add_to_log(self.battle_log, "Flee failed!")
+            self.player_turn = False
+
+    def render(self, screen) -> None:
         """Renders the battle screen."""
         render_battle_screen(screen, self)
         if self.item_menu_open:

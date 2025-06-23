@@ -3,42 +3,40 @@
 import pygame
 
 from src import config
+from src.core.state_machine import BaseState
 from src.core.ui import UI
 
 
-class GameOverState:
+class GameOverState(BaseState):
     """Represents the state when the game is over."""
 
-    def __init__(self, _screen, player, meta, last_battle_log=None):
+    def __init__(self, player, meta, screen, last_battle_log=None):
         """
         Initializes the game over state.
         Args:
-            _screen: The screen surface (unused).
             player: The player character.
             meta: The encounter metadata.
+            screen: The screen to render to.
             last_battle_log: The log from the last battle.
         """
+        super().__init__()
         self.player = player
         self.meta = meta
+        self.screen = screen
         self.battle_log = last_battle_log or []
 
     def handle_events(self, events):
         """
         Handles events in the game over state.
-
-        Args:
-            events: A list of pygame events.
-
-        Returns:
-            A string indicating the next state, or None.
         """
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
-                    return "RESTART"
+                    # The `game` object is not directly available, but we can signal a restart.
+                    # The main game loop will catch this and call the restart method.
+                    self.machine.game.restart_game()
                 if event.key == pygame.K_q:
-                    return "QUIT"
-        return None
+                    self.machine.game.end_game()
 
     def render(self, screen):
         """

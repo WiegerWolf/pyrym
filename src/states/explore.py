@@ -7,27 +7,30 @@ from random import randint
 
 from .. import config
 from ..config import BASE_ENCOUNTER_CHANCE, ENCOUNTER_INCREMENT, ITEM_FIND_CHANCE
+from ..core.state_machine import BaseState
 from ..core.ui import UI
 from ..items import HealingPotion, GoldPile
 from ..utils import HealthBarSpec, handle_item_use, add_to_log
+from .battle import BattleState
 
 
-class ExploreState:  # pylint: disable=too-many-instance-attributes
+class ExploreState(BaseState):  # pylint: disable=too-many-instance-attributes
     """
     Manages the exploration phase of the game, where the player can find items
     or trigger encounters.
     """
 
-    def __init__(self, _screen, player):
+    def __init__(self, player, meta, screen):
         """
         Initializes the exploration state.
 
         Args:
-            _screen: The screen surface to draw on (unused).
             player: The player character instance.
         """
-        # The screen is now passed to render()
+        super().__init__()
         self.player = player
+        self.meta = meta
+        self.screen = screen
         self.log = []
         self.base_chance = BASE_ENCOUNTER_CHANCE
         self.step = ENCOUNTER_INCREMENT
@@ -45,65 +48,71 @@ class ExploreState:  # pylint: disable=too-many-instance-attributes
                 player.remove_item(item)
                 UI.notify(f"Converted {item.name} to {item.amount} gold.")
 
-    def update(self, signals):
+    def update(self, signals: dict) -> None:
         """
         Updates the exploration state based on player input.
         """
         if self.item_menu_open:
-            return self._handle_item_menu(signals)
-        return self._handle_player_actions(signals)
+            self._handle_item_menu(signals)
+        else:
+            self._handle_player_actions(signals)
 
-    def _handle_item_menu(self, signals):
+    def _handle_item_menu(self, signals: dict) -> None:
         """Handle input when the item menu is open."""
         if signals.get("use_item"):
             self.item_menu_open = False
         elif signals.get("number_keys"):
             key = signals["number_keys"][0]
-            result = handle_item_use(self.player, key, UI.notify)
+            result = handle_item_use(self.player, key, lambda msg: add_to_log(self.log, msg))
             if result.get("success"):
                 self.item_menu_open = False
-                return {"used_item": True}
-        return None
 
-    def _handle_player_actions(self, signals):
+    def _handle_player_actions(self, signals: dict) -> None:
         """Handle player actions when the item menu is closed."""
-        if signals.get("search"):  # Continue exploring
-            return self._explore_turn()
-        if signals.get("use_item"):
+        if signals.get("explore"):
+            self._explore_turn()
+        elif signals.get("use_item"):
             if self.player.inventory:
                 self.item_menu_open = True
             else:
-                UI.notify("Inventory is empty.")
-        return None
+                add_to_log(self.log, "Inventory is empty.")
 
-    def _explore_turn(self):
+    def _explore_turn(self) -> None:
         """
         Handles the logic for a single turn of exploration.
-
-        Returns:
-            dict: A dictionary indicating if an encounter occurred.
+        Triggers encounters or item discoveries.
         """
-        if random.random() < self.encounter_chance:
-            self.encounter_chance = self.base_chance  # Reset chance
-            return {"encounter": True}
-        # Roll for item discovery
-        if random.random() < ITEM_FIND_CHANCE:
-            loot = random.choice([HealingPotion(), GoldPile(randint(5, 20))])
+        from ..entities import Enemy  # Lazy import to avoid circular dependency
 
-            # Non-storable items like GoldPile are used immediately.
-            if not loot.can_store:
-                loot.use(self.player)
-                add_to_log(self.log, f"+{loot.amount} Gold!")
-            else:
-                self.player.add_item(loot)
-                add_to_log(self.log, f"Found a {loot.name}.")
-        else:
-            add_to_log(self.log, "You found nothing.")
-
-        # Increment encounter chance
-        self.encounter_chance = min(1.0, self.encounter_chance + self.step)
         self.consecutive_turns += 1
-        return {"encounter": False}
+        self.player.regenerate_stamina()
+
+        # Check for encounter
+        if random.random() < self.encounter_chance:
+            self.encounter_chance = self.base_chance
+            add_to_log(self.log, "An enemy approaches!")
+            enemy = Enemy(encounter_index=self.meta.encounter_index)
+            battle_state = BattleState(self.player, enemy, self.meta, self.screen)
+            self.machine.change(battle_state)
+            return
+
+        # Check for finding an item
+        if random.random() < ITEM_FIND_CHANCE:
+            self._find_item()
+        else:
+            add_to_log(self.log, "You find nothing of interest.")
+
+        self.encounter_chance += self.step
+
+    def _find_item(self) -> None:
+        """Generates and awards a random item to the player."""
+        loot = random.choice([HealingPotion(), GoldPile(randint(5, 20))])
+        if not loot.can_store:
+            loot.use(self.player)
+            add_to_log(self.log, f"You found {loot.amount} gold!")
+        else:
+            self.player.add_item(loot)
+            add_to_log(self.log, f"You found a {loot.name}.")
 
     def render(self, screen):
         """
@@ -134,7 +143,7 @@ class ExploreState:  # pylint: disable=too-many-instance-attributes
         )
 
         # Display instructions
-        instructions = ["(S)earch"]
+        instructions = ["(E)xplore"]
         if self.player.inventory:
             instructions.append("(I)tem")
         UI.display_text(
