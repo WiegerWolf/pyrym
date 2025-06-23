@@ -151,7 +151,17 @@ class ShopState:
                 (config.SHOP_MENU_START_X, config.SHOP_MENU_START_Y + y_offset),
                 color=color
             )
-            y_offset += config.SHOP_LINE_SPACING
+
+            desc_color = color if color != config.TEXT_COLOR else config.UI_ACCENT_COLOR
+            UI.display_text(
+                self.screen,
+                f"   {item['desc']}",
+                (config.SHOP_MENU_START_X + 20,
+                 config.SHOP_MENU_START_Y + y_offset + 20),
+                font_size=config.SMALL_FONT_SIZE,
+                color=desc_color
+            )
+            y_offset += config.SHOP_LINE_SPACING + 20
 
         # Exit
         UI.display_text(self.screen, "Q) Exit Shop",
