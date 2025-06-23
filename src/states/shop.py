@@ -30,24 +30,24 @@ class ShopState:
         inventory = OrderedDict()
         inventory['1'] = {
             "name": "Healing Potion", "cost": config.HEALING_POTION_COST,
-            "effect": self._buy_healing_potion,
+            "effect": self._buy_healing_potion, "price_type": "gold",
             "desc": f"Heals {config.HEALING_POTION_HEAL_AMOUNT} HP."
         }
         inventory['2'] = {
             "name": "Stamina Potion", "cost": config.STAMINA_POTION_COST,
-            "effect": self._buy_stamina_potion,
+            "effect": self._buy_stamina_potion, "price_type": "gold",
             "desc": f"Grants +{config.STAMINA_POTION_STAMINA_GAIN} stamina."
         }
         inventory['3'] = {
             "name": "Damage Upgrade",
-            "cost": config.POWER_STRIKE_UPGRADE_COST,
+            "cost": config.POWER_STRIKE_UPGRADE_COST, "price_type": "xp",
             "effect": self._buy_power_strike_upgrade,
             "desc": f"Permanently +{config.POWER_STRIKE_UPGRADE_AMOUNT} "
                     "base damage to ALL attacks."
         }
         inventory['4'] = {
             "name": "Max-HP Blessing",
-            "cost": config.MAX_HP_BLESSING_COST,
+            "cost": config.MAX_HP_BLESSING_COST, "price_type": "xp",
             "effect": self._buy_max_hp_blessing,
             "desc": f"+{config.MAX_HP_BLESSING_AMOUNT} max HP (one-time)."
         }
@@ -111,11 +111,19 @@ class ShopState:
             self._show_purchase_message("Already purchased!")
             return
 
-        if StateManager.gold >= item["cost"]:
-            StateManager.adjust_gold(-item["cost"])
-            item["effect"]()
+        price_type = item.get("price_type", "gold")
+        if price_type == "xp":
+            if self.player.spend_xp(item["cost"]):
+                item["effect"]()
+                self._show_purchase_message("Purchase successful!")
+            else:
+                self._show_purchase_message("Not enough XP!")
         else:
-            self._show_purchase_message("Not enough gold!")
+            if StateManager.gold >= item["cost"]:
+                StateManager.adjust_gold(-item["cost"])
+                item["effect"]()
+            else:
+                self._show_purchase_message("Not enough gold!")
 
     def render(self):
         """Renders the shop screen."""
@@ -125,10 +133,7 @@ class ShopState:
         UI.display_text(self.screen, "Shop", config.SHOP_TITLE_POS,
                         font_size=config.LARGE_FONT_SIZE)
 
-        # Gold
-        UI.display_text(
-            self.screen, f"Gold: {StateManager.gold} g", config.SHOP_GOLD_POS
-        )
+        self._render_player_stats()
 
         # Items
         y_offset = 0
@@ -139,10 +144,18 @@ class ShopState:
             is_disabled = is_one_time_purchased
 
             color = config.TEXT_COLOR
-            if StateManager.gold < item['cost'] or is_disabled:
-                color = (150, 150, 150)  # Greyed out
+            currency_suffix = "XP" if item.get("price_type") == "xp" else "G"
+            
+            can_afford = False
+            if item.get("price_type") == "xp":
+                can_afford = self.player.xp >= item['cost']
+            else:
+                can_afford = StateManager.gold >= item['cost']
 
-            text = f"{key}) {item['name']} - {item['cost']} g"
+            if not can_afford or is_disabled:
+                color = (150, 150, 150)  # Greyed out
+            
+            text = f"{key}) {item['name']} - {item['cost']} {currency_suffix}"
             if is_disabled:
                 text += " (Purchased)"
 
@@ -173,3 +186,40 @@ class ShopState:
             UI.display_text(
                 self.screen, self.purchase_message, (350, 500), color=(255, 255, 0)
             )
+
+
+    def _render_player_stats(self):
+        """Renders the player's current stats (HP, Gold, XP) and inventory."""
+        stats_line_1 = (f"HP  {self.player.health} / {self.player.max_health}    "
+                        f"Gold  {StateManager.gold} G    "
+                        f"XP  {self.player.xp}")
+        UI.display_text(self.screen, stats_line_1, (10, 10))
+
+        # Render inventory below the stats
+        UI.render_inventory(self.screen, self.player.inventory, pos=(10, 40))
+
+
+if __name__ == '__main__':
+    # Unit-style test stub
+    import sys
+    import os
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+    from src.entities.player import Player
+
+    pygame.init()
+    screen = pygame.display.set_mode((config.SCREEN_WIDTH, config.SCREEN_HEIGHT))
+    player = Player()
+    player.gain_xp(230)
+    player.health = 47
+    player.max_health = 60
+    player.add_item(HealingPotion())
+    StateManager.gold = 125
+
+    shop_state = ShopState(screen, player)
+    shop_state.render()
+
+    pygame.display.flip()  # Update the full display Surface to the screen
+    pygame.time.wait(2000)
+    pygame.quit()
+    print("ShopState render test completed successfully.")
+

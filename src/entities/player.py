@@ -15,6 +15,8 @@ class PlayerState:
     """A container for player-specific state."""
     inventory: list[Item] = field(default_factory=list)
     power_strike_bonus: int = 0
+    xp: int = 0
+    gold: int = 0
 
 
 class Player(Entity, ActionMixin):
@@ -31,6 +33,20 @@ class Player(Entity, ActionMixin):
         # Abilities
         self.attack_ability = PlayerAttackAbility()
         self.defend_ability = PlayerDefendAbility()
+
+    def __repr__(self):
+        return (f"Player(HP: {self.health}/{self.max_health}, "
+                f"XP: {self.xp}, Gold: {self.gold})")
+
+    @property
+    def xp(self) -> int:
+        """Returns the player's experience points."""
+        return self.state.xp
+
+    @property
+    def gold(self) -> int:
+        """Returns the player's gold."""
+        return self.state.gold
 
     @property
     def inventory(self):
@@ -65,6 +81,23 @@ class Player(Entity, ActionMixin):
             return result
         return None
 
+    def gain_xp(self, amount: int):
+        """Adds experience points to the player."""
+        if amount > 0:
+            self.state.xp = min(self.state.xp + amount, 999_999)
+
+    def spend_xp(self, amount: int) -> bool:
+        """Spends experience points if available."""
+        if self.state.xp >= amount:
+            self.state.xp -= amount
+            return True
+        return False
+
+    def gain_gold(self, amount: int):
+        """Adds gold to the player."""
+        if amount > 0:
+            self.state.gold += amount
+
     def reset(self):
         """Resets the player for a new game."""
         self.max_health = config.PLAYER_BASE_HEALTH
@@ -82,3 +115,21 @@ class Player(Entity, ActionMixin):
     def is_defending(self):
         """Returns True if the player is defending."""
         return self.block_active
+
+
+if __name__ == '__main__':
+    # Minimal unit-style test
+    player = Player()
+    player.gain_xp(30)
+    assert player.xp == 30, f"Expected 30 XP, got {player.xp}"
+
+    assert player.spend_xp(10) is True, "spend_xp(10) should return True"
+    assert player.xp == 20, f"Expected 20 XP after spending, got {player.xp}"
+
+    assert player.spend_xp(25) is False, "spend_xp(25) should return False"
+    assert player.xp == 20, f"XP should not change after failed spend, got {player.xp}"
+
+    player.gain_gold(100)
+    assert player.gold == 100, f"Expected 100 gold, got {player.gold}"
+
+    print("Player XP and Gold tests passed!")

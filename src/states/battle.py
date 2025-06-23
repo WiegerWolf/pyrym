@@ -156,11 +156,21 @@ class BattleState:
         if self.meta.fled:
             return {"status": "FLEE_SUCCESS"}
         if self.enemy.health <= 0:
+            self._handle_victory()
             return {"status": "VICTORY"}
         if self.player.health <= 0:
             add_to_log(self.battle_log, "Player has been defeated!")
             return {'status': 'GAME_OVER'}
         return {'status': 'ONGOING'}
+
+    def _handle_victory(self):
+        """Handles the logic for when the player wins a battle."""
+        xp_award = max(1, (self.enemy.encounter_index + 1) * 10)
+        gold_award = (self.enemy.encounter_index + 1) * 5
+        self.player.gain_xp(xp_award)
+        self.player.gain_gold(gold_award)
+        add_to_log(self.battle_log, f"You have defeated the {self.enemy.name}!")
+        add_to_log(self.battle_log, f"You gain {xp_award} XP and {gold_award} gold.")
 
     def render(self):
         """Renders the battle screen."""
