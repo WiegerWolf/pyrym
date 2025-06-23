@@ -192,6 +192,20 @@ class UI:
             )
 
     @staticmethod
+    def render_explore_log(screen, log):
+        """Renders the exploration log."""
+        for i, msg in enumerate(reversed(log[-5:])):
+            log_y = (config.BATTLE_LOG_START_POS[1] +
+                     (i * config.BATTLE_LOG_LINE_SPACING))
+            UI.display_text(
+                screen,
+                msg,
+                (config.BATTLE_LOG_START_POS[0], log_y),
+                font_size=config.MEDIUM_FONT_SIZE,
+                color=config.LOG_COLORS[i],
+            )
+
+    @staticmethod
     def render_item_menu(screen, player, menu_pos=(100, 400)):
         """Renders the item selection menu."""
         menu_items = []

@@ -10,7 +10,7 @@ from ..config import BASE_ENCOUNTER_CHANCE, ENCOUNTER_INCREMENT, ITEM_FIND_CHANC
 from ..core.game_state import StateManager
 from ..core.ui import UI
 from ..items import HealingPotion, GoldPile
-from ..utils import HealthBarSpec, handle_item_use
+from ..utils import HealthBarSpec, handle_item_use, add_to_log
 
 
 class ExploreState:
@@ -29,11 +29,14 @@ class ExploreState:
         """
         self.screen = screen
         self.player = player
+        self.log = []
         self.base_chance = BASE_ENCOUNTER_CHANCE
         self.step = ENCOUNTER_INCREMENT
         self.consecutive_turns = 0
         self.encounter_chance = self.base_chance
         self.item_menu_open = False
+
+        add_to_log(self.log, "You are exploring the area.")
 
         # Retroactively convert any GoldPiles in inventory from old saves
         # to gold.
@@ -91,10 +94,12 @@ class ExploreState:
             # Non-storable items like GoldPile are used immediately.
             if not loot.can_store:
                 loot.use(self.player)
-                UI.notify(f"+{loot.amount} Gold!")
+                add_to_log(self.log, f"+{loot.amount} Gold!")
             else:
                 self.player.add_item(loot)
-                UI.notify(f"Found a {loot.name}.")
+                add_to_log(self.log, f"Found a {loot.name}.")
+        else:
+            add_to_log(self.log, "You found nothing.")
 
         # Increment encounter chance
         self.encounter_chance = min(1.0, self.encounter_chance + self.step)
@@ -151,12 +156,5 @@ class ExploreState:
         if self.item_menu_open:
             UI.render_item_menu(self.screen, self.player)
 
-        # Display last message
-        message = UI.get_last_message()
-        if message:
-            UI.display_text(
-                self.screen,
-                message,
-                config.EXPLORE_MESSAGE_POS,
-                font_size=config.MEDIUM_FONT_SIZE
-            )
+        # Display log messages
+        UI.render_explore_log(self.screen, self.log)
