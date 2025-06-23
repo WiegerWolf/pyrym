@@ -61,13 +61,11 @@ class Player(Entity, ActionMixin):
     def add_item(self, item: Item):
         """Adds an item to the player's inventory."""
         self.state.inventory.append(item)
-        print(f"Added {item.name} to inventory.")
 
     def remove_item(self, item: Item):
         """Removes an item from the player's inventory."""
         if item in self.state.inventory:
             self.state.inventory.remove(item)
-            print(f"Removed {item.name} from inventory.")
 
     def use_item(self, index: int) -> dict | None:
         """
