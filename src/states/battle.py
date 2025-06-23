@@ -1,9 +1,8 @@
+# pylint: disable=too-many-instance-attributes, attribute-defined-outside-init
 # pylint: disable=cyclic-import
-"""
-battle.py
-Manages the state of a battle encounter.
-"""
 import random
+
+import pygame
 
 from .. import config
 from ..core.state_machine import BaseState
@@ -21,7 +20,6 @@ class BattleState(BaseState):
         self.enemy = enemy
         self.meta = encounter_meta
         self.screen = screen
-        self.item_menu_open = False
         self.player_turn = True
         self.battle_log = []
 
@@ -109,33 +107,22 @@ class BattleState(BaseState):
             self.enemy_action()
 
         if self.player_turn:
-            if self.item_menu_open:
-                self._handle_item_menu(signals)
-            else:
-                self._handle_player_actions(signals)
+            self._handle_player_actions(signals)
 
         self.check_battle_status()
 
-    def _handle_item_menu(self, signals):
-        """Handle input when the item menu is open."""
-        if signals.get("number_keys"):
-            key = signals["number_keys"][0]
-            result = handle_item_use(self.player, key, lambda msg: add_to_log(self.battle_log, msg))
-            if result.get("success"):
-                self.item_menu_open = False
-                self.player_turn = False
-        elif signals.get("use_item"):
-            self.item_menu_open = False
-
     def _handle_player_actions(self, signals: dict) -> None:
-        """Handle player actions when the item menu is closed."""
+        """Handle player actions."""
         action_taken = None
         if signals.get("attack"):
             action_taken = 'attack'
         elif signals.get("defend"):
             action_taken = 'defend'
-        elif signals.get("use_item"):
-            self._toggle_item_menu()
+        elif signals.get("number_keys"):
+            key = signals["number_keys"][0]
+            result = handle_item_use(self.player, key, lambda msg: add_to_log(self.battle_log, msg))
+            if result.get("success"):
+                self.player_turn = False
 
         if action_taken:
             self.player_action(action_taken)
@@ -175,13 +162,6 @@ class BattleState(BaseState):
             self.player.add_item(potion)
             add_to_log(self.battle_log, f"The enemy dropped {potion.name}!")
 
-    def _toggle_item_menu(self) -> None:
-        """Opens or closes the item menu."""
-        if self.player.inventory:
-            self.item_menu_open = not self.item_menu_open
-        else:
-            add_to_log(self.battle_log, "Inventory is empty.")
-
     def _attempt_flee(self) -> None:
         """Handles the player's attempt to flee from battle."""
         # pylint: disable=import-outside-toplevel
@@ -198,5 +178,3 @@ class BattleState(BaseState):
     def render(self, screen) -> None:
         """Renders the battle screen."""
         render_battle_screen(screen, self)
-        if self.item_menu_open:
-            UI.render_item_menu(screen, self.player)

@@ -1,10 +1,9 @@
+# pylint: disable=too-many-instance-attributes
 # pylint: disable=cyclic-import
-"""
-explore.py
-Manages the exploration state where the player can find items or trigger encounters.
-"""
 import random
 from random import randint
+
+import pygame
 
 from .. import config
 from ..config import BASE_ENCOUNTER_CHANCE, ENCOUNTER_INCREMENT, ITEM_FIND_CHANCE
@@ -36,7 +35,6 @@ class ExploreState(BaseState):  # pylint: disable=too-many-instance-attributes
         self.step = ENCOUNTER_INCREMENT
         self.consecutive_turns = 0
         self.encounter_chance = self.base_chance
-        self.item_menu_open = False
 
         add_to_log(self.log, "You are exploring the area.")
 
@@ -52,30 +50,15 @@ class ExploreState(BaseState):  # pylint: disable=too-many-instance-attributes
         """
         Updates the exploration state based on player input.
         """
-        if self.item_menu_open:
-            self._handle_item_menu(signals)
-        else:
-            self._handle_player_actions(signals)
-
-    def _handle_item_menu(self, signals: dict) -> None:
-        """Handle input when the item menu is open."""
-        if signals.get("use_item"):
-            self.item_menu_open = False
-        elif signals.get("number_keys"):
-            key = signals["number_keys"][0]
-            result = handle_item_use(self.player, key, lambda msg: add_to_log(self.log, msg))
-            if result.get("success"):
-                self.item_menu_open = False
+        self._handle_player_actions(signals)
 
     def _handle_player_actions(self, signals: dict) -> None:
-        """Handle player actions when the item menu is closed."""
+        """Handle player actions."""
         if signals.get("explore"):
             self._explore_turn()
-        elif signals.get("use_item"):
-            if self.player.inventory:
-                self.item_menu_open = True
-            else:
-                add_to_log(self.log, "Inventory is empty.")
+        elif signals.get("number_keys"):
+            key = signals["number_keys"][0]
+            handle_item_use(self.player, key, lambda msg: add_to_log(self.log, msg))
 
     def _explore_turn(self) -> None:
         """
@@ -147,25 +130,22 @@ class ExploreState(BaseState):  # pylint: disable=too-many-instance-attributes
 
         # Display instructions
         instructions = ["(E)xplore"]
-        if self.player.inventory:
-            instructions.append("(I)tem")
-        UI.display_text(
-            screen, ", ".join(instructions),
-            config.EXPLORE_INSTRUCTIONS_POS,
-            font_size=config.MEDIUM_FONT_SIZE,
-            color=config.UI_ACCENT_COLOR
-        )
-
-        # Display encounter chance
         UI.display_text(
             screen,
-            f"Encounter Chance: {self.encounter_chance:.2f}",
-            config.EXPLORE_ENCOUNTER_CHANCE_POS,
-            font_size=config.MEDIUM_FONT_SIZE
+            " ".join(instructions),
+            config.EXPLORE_INSTRUCTIONS_POS,
+            font_size=config.MEDIUM_FONT_SIZE,
+            color=config.TEXT_COLOR
         )
 
-        if self.item_menu_open:
-            UI.render_item_menu(screen, self.player)
-
         # Display log messages
-        UI.render_explore_log(screen, self.log)
+        log_pos_x = config.EXPLORE_LOG_POS[0]
+        log_pos_y = config.EXPLORE_LOG_POS[1]
+        for i, message in enumerate(self.log[-config.MAX_LOG_MESSAGES:]):
+            UI.display_text(
+                screen,
+                message,
+                (log_pos_x, log_pos_y + i * 20),
+                font_size=config.SMALL_FONT_SIZE,
+                color=config.TEXT_COLOR
+            )

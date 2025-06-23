@@ -22,9 +22,9 @@ class UI:
     def render_inventory(screen, inventory, pos=(10, 10)):
         """Draws each item name × qty."""
         y_offset = 0
-        item_counts = Counter(item.name for item in inventory)
-        for item_name, qty in item_counts.items():
-            text = f"{item_name} x{qty}"
+        grouped_items = group_inventory(inventory)
+        for idx, (item, qty, _) in enumerate(grouped_items[:9]):
+            text = f"{idx + 1}. {item.name} x{qty}"
             UI.display_text(
                 screen, text, (pos[0], pos[1] + y_offset), font_size=config.SMALL_FONT_SIZE
             )
@@ -134,26 +134,14 @@ class UI:
 
         # Instructions
         if battle_state.player_turn:
-            if battle_state.item_menu_open:
-                UI.display_text(
-                    screen,
-                    "Select an item (1-9) or (I) to cancel",
-                    config.BATTLE_INSTRUCTIONS_POS,
-                    font_size=config.MEDIUM_FONT_SIZE,
-                    color=config.UI_ACCENT_COLOR,
-                )
-            else:
-                actions = ["(A)ttack", "(D)efend"]
-                if battle_state.player.inventory:
-                    actions.append("(I)tem")
-                actions.append("(F)lee")
-                UI.display_text(
-                    screen,
-                    "    ".join(actions),
-                    config.BATTLE_INSTRUCTIONS_POS,
-                    font_size=config.MEDIUM_FONT_SIZE,
-                    color=config.UI_ACCENT_COLOR,
-                )
+            actions = ["(A)ttack", "(D)efend", "(F)lee"]
+            UI.display_text(
+                screen,
+                "    ".join(actions),
+                config.BATTLE_INSTRUCTIONS_POS,
+                font_size=config.MEDIUM_FONT_SIZE,
+                color=config.UI_ACCENT_COLOR,
+            )
         else:
             UI.display_text(
                 screen,
@@ -192,43 +180,6 @@ class UI:
                 color=config.LOG_COLORS[i],
             )
 
-    @staticmethod
-    def render_item_menu(screen, player, menu_pos=None):
-        """
-        Renders the item selection menu, dynamically positioning it to avoid
-        the activity log. Items are grouped by name.
-        """
-        menu_items = []
-        grouped = group_inventory(player.inventory)
-
-        if not grouped:
-            menu_items.append("Inventory is empty.")
-        else:
-            for i, (item, qty, _) in enumerate(grouped):
-                name = f"{item.name} x{qty}" if qty > 1 else item.name
-                menu_items.append(f"({i + 1}) {name}: {item.description}")
-
-        # Default position and layout values
-        line_height = 30
-        x_pos = 100
-
-        # Calculate menu height and starting Y position to avoid overlap
-        menu_height = len(menu_items) * line_height
-        log_top_y = config.BATTLE_LOG_START_POS[1]
-        y_pos = log_top_y - menu_height - 10  # 10px buffer
-
-        # If a specific menu_pos is provided, use it instead
-        if menu_pos:
-            x_pos, y_pos = menu_pos[0], menu_pos[1]
-
-        for i, text in enumerate(menu_items):
-            UI.display_text(
-                screen,
-                text,
-                (x_pos, y_pos + i * line_height),
-                font_size=config.MEDIUM_FONT_SIZE,
-                color=config.TEXT_COLOR,
-            )
 
 
 def render_battle_screen(*args, **kwargs):
