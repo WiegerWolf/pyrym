@@ -198,28 +198,3 @@ class ShopState:
         # Render inventory below the stats
         UI.render_inventory(self.screen, self.player.inventory, pos=(10, 40))
 
-
-if __name__ == '__main__':
-    # Unit-style test stub
-    import sys
-    import os
-    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-    from src.entities.player import Player
-
-    pygame.init()
-    screen = pygame.display.set_mode((config.SCREEN_WIDTH, config.SCREEN_HEIGHT))
-    player = Player()
-    player.gain_xp(230)
-    player.health = 47
-    player.max_health = 60
-    player.add_item(HealingPotion())
-    StateManager.gold = 125
-
-    shop_state = ShopState(screen, player)
-    shop_state.render()
-
-    pygame.display.flip()  # Update the full display Surface to the screen
-    pygame.time.wait(2000)
-    pygame.quit()
-    print("ShopState render test completed successfully.")
-
