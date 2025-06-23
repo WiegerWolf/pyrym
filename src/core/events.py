@@ -8,9 +8,8 @@ import pygame
 def process_events():
     """
     Process pygame events and return a dictionary of game actions.
-    This version is simplified to eliminate the need for a separate
-    event-handling function inside the BattleState, reducing complexity.
     """
+    raw_events = pygame.event.get()
     events = {
         "quit": False,
         "attack": False,
@@ -22,7 +21,7 @@ def process_events():
         "search": False,
     }
 
-    for event in pygame.event.get():
+    for event in raw_events:
         if event.type == pygame.QUIT:
             events["quit"] = True
 
@@ -53,4 +52,5 @@ def process_events():
             ]:
                 events["number_keys"].append(event.key)
 
+    events["raw_events"] = raw_events
     return events

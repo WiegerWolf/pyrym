@@ -45,6 +45,7 @@ class Game:
         running = True
         while running:
             signals = process_events()
+            raw_events = signals["raw_events"]
 
             if signals["quit"]:
                 running = False
@@ -68,13 +69,13 @@ class Game:
                     self.state_manager.set_state(GameState.GAME_OVER)
 
             elif current_game_state == GameState.VICTORY:
-                status = self.state_obj.handle_events(pygame.event.get())
+                status = self.state_obj.handle_events(raw_events)
                 if status == "TO_SHOP":
                     self.state_obj = ShopState(self.screen, self.player)
                     self.state_manager.set_state(GameState.SHOP)
 
             elif current_game_state == GameState.GAME_OVER:
-                status = self.state_obj.handle_events(pygame.event.get())
+                status = self.state_obj.handle_events(raw_events)
                 if status == "RESTART":
                     self.__init__()  # Re-initialize the game
                     return self.run()
