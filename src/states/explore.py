@@ -27,7 +27,7 @@ class ExploreState:  # pylint: disable=too-many-instance-attributes
             screen: The screen surface to draw on.
             player: The player character instance.
         """
-        self.screen = screen
+        # The screen is now passed to render()
         self.player = player
         self.log = []
         self.base_chance = BASE_ENCOUNTER_CHANCE
@@ -106,14 +106,14 @@ class ExploreState:  # pylint: disable=too-many-instance-attributes
         self.consecutive_turns += 1
         return {"encounter": False}
 
-    def render(self):
+    def render(self, screen):
         """
         Renders the exploration state.
         """
-        self.screen.fill(config.BG_COLOR)
+        screen.fill(config.BG_COLOR)
 
         inventory_pos = (config.SCREEN_WIDTH - 150, config.SCREEN_HEIGHT - 110)
-        UI.render_inventory(self.screen, self.player.inventory, pos=inventory_pos)
+        UI.render_inventory(screen, self.player.inventory, pos=inventory_pos)
 
         # Display player health
         player_health_spec = HealthBarSpec(
@@ -123,11 +123,11 @@ class ExploreState:  # pylint: disable=too-many-instance-attributes
             color=config.PLAYER_HEALTH_COLOR,
             label="Player"
         )
-        UI.draw_health_bar(self.screen, player_health_spec)
+        UI.draw_health_bar(screen, player_health_spec)
 
         # Gold display
         UI.display_text(
-            self.screen,
+            screen,
             f"Gold: {StateManager.gold}",
             config.EXPLORE_GOLD_POS,
             font_size=config.LARGE_FONT_SIZE,
@@ -139,7 +139,7 @@ class ExploreState:  # pylint: disable=too-many-instance-attributes
         if self.player.inventory:
             instructions.append("(I)tem")
         UI.display_text(
-            self.screen, ", ".join(instructions),
+            screen, ", ".join(instructions),
             config.EXPLORE_INSTRUCTIONS_POS,
             font_size=config.MEDIUM_FONT_SIZE,
             color=config.UI_ACCENT_COLOR
@@ -147,14 +147,14 @@ class ExploreState:  # pylint: disable=too-many-instance-attributes
 
         # Display encounter chance
         UI.display_text(
-            self.screen,
+            screen,
             f"Encounter Chance: {self.encounter_chance:.2f}",
             config.EXPLORE_ENCOUNTER_CHANCE_POS,
             font_size=config.MEDIUM_FONT_SIZE
         )
 
         if self.item_menu_open:
-            UI.render_item_menu(self.screen, self.player)
+            UI.render_item_menu(screen, self.player)
 
         # Display log messages
-        UI.render_explore_log(self.screen, self.log)
+        UI.render_explore_log(screen, self.log)

@@ -14,7 +14,6 @@ class BattleState:
     """Manages the state of a single battle encounter."""
 
     def __init__(self, screen, player, enemy, encounter_meta: EncounterMeta):
-        self.screen = screen
         self.player = player
         self.enemy = enemy
         self.meta = encounter_meta
@@ -179,8 +178,8 @@ class BattleState:
             self.player.add_item(potion)
             add_to_log(self.battle_log, f"The enemy dropped {potion.name}!")
 
-    def render(self):
+    def render(self, screen):
         """Renders the battle screen."""
-        render_battle_screen(self.screen, self)
+        render_battle_screen(screen, self)
         if self.item_menu_open:
-            UI.render_item_menu(self.screen, self.player)
+            UI.render_item_menu(screen, self.player)

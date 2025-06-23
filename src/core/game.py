@@ -57,14 +57,14 @@ class Game:
                 if result['status'] == 'VICTORY':
                     self.meta.score += 1
                     self.meta.encounter_index += 1
-                    self.state_obj = VictoryState(self.player, self.meta, self.state_obj.battle_log)
+                    self.state_obj = VictoryState(self.screen, self.player, self.meta, self.state_obj.battle_log)
                     self.state_manager.set_state(GameState.VICTORY)
                 elif result['status'] == 'FLEE_SUCCESS':
                     self.meta.reset()
                     self.state_obj = ExploreState(self.screen, self.player)
                     self.state_manager.set_state(GameState.EXPLORE)
                 elif result['status'] == 'GAME_OVER':
-                    self.state_obj = GameOverState(self.player, self.meta)
+                    self.state_obj = GameOverState(self.screen, self.player, self.meta)
                     self.state_manager.set_state(GameState.GAME_OVER)
 
             elif current_game_state == GameState.VICTORY:
@@ -93,7 +93,7 @@ class Game:
                     self.state_manager.set_state(GameState.EXPLORE)
 
             # All states now have a consistent render method
-            self.state_obj.render()
+            self.state_obj.render(self.screen)
 
             pygame.display.flip()
             self.clock.tick(config.FPS)

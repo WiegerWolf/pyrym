@@ -18,9 +18,7 @@ class ShopState:
     """
 
     def __init__(self, screen, player):
-        self.screen = screen
         self.player = player
-        self.font = pygame.font.Font(None, config.LARGE_FONT_SIZE)
         self.purchase_message = ""
         self.message_timer = 0
         self.items = self._build_inventory()
@@ -125,15 +123,15 @@ class ShopState:
             else:
                 self._show_purchase_message("Not enough gold!")
 
-    def render(self):
+    def render(self, screen):
         """Renders the shop screen."""
-        self.screen.fill(config.BG_COLOR)
+        screen.fill(config.BG_COLOR)
 
         # Title
-        UI.display_text(self.screen, "Shop", config.SHOP_TITLE_POS,
+        UI.display_text(screen, "Shop", config.SHOP_TITLE_POS,
                         font_size=config.LARGE_FONT_SIZE)
 
-        self._render_player_stats()
+        self._render_player_stats(screen)
 
         # Items
         y_offset = 0
@@ -160,14 +158,14 @@ class ShopState:
                 text += " (Purchased)"
 
             UI.display_text(
-                self.screen, text,
+                screen, text,
                 (config.SHOP_MENU_START_X, config.SHOP_MENU_START_Y + y_offset),
                 color=color
             )
 
             desc_color = color if color != config.TEXT_COLOR else config.UI_ACCENT_COLOR
             UI.display_text(
-                self.screen,
+                screen,
                 f"   {item['desc']}",
                 (config.SHOP_MENU_START_X + 20,
                  config.SHOP_MENU_START_Y + y_offset + 20),
@@ -177,23 +175,23 @@ class ShopState:
             y_offset += config.SHOP_LINE_SPACING + 20
 
         # Exit
-        UI.display_text(self.screen, "Q) Exit Shop",
+        UI.display_text(screen, "Q) Exit Shop",
                         (config.SHOP_MENU_START_X,
                          config.SHOP_MENU_START_Y + y_offset + 20))
 
         # Purchase Message
         if self.purchase_message:
             UI.display_text(
-                self.screen, self.purchase_message, (350, 500), color=(255, 255, 0)
+                screen, self.purchase_message, (350, 500), color=(255, 255, 0)
             )
 
 
-    def _render_player_stats(self):
+    def _render_player_stats(self, screen):
         """Renders the player's current stats (HP, Gold, XP) and inventory."""
         stats_line_1 = (f"HP  {self.player.health} / {self.player.max_health}    "
                         f"Gold  {StateManager.gold} G    "
                         f"XP  {self.player.xp}")
-        UI.display_text(self.screen, stats_line_1, (10, 10))
+        UI.display_text(screen, stats_line_1, (10, 10))
 
         # Render inventory below the stats
-        UI.render_inventory(self.screen, self.player.inventory, pos=(10, 40))
+        UI.render_inventory(screen, self.player.inventory, pos=(10, 40))
