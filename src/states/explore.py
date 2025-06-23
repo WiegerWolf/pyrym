@@ -156,6 +156,9 @@ class ExploreState:
             font_size=config.MEDIUM_FONT_SIZE
         )
 
+        if self.item_menu_open:
+            UI.render_item_menu(self.player.inventory, self.screen)
+
         # Display last message
         message = UI.get_last_message()
         if message:
