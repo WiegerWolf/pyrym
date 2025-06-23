@@ -1,0 +1,1 @@
+- lets change the permanent boosts in shop. make them percent based. like +5% dmg stat boost and +10%hp. but make them more expensive too, like each upgrade would cost more xp. sort of like leveling system. and theres no need to make them one time only. let player buy them as many times as they can afford
