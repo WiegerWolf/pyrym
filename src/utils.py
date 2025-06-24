@@ -125,7 +125,10 @@ def give_status(target, status_cls: Type[Status], duration: int, log_callback=No
         if isinstance(s, status_cls):
             s.duration = max(s.duration, duration)
             if log_callback:
-                log_callback(f"{target.name} already has {s.name}. Duration refreshed to {s.duration}.")
+                log_callback(
+                    f"{target.name} already has {s.name}. "
+                    f"Duration refreshed to {s.duration}."
+                )
             return
 
     # Otherwise, apply a fresh instance

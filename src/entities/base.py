@@ -11,7 +11,7 @@ from .status import Status
 
 
 # pylint: disable=cyclic-import
-class Entity(abc.ABC):
+class Entity(abc.ABC):  # pylint: disable=too-many-instance-attributes
     """
     Base class for any entity in the game, like Player or Enemy.
     """

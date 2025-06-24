@@ -1,3 +1,4 @@
+"""Defines status effects that can be applied to entities."""
 from abc import ABC, abstractmethod
 import math
 
@@ -11,18 +12,15 @@ class Status(ABC):
 
     @abstractmethod
     def on_apply(self, entity) -> None:
-        """Called when the status is applied to an entity."""
-        pass
+        """No immediate effect on apply."""
 
     @abstractmethod
     def on_turn_start(self, entity, battle_state) -> None:
         """Called at the start of the entity's turn."""
-        pass
 
     @abstractmethod
     def on_expire(self, entity) -> None:
         """Called when the status duration reaches zero and is removed."""
-        pass
 
     def tick(self, entity, battle_state) -> bool:
         """
@@ -45,35 +43,38 @@ class Status(ABC):
         return f"{self.name}({self.duration})"
 
 class PoisonStatus(Status):
+    """Deals percentage-based damage each turn."""
     name = "poison"
     icon_key = "icons/poison"
     PCT_DAMAGE = 0.06
 
     def on_apply(self, entity) -> None:
-        pass
+        """No immediate effect on apply."""
 
     def on_turn_start(self, entity, battle_state) -> None:
         damage = math.ceil(entity.max_health * self.PCT_DAMAGE)
         entity.deal_true_damage(damage)
 
     def on_expire(self, entity) -> None:
-        pass
+        """No effect on expiration."""
 
 class BleedStatus(Status):
+    """Deals flat damage each turn."""
     name = "bleed"
     icon_key = "icons/bleed"
     FLAT_DAMAGE = 4
 
     def on_apply(self, entity) -> None:
-        pass
+        """No immediate effect on apply."""
 
     def on_turn_start(self, entity, battle_state) -> None:
         entity.deal_true_damage(self.FLAT_DAMAGE)
 
     def on_expire(self, entity) -> None:
-        pass
+        """No effect on expiration."""
 
 class StunStatus(Status):
+    """Prevents the entity from acting for a turn."""
     name = "stun"
     icon_key = "icons/stun"
 
@@ -81,24 +82,25 @@ class StunStatus(Status):
         entity.stunned = True
 
     def on_turn_start(self, entity, battle_state) -> None:
-        pass
+        """No recurring effect; stun blocks action directly."""
 
     def on_expire(self, entity) -> None:
         entity.stunned = False
 
 class RegenerationStatus(Status):
+    """Heals the entity for a flat amount each turn."""
     name = "regeneration"
     icon_key = "icons/regeneration"
     FLAT_HEAL = 4
 
     def on_apply(self, entity) -> None:
-        pass
+        """No immediate effect on apply."""
 
     def on_turn_start(self, entity, battle_state) -> None:
         entity.heal(self.FLAT_HEAL)
 
     def on_expire(self, entity) -> None:
-        pass
+        """No effect on expiration."""
 
 __all__ = [
     "Status",

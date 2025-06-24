@@ -1,9 +1,8 @@
+"""Handles the exploration state of the game."""
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=cyclic-import
 import random
 from random import randint
-
-import pygame
 
 from .. import config
 from ..config import BASE_ENCOUNTER_CHANCE, ENCOUNTER_INCREMENT, ITEM_FIND_CHANCE

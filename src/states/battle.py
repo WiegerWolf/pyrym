@@ -1,12 +1,11 @@
+"""BattleState: turn-based combat state with status-effect integration."""
 # pylint: disable=too-many-instance-attributes, attribute-defined-outside-init
 # pylint: disable=cyclic-import
 import random
 
-import pygame
-
 from .. import config
 from ..core.state_machine import BaseState
-from ..core.ui import render_battle_screen, UI
+from ..core.ui import render_battle_screen
 from ..entities.status import StunStatus  # status helpers
 from ..items.items import HealingPotion
 from ..utils import add_to_log, EncounterMeta, handle_item_use
@@ -55,9 +54,12 @@ class BattleState(BaseState):
                     add_to_log(self.battle_log, "Too tired to attack!")
                     return  # Don't flip turn
                 damage, crit, miss = result["damage"], result["crit"], result["miss"]
-                msg = ("Player missed!" if miss else
-                       f"Critical hit! Player deals {damage} damage." if crit else
-                       f"Player deals {damage} damage.")
+                if miss:
+                    msg = "Player missed!"
+                elif crit:
+                    msg = f"Critical hit! Player deals {damage} damage."
+                else:
+                    msg = f"Player deals {damage} damage."
             elif action == 'heal':
                 if not self.player.has_potion():
                     add_to_log(self.battle_log, "No potions left!")
@@ -108,7 +110,6 @@ class BattleState(BaseState):
 
     def _check_stun_and_flip(self, actor, name: str) -> bool:
         """Return True if actor is stunned and the turn was skipped."""
-        from ..utils import add_to_log  # local import to avoid cycles
         if actor.has_status(StunStatus):
             add_to_log(self.battle_log, f"{name} is stunned and cannot act!")
             # do not consume stamina; simply end turn
@@ -174,7 +175,8 @@ class BattleState(BaseState):
         self.meta.battles_won += 1
         self.meta.encounter_index += 1
         add_to_log(self.battle_log, f"You have defeated the {self.enemy.name}!")
-        add_to_log(self.battle_log, f"You gain {xp_award} XP and {gold_award} gold.")
+        log_msg = f"You gain {xp_award} XP and {gold_award} gold."
+        add_to_log(self.battle_log, log_msg)
 
         if random.random() < 0.10:
             potion = HealingPotion()
@@ -199,6 +201,10 @@ class BattleState(BaseState):
         render_battle_screen(screen, self)
 
         # After main battle screen is drawn, overlay status icons
-        from ..core.ui import render_status_icons
-        render_status_icons(screen, self.player, (50, 100))  # adjust positions matching health bar coords
+        self._render_status_icons(screen)
+
+    def _render_status_icons(self, screen):
+        """Renders status icons for both player and enemy."""
+        from ..core.ui import render_status_icons  # pylint: disable=import-outside-toplevel
+        render_status_icons(screen, self.player, (50, 100))
         render_status_icons(screen, self.enemy, (500, 100))
