@@ -68,10 +68,14 @@ class TrapEvent(MiniEvent):
         if random.random() < 0.5:
             damage = randint(5, 15)
             utils.inflict_damage(player, damage, log)
-            return f"It's a trap! You took {damage} damage."
-
-        utils.give_status(player, PoisonStatus, duration=3, log_callback=log)
-        return "It's a trap! You have been poisoned."
+            message = f"It's a trap! You took {damage} damage."
+        else:
+            utils.give_status(player, PoisonStatus, duration=3, log_callback=log)
+            message = "It's a trap! You have been poisoned."
+ 
+        # Ensure the trap description itself is logged exactly once
+        utils.add_to_log(log, message)
+        return message
 
 
 class FriendlyNPCEvent(MiniEvent):
@@ -119,8 +123,10 @@ class GoldCacheEvent(MiniEvent):
         """You find a cache of gold."""
         amount = randint(5, 30)
         utils.award_gold(player, amount, log)
-        # The helper function already logs, so just return the message
-        return f"You found a cache of {amount} gold!"
+        message = f"You found a cache of {amount} gold!"
+        # Log the flavour text separately so players see both lines
+        utils.add_to_log(log, message)
+        return message
 
 # Probability and selection logic
 EVENT_TABLE: list[tuple[type[MiniEvent], float]] = [
