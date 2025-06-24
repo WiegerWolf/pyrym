@@ -76,7 +76,6 @@ class ExploreState(BaseState):  # pylint: disable=too-many-instance-attributes
         if random.random() < config.MINI_EVENT_BASE_CHANCE:
             desc = trigger_random(self.player, self.meta, self.log)
             if desc:  # empty string means chosen event declined to trigger
-                add_to_log(self.log, desc)
                 return  # mini-event consumes the turn
 
         # Check for encounter
