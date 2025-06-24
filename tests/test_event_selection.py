@@ -7,6 +7,7 @@ from random import Random
 
 from src.events.mini_events import (
     EVENT_TABLE,
+    WEIGHT_SUM,
     FriendlyNPCEvent,
     GoldCacheEvent,
     ItemFindEvent,
@@ -21,7 +22,7 @@ def test_event_selection_distribution():
     Verify that `choose_event` selects events respecting their defined
     weights over a large number of trials.
     """
-    seed = 12345
+    seed = 1337  # Per requirements
     num_trials = 10_000
     rng = Random(seed)
 
@@ -35,12 +36,12 @@ def test_event_selection_distribution():
 
     # Verify observed frequencies are within an acceptable tolerance
     for event_class, weight in EVENT_TABLE:
-        expected_freq = weight
+        expected_freq = weight / WEIGHT_SUM
         observed_freq = counts[event_class] / num_trials
-        # 3% absolute tolerance
+        # 3% absolute tolerance, per requirements
         assert abs(observed_freq - expected_freq) <= 0.03, (
             f"Frequency for {event_class.__name__} deviates too much: "
-            f"Expected ~{expected_freq:.2f}, got {observed_freq:.2f}"
+            f"Expected ~{expected_freq:.3f}, got {observed_freq:.3f}"
         )
 
 

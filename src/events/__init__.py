@@ -1,24 +1,5 @@
-"""Export all mini-event classes and selection helpers."""
-from src.events.mini_events import (
-    FriendlyNPCEvent,
-    GoldCacheEvent,
-    ItemFindEvent,
-    MiniEvent,
-    PuzzleEvent,
-    TrapEvent,
-    choose_event,
-    trigger_random,
-    register_event,
-)
+"""Provides a clean public API for triggering and registering mini-events."""
 
-__all__ = [
-    "MiniEvent",
-    "ItemFindEvent",
-    "TrapEvent",
-    "FriendlyNPCEvent",
-    "PuzzleEvent",
-    "GoldCacheEvent",
-    "trigger_random",
-    "choose_event",
-    "register_event",
-]
+from .mini_events import trigger_random, register_event  # re-export
+
+__all__ = ["trigger_random", "register_event"]
