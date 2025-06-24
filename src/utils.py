@@ -3,12 +3,17 @@ utils.py
 Utility helpers used throughout the game package.
 """
 from dataclasses import dataclass
-from typing import Tuple, Type
+from typing import Tuple, Type, TYPE_CHECKING
 from collections import OrderedDict
 
 import pygame
 from src import config
 from .entities.status import Status
+
+if TYPE_CHECKING:
+    from .entities.base import Entity
+    from .core.battle_log import BattleLog
+
 
 @dataclass
 class EncounterMeta:
@@ -108,8 +113,12 @@ def handle_item_use(player, key, logger_callback) -> dict:
 
     logger_callback("Invalid item selection.")
     return {"success": False, "used_item": False}
-
-def give_status(target, status_cls: Type[Status], duration: int, log_callback=None):
+def give_status(
+    target: "Entity",
+    status_cls: Type[Status],
+    duration: int,
+    log_callback: "BattleLog" = None
+):
     """
     Apply or refresh a status effect on the target Entity.
 
@@ -125,7 +134,8 @@ def give_status(target, status_cls: Type[Status], duration: int, log_callback=No
         if isinstance(s, status_cls):
             s.duration = max(s.duration, duration)
             if log_callback:
-                log_callback(
+                add_to_log(
+                    log_callback,
                     f"{target.name} already has {s.name}. "
                     f"Duration refreshed to {s.duration}."
                 )
@@ -135,7 +145,25 @@ def give_status(target, status_cls: Type[Status], duration: int, log_callback=No
     new_status = status_cls(duration)
     target.apply_status(new_status)
     if log_callback:
-        log_callback(f"{target.name} is afflicted by {new_status.name} ({duration}).")
+        add_to_log(
+            log_callback,
+            f"{target.name} is afflicted by {new_status.name} ({duration})."
+        )
+
+
+def award_gold(player: "Entity", amount: int, log_callback: "BattleLog" = None):
+    """Gives gold to the player and logs it."""
+    player.gold += amount
+    if log_callback:
+        add_to_log(log_callback, f"You found {amount} gold!")
+
+
+def inflict_damage(player: "Entity", damage: int, log_callback: "BattleLog" = None):
+    """Inflicts damage on the player and logs it."""
+    player.take_damage(damage)
+    if log_callback:
+        add_to_log(log_callback, f"You took {damage} damage!")
+
 
 def scaled_cost(base: int, level: int, growth: float) -> int:
     """Calculates the scaling cost for leveled upgrades."""
