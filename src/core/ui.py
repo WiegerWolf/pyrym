@@ -1,6 +1,8 @@
 """
 ui.py
 Handles all UI rendering for the game.
+
+Includes helpers for transient messages and status icons.
 """
 import pygame
 
@@ -48,15 +50,27 @@ class UI:
         return cls._last_message
 
     @staticmethod
-    def display_text(
-        screen, text, position,
+    def display_text(  # pylint: disable=too-many-arguments
+        screen,
+        text,
+        position,
         font_size=config.DEFAULT_FONT_SIZE,
-        color=config.TEXT_COLOR
+        color=config.TEXT_COLOR,
+        center: bool = False,
     ):
-        """Display text on the screen at the specified position."""
+        """
+        Display text on the screen at the specified position.
+
+        If `center` is True, `position` is treated as the center coordinate.
+        """
         font = pygame.font.Font(None, font_size)
         text_surface = font.render(text, True, color)
-        screen.blit(text_surface, position)
+        text_rect = text_surface.get_rect()
+        if center:
+            text_rect.center = position
+        else:
+            text_rect.topleft = position
+        screen.blit(text_surface, text_rect)
 
     @staticmethod
     def draw_health_bar(screen, spec: HealthBarSpec):
@@ -183,6 +197,20 @@ class UI:
                 font_size=config.MEDIUM_FONT_SIZE,
                 color=config.LOG_COLORS[i],
             )
+
+
+def flash_message(screen: pygame.Surface, text: str,
+                    duration: int = 40,  # pylint: disable=unused-argument
+                    pos: tuple[int, int] | None = None,
+                    color: tuple[int, int, int] = config.TEXT_COLOR) -> None:
+    """
+    Draws `text` centered (or at `pos`) for `duration` frames.
+    Caller must call this every frame until duration elapses.
+    This is a simple utility; no timing manager is added here.
+    """
+    if pos is None:
+        pos = (config.SCREEN_WIDTH // 2, config.SCREEN_HEIGHT // 2)
+    UI.display_text(screen, text, pos, font_size=config.LARGE_FONT_SIZE, color=color, center=True)
 
 
 def render_status_icons(surface: pygame.Surface, entity, pos: tuple[int, int]) -> None:

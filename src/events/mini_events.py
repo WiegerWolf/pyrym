@@ -1,6 +1,9 @@
 """
 Mini-event framework for ExploreState.
-Defines base class, concrete stubs, and probability-based selection logic.
+
+Defines a base class for events, several concrete event implementations,
+probability-based selection logic, and a runtime extension hook
+(`register_event`) for other systems to add their own events.
 """
 from __future__ import annotations
 
@@ -66,7 +69,7 @@ class TrapEvent(MiniEvent):
             damage = randint(5, 15)
             utils.inflict_damage(player, damage, log)
             return f"It's a trap! You took {damage} damage."
-        
+
         utils.give_status(player, PoisonStatus, duration=3, log_callback=log)
         return "It's a trap! You have been poisoned."
 
@@ -190,9 +193,25 @@ def trigger_random(
     return event_instance.execute(player, meta, log)
 
 
+def register_event(event_cls: type[MiniEvent], weight: float) -> None:
+    """
+    Dynamically add a MiniEvent subclass to the EVENT_TABLE.
+
+    Args:
+        event_cls: Concrete subclass to register.
+        weight: Probability weight to assign.
+    """
+    if not issubclass(event_cls, MiniEvent):
+        raise TypeError("Must register a MiniEvent subclass.")
+    EVENT_TABLE.append((event_cls, weight))
+    global WEIGHT_SUM  # pylint: disable=global-statement
+    WEIGHT_SUM += weight
+
+
 __all__ = [
     "trigger_random",
     "choose_event",
+    "register_event",
     "MiniEvent",
     "ItemFindEvent",
     "TrapEvent",

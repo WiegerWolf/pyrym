@@ -8,6 +8,7 @@ from src.events.mini_events import (
     TrapEvent,
     choose_event,
     trigger_random,
+    register_event,
 )
 
 __all__ = [
@@ -19,4 +20,5 @@ __all__ = [
     "GoldCacheEvent",
     "trigger_random",
     "choose_event",
+    "register_event",
 ]
