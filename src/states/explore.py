@@ -8,6 +8,7 @@ from .. import config
 from ..config import BASE_ENCOUNTER_CHANCE, ENCOUNTER_INCREMENT, ITEM_FIND_CHANCE
 from ..core.state_machine import BaseState
 from ..core.ui import UI
+from ..events import trigger_random
 from ..items import HealingPotion, GoldPile
 from ..utils import HealthBarSpec, handle_item_use, add_to_log
 
@@ -70,6 +71,13 @@ class ExploreState(BaseState):  # pylint: disable=too-many-instance-attributes
 
         self.consecutive_turns += 1
         self.player.regenerate_stamina() # This is now handled by the ActionMixin
+
+        # Mini-event check
+        if random.random() < config.MINI_EVENT_BASE_CHANCE:
+            desc = trigger_random(self.player, self.meta, self.log)
+            if desc:  # empty string means chosen event declined to trigger
+                add_to_log(self.log, desc)
+                return  # mini-event consumes the turn
 
         # Check for encounter
         if random.random() < self.encounter_chance:

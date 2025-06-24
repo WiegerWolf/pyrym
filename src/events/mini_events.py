@@ -6,8 +6,12 @@ from __future__ import annotations
 
 import random
 from abc import ABC, abstractmethod
-from random import Random
+from random import Random, randint
 from typing import TYPE_CHECKING, Type
+
+from src import utils, items
+from src.entities.status import PoisonStatus
+
 
 if TYPE_CHECKING:  # avoid circulars
     from src.entities.base import Entity
@@ -31,50 +35,89 @@ class ItemFindEvent(MiniEvent):
 
     @classmethod
     def roll(cls, rng: Random) -> bool:
-        """Return True if this event decides to trigger given RNG."""
+        """This event always triggers if selected."""
+        return True
 
     def execute(self, player: "Entity", meta: dict, log: "BattleLog") -> str:
-        """Apply side-effects, return description string."""
+        """Generates and awards a random item to the player."""
+        loot = random.choice([items.HealingPotion(), items.GoldPile(randint(5, 20))])
+        if not loot.can_store:
+            loot.use(player)
+            message = f"You found {loot.amount} gold!"
+        else:
+            player.add_item(loot)
+            message = f"You found a {loot.name}."
+
+        utils.add_to_log(log, message)
+        return message
+
 
 class TrapEvent(MiniEvent):
     """Player springs a trap."""
 
     @classmethod
     def roll(cls, rng: Random) -> bool:
-        """Return True if this event decides to trigger given RNG."""
+        """This event always triggers if selected."""
+        return True
 
     def execute(self, player: "Entity", meta: dict, log: "BattleLog") -> str:
-        """Apply side-effects, return description string."""
+        """A 50/50 chance to take damage or get poisoned."""
+        if random.random() < 0.5:
+            damage = randint(5, 15)
+            utils.inflict_damage(player, damage, log)
+            return f"It's a trap! You took {damage} damage."
+        
+        utils.give_status(player, PoisonStatus, duration=3, log_callback=log)
+        return "It's a trap! You have been poisoned."
+
 
 class FriendlyNPCEvent(MiniEvent):
     """Player meets a friendly NPC."""
 
     @classmethod
     def roll(cls, rng: Random) -> bool:
-        """Return True if this event decides to trigger given RNG."""
+        """This event always triggers if selected."""
+        return True
 
     def execute(self, player: "Entity", meta: dict, log: "BattleLog") -> str:
-        """Apply side-effects, return description string."""
+        """A friendly traveler heals you."""
+        heal_amount = int(player.max_health * 0.20)
+        player.heal(heal_amount)
+        message = f"A friendly traveler heals you for {heal_amount} HP."
+        utils.add_to_log(log, message)
+        return message
+
 
 class PuzzleEvent(MiniEvent):
     """Player discovers a puzzle."""
 
     @classmethod
     def roll(cls, rng: Random) -> bool:
-        """Return True if this event decides to trigger given RNG."""
+        """This event always triggers if selected."""
+        return True
 
     def execute(self, player: "Entity", meta: dict, log: "BattleLog") -> str:
-        """Apply side-effects, return description string."""
+        """You solve a simple riddle and gain XP (stub)."""
+        # player.gain_xp(20)  # Assuming player has a gain_xp method.
+        message = "You solve a simple riddle and feel more experienced."
+        utils.add_to_log(log, message)
+        return message
+
 
 class GoldCacheEvent(MiniEvent):
     """Player finds a cache of gold."""
 
     @classmethod
     def roll(cls, rng: Random) -> bool:
-        """Return True if this event decides to trigger given RNG."""
+        """This event always triggers if selected."""
+        return True
 
     def execute(self, player: "Entity", meta: dict, log: "BattleLog") -> str:
-        """Apply side-effects, return description string."""
+        """You find a cache of gold."""
+        amount = randint(5, 30)
+        utils.award_gold(player, amount, log)
+        # The helper function already logs, so just return the message
+        return f"You found a cache of {amount} gold!"
 
 # Probability and selection logic
 EVENT_TABLE: list[tuple[type[MiniEvent], float]] = [
