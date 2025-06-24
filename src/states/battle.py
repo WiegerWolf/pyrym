@@ -7,6 +7,7 @@ import pygame
 from .. import config
 from ..core.state_machine import BaseState
 from ..core.ui import render_battle_screen, UI
+from ..entities.status import StunStatus  # status helpers
 from ..items.items import HealingPotion
 from ..utils import add_to_log, EncounterMeta, handle_item_use
 
@@ -44,6 +45,8 @@ class BattleState(BaseState):
         Executes a player action (attack, heal, or defend).
         Returns the action message for logging.
         """
+        if self._check_stun_and_flip(self.player, "Player"):
+            return
         msg = ""  # Default message if no action is taken
         if self.player_turn:
             if action == 'attack':
@@ -75,6 +78,8 @@ class BattleState(BaseState):
 
     def enemy_action(self):
         """Executes the enemy's action and returns the message."""
+        if self._check_stun_and_flip(self.enemy, self.enemy.name):
+            return
         if self.player_turn:
             return
 
@@ -101,8 +106,22 @@ class BattleState(BaseState):
         self.meta.turns += 1
         self.player_turn = True
 
+    def _check_stun_and_flip(self, actor, name: str) -> bool:
+        """Return True if actor is stunned and the turn was skipped."""
+        from ..utils import add_to_log  # local import to avoid cycles
+        if actor.has_status(StunStatus):
+            add_to_log(self.battle_log, f"{name} is stunned and cannot act!")
+            # do not consume stamina; simply end turn
+            self.player_turn = not self.player_turn
+            self.meta.turns += 1
+            return True
+        return False
+
     def update(self, signals: dict) -> None:
         """Runs one frame of battle logic."""
+        # Tick active status effects for the acting entity
+        actor = self.player if self.player_turn else self.enemy
+        actor.tick_statuses(self)
         if not self.player_turn and self.enemy.is_alive():
             self.enemy_action()
 
@@ -178,3 +197,8 @@ class BattleState(BaseState):
     def render(self, screen) -> None:
         """Renders the battle screen."""
         render_battle_screen(screen, self)
+
+        # After main battle screen is drawn, overlay status icons
+        from ..core.ui import render_status_icons
+        render_status_icons(screen, self.player, (50, 100))  # adjust positions matching health bar coords
+        render_status_icons(screen, self.enemy, (500, 100))

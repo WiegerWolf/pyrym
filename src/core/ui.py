@@ -187,6 +187,24 @@ class UI:
             )
 
 
+def render_status_icons(surface: pygame.Surface, entity, pos: tuple[int, int]) -> None:
+    """
+    Draw one 16×16 coloured square per active status.
+    pos = (x, y) top-left anchor; icons stack horizontally.
+    Uses entity.statuses; colour mapping hard-coded for now.
+    """
+    COLOURS = {
+        "poison": (80, 200, 120),
+        "bleed": (200, 40, 40),
+        "stun": (255, 215, 0),
+        "regen": (50, 180, 255),
+    }
+    size = 16
+    padding = 2
+    for i, status in enumerate(entity.statuses):
+        colour = COLOURS.get(status.name.lower(), (150, 150, 150))
+        rect = pygame.Rect(pos[0] + i * (size + padding), pos[1], size, size)
+        pygame.draw.rect(surface, colour, rect)
 
 def render_battle_screen(*args, **kwargs):
     """

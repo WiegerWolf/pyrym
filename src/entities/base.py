@@ -5,7 +5,9 @@ Base class for all entities in the game.
 from __future__ import annotations
 import abc
 from math import ceil
+from typing import List, Type
 from src import config
+from .status import Status
 
 
 # pylint: disable=cyclic-import
@@ -22,6 +24,27 @@ class Entity(abc.ABC):
         self.max_stamina: int = config.MAX_STAMINA
         self.stamina: int = 1
         self.block_active: bool = False
+        self.statuses: List[Status] = []
+        self.stunned: bool = False
+
+    def apply_status(self, status: Status) -> None:
+        """Append a fresh Status and immediately call its on_apply hook."""
+        self.statuses.append(status)
+        status.on_apply(self)
+
+    def tick_statuses(self, battle_state) -> None:
+        """Tick each active Status at the start of the entity’s turn.
+        Removes expired statuses."""
+        expired: list[Status] = []
+        for s in self.statuses:
+            if s.tick(self, battle_state):
+                expired.append(s)
+        for s in expired:
+            self.statuses.remove(s)
+
+    def has_status(self, status_type: Type[Status]) -> bool:
+        """Return True if an active status of given subclass exists."""
+        return any(isinstance(s, status_type) for s in self.statuses)
 
     def take_damage(self, raw_damage: int):
         """
