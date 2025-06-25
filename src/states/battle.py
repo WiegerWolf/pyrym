@@ -87,6 +87,26 @@ class BattleState(BaseState):
         if self.player_turn:
             return
 
+        # C. Enemy AI skill usage
+        ready_skills = [s for s in self.enemy.skills if self.enemy.ability_ready(s.name)]
+        skill_to_use = None
+        if ready_skills:
+            for skill in ready_skills:
+                if skill.name == "Shield Bash" and any(
+                    isinstance(st, StunStatus) for st in self.player.statuses
+                ):
+                    continue
+                skill_to_use = skill
+                break  # Use the first available skill
+
+        if skill_to_use:
+            skill_to_use.execute(self.enemy, self.player, self)
+            add_to_log(self.battle_log, f"{self.enemy.name} uses {skill_to_use.name}.")
+            self.meta.turns += 1
+            self.player_turn = True
+            self.ticked_this_turn = False
+            return
+
         # AI: Decide whether to defend
         should_defend = (
             self.enemy.stamina == 0 or
@@ -127,6 +147,7 @@ class BattleState(BaseState):
         if not self.ticked_this_turn:
             actor = self.player if self.player_turn else self.enemy
             actor.tick_statuses(self)
+            actor.tick_cooldowns()
             self.ticked_this_turn = True
 
         # Tick active status effects for the acting entity
@@ -141,10 +162,26 @@ class BattleState(BaseState):
     def _handle_player_actions(self, signals: dict) -> None:
         """Handle player actions."""
         action_taken = None
+        skill_key = None
+        for key in ('q', 'w', 'e', 'r'):
+            if signals.get(f"skill_{key}"):
+                skill_key = key
+                break
+
         if signals.get("attack"):
             action_taken = 'attack'
         elif signals.get("defend"):
             action_taken = 'defend'
+        elif skill_key:
+            skill = self.player.get_skill_for_key(skill_key)
+            if skill and self.player.ability_ready(skill.name):
+                skill.execute(self.player, self.enemy, self)
+                add_to_log(self.battle_log, f"Player uses {skill.name}.")
+                self.meta.turns += 1
+                self.player_turn = False
+                self.ticked_this_turn = False
+            else:
+                add_to_log(self.battle_log, "Skill is on cool-down!")
         elif signals.get("number_keys"):
             key = signals["number_keys"][0]
             result = handle_item_use(self.player, key, lambda msg: add_to_log(self.battle_log, msg))

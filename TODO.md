@@ -77,7 +77,8 @@ Below are nine concrete, modular ways to add variety, depth, and long-term engag
 Implementation Order Recommendation  
 1. Status Effects (#3) – small, self-contained, instantly enriches combat.  
 2. Procedural Mini-Events (#2) – uses existing Explore loop; adds surprise factor.  
-3. Active Skills & Cool-downs (#4) – deepens decision-making.  
+3. ✓ Active Skills & Cool-downs (#4) – deepens decision-making. (done)
+   Implemented in PR #?? – see docs/active_skills.md
 4. Relics (#6) – pairs nicely with #2 rewards.  
 5. Quest Board & Town Rework (#1 & #5) – ties systems together and enables narrative hooks.  
 6. Difficulty Depths & Bosses (#7 & #8) – escalate challenge curve.  

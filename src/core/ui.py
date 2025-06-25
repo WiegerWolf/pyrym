@@ -102,6 +102,39 @@ class UI:
             font_size=config.MEDIUM_FONT_SIZE,
             color=config.TEXT_COLOR,
         )
+    
+    @staticmethod
+    def format_skill_label(skill, keybind: str, remaining_cd: int) -> str:
+        """Formats a skill's name and cooldown status for the UI."""
+        name = skill.name
+        if remaining_cd > 0:
+            return f"{keybind} {name} ({remaining_cd})"
+        return f"{keybind} {name} READY"
+
+    @staticmethod
+    def render_skill_bar(screen, skills: list, cooldowns: dict, font, x: int, y: int):
+        """
+        Render skill hot-key labels and remaining cool-downs.
+
+        Example output:
+        Q Shield Bash (2)   W Adrenaline Rush READY   E--   R--
+        Grey out text when CD > 0.
+        """
+        keys = ["Q", "W", "E", "R"]
+        offset = 0
+        for i, key in enumerate(keys):
+            if i < len(skills):
+                skill = skills[i]
+                cd = cooldowns.get(skill.name, 0)
+                label = UI.format_skill_label(skill, key, cd)
+                color = (150, 150, 150) if cd > 0 else config.TEXT_COLOR
+            else:
+                label = f"{key}--"
+                color = config.TEXT_COLOR
+
+            text_surface = font.render(label, True, color)
+            screen.blit(text_surface, (x + offset, y))
+            offset += text_surface.get_width() + 10
 
     @staticmethod
     def render_battle_screen(screen, battle_state):
@@ -137,6 +170,13 @@ class UI:
         UI.display_text(screen, stamina_text,
                         (config.BATTLE_PLAYER_HEALTH_POS[0],
                          config.BATTLE_PLAYER_HEALTH_POS[1] + 40))
+
+        # Skill bar
+        y_offset = config.BATTLE_PLAYER_HEALTH_POS[1] + 70
+        small_font = pygame.font.Font(None, config.SMALL_FONT_SIZE)
+        UI.render_skill_bar(screen, battle_state.player.skills,
+                            battle_state.player.cooldowns, small_font, 20,
+                            y_offset)
 
 
         # Score

@@ -79,23 +79,23 @@ class ShieldBashAbility(Ability):
     def __init__(self):
         super().__init__(
             name="Shield Bash",
-            stamina_cost=2,          # keep moderate cost
+            stamina_cost=2,
             base_cooldown=3
         )
 
-    def execute(self, actor, target, battle_ctx):
+    def execute(self, actor: Entity, target: Entity | None = None, battle_context=None) -> dict:
+        self.on_use(actor)
         # damage: 0.75 × actor.attack stat (reuse existing damage helper if any)
         dmg = int(actor.attack * 0.75)
-        target.take_damage(dmg, source=actor)
+        target.take_damage(dmg)
+
         # Apply stun if StunStatus class exists; otherwise TODO comment
         try:
             from src.entities.status import StunStatus
-            target.statuses.append(StunStatus(1))
+            target.apply_status(StunStatus(duration=1))
+            return {"damage": dmg, "stun": True}
         except ImportError:
-            # Leave a note so later dev step can link in StunStatus
-            battle_ctx.log(f"{target.name} would be stunned for 1 turn (StunStatus not yet imported)")
-        # Register cool-down
-        self.on_use(actor)
+            return {"damage": dmg, "stun": False}
 
 
 class AdrenalineRushAbility(Ability):
@@ -103,13 +103,9 @@ class AdrenalineRushAbility(Ability):
     Gain +2 stamina immediately. 4-turn cool-down.
     """
     def __init__(self):
-        super().__init__(
-            name="Adrenaline Rush",
-            stamina_cost=0,
-            base_cooldown=4
-        )
+        super().__init__(name="Adrenaline Rush", stamina_cost=0, base_cooldown=4)
 
-    def execute(self, actor, target, battle_ctx):
-        actor.gain_stamina(2)
-        battle_ctx.log(f"{actor.name} feels a surge of adrenaline, +2 stamina!")
+    def execute(self, actor: Entity, target: Entity | None = None, battle_context=None) -> dict:
         self.on_use(actor)
+        actor.gain_stamina(2)
+        return {"stamina_gain": 2}
