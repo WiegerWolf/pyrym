@@ -58,6 +58,10 @@ class DummyPlayer(Entity):
         """Mock method for gaining gold."""
         self.gold += amount
 
+    def regenerate_stamina(self):
+        """Mock method for regenerating stamina."""
+        self.stamina = min(self.stamina + 1, self.max_stamina)
+
 
 @pytest.fixture
 def player():
@@ -194,3 +198,60 @@ def test_event_distribution_stability():
             f"Expected ~{expected_freq:.3f}, got {observed_freq:.3f} "
             f"(Weight: {weight}, Count: {counts[event_class]})"
         )
+def test_poison_ticks_in_explore_mode(player: DummyPlayer, monkeypatch):
+    """Verify poison deals damage and expires during exploration."""
+    from src.states.explore import ExploreState
+    from src.entities.status import PoisonStatus
+
+    # Prevent encounters and mini-events from happening
+    monkeypatch.setattr("random.random", lambda: 0.9)
+    def mock_trigger_random(*args, **kwargs):
+        return ""
+    monkeypatch.setattr("src.states.explore.trigger_random", mock_trigger_random)
+
+    initial_health = player.health
+    poison = PoisonStatus(duration=3)
+    player.apply_status(poison)
+
+    class MockMeta:
+        encounter_index = 0
+
+    explore_state = ExploreState(player, MockMeta(), None)
+    
+    # Simulate 3 steps in explore mode
+    for _ in range(3):
+        explore_state._explore_turn()
+
+    damage_per_tick = player.max_health * PoisonStatus.PCT_DAMAGE
+    expected_health = initial_health - (damage_per_tick * 3)
+    
+    # Use math.isclose for float comparison
+    import math
+    assert math.isclose(player.health, expected_health), "Player health not reduced correctly"
+    assert not player.has_status(PoisonStatus), "Poison status should have expired"
+
+def test_poison_ticks_once_per_battle_turn(player: DummyPlayer, log: MockLog):
+    """Verify poison deals damage only once per turn in battle."""
+    from src.states.battle import BattleState
+    from src.entities.status import PoisonStatus
+    from src.entities.enemy import Enemy
+    
+    initial_health = player.health
+    poison = PoisonStatus(duration=3)
+    player.apply_status(poison)
+
+    enemy = Enemy(1)
+    battle_state = BattleState(player, enemy, {}, None)
+    battle_state.battle_log = log.messages
+
+    # Simulate one frame update
+    battle_state.update({})
+
+    damage_per_tick = player.max_health * PoisonStatus.PCT_DAMAGE
+    expected_health = initial_health - damage_per_tick
+
+    import math
+    assert math.isclose(player.health, expected_health), "Player health not reduced correctly"
+    
+    status = next((s for s in player.statuses if isinstance(s, PoisonStatus)), None)
+    assert status is not None and status.duration == 2, "Poison duration not updated correctly"

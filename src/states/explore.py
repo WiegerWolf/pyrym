@@ -68,6 +68,13 @@ class ExploreState(BaseState):  # pylint: disable=too-many-instance-attributes
         # pylint: disable=import-outside-toplevel
         from ..entities import Enemy
         from .battle import BattleState
+        
+        class _DummyBattle:
+            """A dummy class to pass to tick_statuses."""
+            def __init__(self, log):
+                self.battle_log = log
+        
+        self.player.tick_statuses(_DummyBattle(self.log))
 
         self.consecutive_turns += 1
         self.player.regenerate_stamina() # This is now handled by the ActionMixin

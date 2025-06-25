@@ -22,6 +22,7 @@ class BattleState(BaseState):
         self.screen = screen
         self.player_turn = True
         self.battle_log = []
+        self.ticked_this_turn = False
 
     def enter(self, prev_state, **kwargs):
         """Reset entities and prepare for battle."""
@@ -77,6 +78,7 @@ class BattleState(BaseState):
             add_to_log(self.battle_log, msg)
             self.meta.turns += 1
             self.player_turn = False
+            self.ticked_this_turn = False
 
     def enemy_action(self):
         """Executes the enemy's action and returns the message."""
@@ -107,6 +109,7 @@ class BattleState(BaseState):
             add_to_log(self.battle_log, msg)
         self.meta.turns += 1
         self.player_turn = True
+        self.ticked_this_turn = False
 
     def _check_stun_and_flip(self, actor, name: str) -> bool:
         """Return True if actor is stunned and the turn was skipped."""
@@ -114,15 +117,19 @@ class BattleState(BaseState):
             add_to_log(self.battle_log, f"{name} is stunned and cannot act!")
             # do not consume stamina; simply end turn
             self.player_turn = not self.player_turn
+            self.ticked_this_turn = False
             self.meta.turns += 1
             return True
         return False
 
     def update(self, signals: dict) -> None:
         """Runs one frame of battle logic."""
+        if not self.ticked_this_turn:
+            actor = self.player if self.player_turn else self.enemy
+            actor.tick_statuses(self)
+            self.ticked_this_turn = True
+
         # Tick active status effects for the acting entity
-        actor = self.player if self.player_turn else self.enemy
-        actor.tick_statuses(self)
         if not self.player_turn and self.enemy.is_alive():
             self.enemy_action()
 
@@ -143,6 +150,7 @@ class BattleState(BaseState):
             result = handle_item_use(self.player, key, lambda msg: add_to_log(self.battle_log, msg))
             if result.get("success"):
                 self.player_turn = False
+                self.ticked_this_turn = False
 
         if action_taken:
             self.player_action(action_taken)
@@ -195,6 +203,7 @@ class BattleState(BaseState):
         else:
             add_to_log(self.battle_log, "Flee failed!")
             self.player_turn = False
+            self.ticked_this_turn = False
 
     def render(self, screen) -> None:
         """Renders the battle screen."""
