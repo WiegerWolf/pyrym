@@ -129,9 +129,9 @@ class GoldCacheEvent(MiniEvent):
 # Probability and selection logic
 EVENT_TABLE: list[tuple[type[MiniEvent], float]] = [
     (ItemFindEvent, 0.35),
-    (TrapEvent, 0.05),
+    (TrapEvent, 0.25),
     (FriendlyNPCEvent, 0.15),
-    (PuzzleEvent, 0.10),
+    (PuzzleEvent, 0.15),
     (GoldCacheEvent, 0.10),
 ]
 WEIGHT_SUM = sum(w for _, w in EVENT_TABLE)
