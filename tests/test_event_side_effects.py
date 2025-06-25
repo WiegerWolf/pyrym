@@ -8,16 +8,24 @@ from typing import List
 import pytest
 
 from src.entities.base import Entity
-from src.entities.status import PoisonStatus
+from src.entities.status import PoisonStatus, BleedStatus
 from src.events.mini_events import (
     EVENT_TABLE,
     WEIGHT_SUM,
+    FriendlyNPCEvent,
     GoldCacheEvent,
     TrapEvent,
     choose_event,
 )
+from src.items import Antidote, HealingPotion
+
 
 # pylint: disable=redefined-outer-name,too-few-public-methods
+class MockBattleState:
+    """A mock battle state to pass to status effect ticks."""
+    def __init__(self, log):
+        self.battle_log = log
+
 class MockLog:
     """A simple, mutable object to act as a log for testing."""
     def __init__(self):
@@ -40,12 +48,15 @@ class DummyPlayer(Entity):
     def __init__(self, name="Dummy", health=100, attack=10):
         super().__init__(name, health, attack)
         self.gold = 100  # Starting gold for tests
+        self.inventory = []
 
     def add_item(self, item):
-        """Mock method for tests."""
-        # This method is required by the Entity interface but not used here.
-        # The 'item' parameter is kept for signature compatibility.
-        _ = item
+        """Mock method for adding items to the player's inventory."""
+        self.inventory.append(item)
+
+    def gain_gold(self, amount: int):
+        """Mock method for gaining gold."""
+        self.gold += amount
 
 
 @pytest.fixture
@@ -112,7 +123,53 @@ def test_gold_award_range(player: DummyPlayer, log: MockLog, monkeypatch):
 
     # Check that the log fixture was populated by the helper function.
     assert len(log.messages) > 0, "The log should have received a message"
-    assert log.messages[0] == f"You found {gold_gain} gold!"
+    assert log.messages[0] == f"You found a cache of {gold_gain} gold!"
+
+
+def test_poison_tick_logs_message(player: DummyPlayer, log: MockLog):
+    """Verify that a poison tick adds a message to the battle log."""
+    mock_state = MockBattleState(log)
+    poison = PoisonStatus(duration=3)
+    player.apply_status(poison)
+
+    # The first tick happens on turn start
+    player.tick_statuses(mock_state)
+
+    assert len(log.messages) == 1, "A log message should have been generated"
+    assert "suffers" in log.messages[0], "The log message should describe poison damage"
+    assert "poison" in log.messages[0], "The log message should mention poison"
+
+
+def test_antidote_item_cures_poison(player: DummyPlayer):
+    """Verify that using an Antidote item removes negative status effects."""
+    player.apply_status(PoisonStatus(duration=3))
+    player.apply_status(BleedStatus(duration=2))
+    antidote = Antidote()
+
+    assert len(player.statuses) == 2, "Statuses should be applied before curing"
+
+    result = antidote.use(player)
+
+    assert len(player.statuses) == 0, "Antidote should clear all negative statuses"
+    assert result["value"] == 2, "The use-result should report two statuses cleared"
+    assert "curing" in result["message"], "Success message should be returned"
+
+
+def test_friendly_npc_cures_and_heals(player: DummyPlayer, log: MockLog):
+    """
+    Verify the FriendlyNPCEvent clears negative statuses AND heals the player.
+    """
+    player.health = 20  # Start with low health
+    player.apply_status(PoisonStatus(duration=3))
+    initial_health = player.health
+
+    event = FriendlyNPCEvent()
+    message = event.execute(player, {}, log)
+
+    assert player.health > initial_health, "Player should be healed"
+    assert len(player.statuses) == 0, "Player statuses should be cleared"
+    assert "cures your ailments" in message, "Event message should mention curing"
+    assert "heals you" in message, "Event message should mention healing"
 
 
 def test_event_distribution_stability():

@@ -76,3 +76,17 @@ class Entity(abc.ABC):  # pylint: disable=too-many-instance-attributes
     def is_alive(self) -> bool:
         """Check if the entity is alive."""
         return self.health > 0
+
+    def clear_negative_statuses(self) -> int:
+        """
+        Removes all statuses considered negative (e.g., poison, bleed, stun).
+        Returns the number of statuses cleared.
+        """
+        negative_status_names = {"poison", "bleed", "stun"}
+        to_remove = [s for s in self.statuses if s.name in negative_status_names]
+        
+        for s in to_remove:
+            s.on_expire(self)
+            self.statuses.remove(s)
+            
+        return len(to_remove)

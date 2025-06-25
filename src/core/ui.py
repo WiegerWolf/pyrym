@@ -215,22 +215,42 @@ def flash_message(screen: pygame.Surface, text: str,
 
 def render_status_icons(surface: pygame.Surface, entity, pos: tuple[int, int]) -> None:
     """
-    Draw one 16×16 coloured square per active status.
-    pos = (x, y) top-left anchor; icons stack horizontally.
+    Draw a 16×16 coloured square and a text label for each active status.
+    pos = (x, y) top-left anchor; icons and labels stack horizontally.
     Uses entity.statuses; colour mapping hard-coded for now.
     """
     colour_map = {
         "poison": (80, 200, 120),
         "bleed": (200, 40, 40),
         "stun": (255, 215, 0),
-        "regen": (50, 180, 255),
+        "regeneration": (50, 180, 255),
     }
-    size = 16
-    padding = 2
-    for i, status in enumerate(entity.statuses):
+    icon_size = 16
+    padding = 4  # Increased padding for text
+    base_x, base_y = pos
+    current_x = base_x
+
+    for status in entity.statuses:
+        # Draw the icon
         colour = colour_map.get(status.name.lower(), (150, 150, 150))
-        rect = pygame.Rect(pos[0] + i * (size + padding), pos[1], size, size)
+        rect = pygame.Rect(current_x, base_y, icon_size, icon_size)
         pygame.draw.rect(surface, colour, rect)
+        current_x += icon_size + padding
+
+        # Draw the text label
+        label = f"{status.name.capitalize()} ({status.duration})"
+        UI.display_text(
+            surface,
+            label,
+            (current_x, base_y),
+            font_size=config.SMALL_FONT_SIZE - 2,
+            color=colour
+        )
+        
+        # Advance current_x by the width of the text plus padding
+        font = pygame.font.Font(None, config.SMALL_FONT_SIZE - 2)
+        text_width, _ = font.size(label)
+        current_x += text_width + padding * 3
 
 def render_battle_screen(*args, **kwargs):
     """

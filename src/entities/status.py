@@ -55,6 +55,9 @@ class PoisonStatus(Status):
         damage = math.ceil(entity.max_health * self.PCT_DAMAGE)
         entity.deal_true_damage(damage)
 
+        from src.utils import add_to_log
+        add_to_log(battle_state.battle_log, f"{entity.name} suffers {damage} from poison.")
+
     def on_expire(self, entity) -> None:
         """No effect on expiration."""
 
@@ -69,6 +72,9 @@ class BleedStatus(Status):
 
     def on_turn_start(self, entity, battle_state) -> None:
         entity.deal_true_damage(self.FLAT_DAMAGE)
+
+        from src.utils import add_to_log
+        add_to_log(battle_state.battle_log, f"{entity.name} suffers {self.FLAT_DAMAGE} from bleeding.")
 
     def on_expire(self, entity) -> None:
         """No effect on expiration."""
@@ -98,6 +104,9 @@ class RegenerationStatus(Status):
 
     def on_turn_start(self, entity, battle_state) -> None:
         entity.heal(self.FLAT_HEAL)
+        
+        from src.utils import add_to_log
+        add_to_log(battle_state.battle_log, f"{entity.name} regenerates {self.FLAT_HEAL} HP.")
 
     def on_expire(self, entity) -> None:
         """No effect on expiration."""

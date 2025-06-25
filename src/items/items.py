@@ -102,3 +102,24 @@ class GoldPile(Item):
         entity.gain_gold(self.amount)
         msg = f"Added {self.amount} gold."
         return {"message": msg, "value": self.amount}
+
+
+class Antidote(Item):
+    """An item that cures negative status effects."""
+
+    def __init__(self):
+        super().__init__(
+            name="Antidote",
+            cost=config.ANTIDOTE_COST,
+            description="Cures poison and other ailments."
+        )
+
+    def use(self, entity: Entity) -> dict:
+        """Cures all negative statuses."""
+        cleared_count = entity.clear_negative_statuses()
+        if cleared_count > 0:
+            msg = f"Used {self.name}, curing all negative effects."
+            return {"message": msg, "value": cleared_count}
+        
+        msg = f"Used {self.name}, but there was nothing to cure."
+        return {"message": msg, "value": 0}

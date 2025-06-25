@@ -42,7 +42,23 @@ class ItemFindEvent(MiniEvent):
 
     def execute(self, player: "Entity", meta: dict, log: "BattleLog") -> str:
         """Generates and awards a random item to the player."""
-        loot = random.choice([items.HealingPotion(), items.GoldPile(randint(5, 20))])
+        # Define loot table with items and their weights
+        loot_table = [
+            (items.HealingPotion, 0.5),
+            (items.Antidote, 0.2),
+            (items.GoldPile, 0.3)
+        ]
+        
+        # Unpack items and weights for random.choices
+        item_classes, weights = zip(*loot_table)
+        chosen_item_class = random.choices(item_classes, weights=weights, k=1)[0]
+        
+        # Instantiate the chosen item
+        if chosen_item_class is items.GoldPile:
+            loot = items.GoldPile(randint(5, 20))
+        else:
+            loot = chosen_item_class()
+            
         if not loot.can_store:
             loot.use(player)
             message = f"You found {loot.amount} gold!"
@@ -86,10 +102,19 @@ class FriendlyNPCEvent(MiniEvent):
         return True
 
     def execute(self, player: "Entity", meta: dict, log: "BattleLog") -> str:
-        """A friendly traveler heals you."""
+        """A friendly traveler heals you and cures ailments."""
+        cleared_count = player.clear_negative_statuses()
         heal_amount = int(player.max_health * 0.20)
         player.heal(heal_amount)
-        message = f"A friendly traveler heals you for {heal_amount} HP."
+
+        if cleared_count > 0:
+            message = (
+                f"A friendly traveler cures your ailments and "
+                f"heals you for {heal_amount} HP."
+            )
+        else:
+            message = f"A friendly traveler heals you for {heal_amount} HP."
+
         utils.add_to_log(log, message)
         return message
 
