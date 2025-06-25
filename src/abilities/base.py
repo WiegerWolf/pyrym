@@ -12,8 +12,16 @@ if TYPE_CHECKING:
 class Ability(abc.ABC):  # pylint: disable=too-few-public-methods
     """Base class for all abilities."""
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, stamina_cost: int = 0, base_cooldown: int = 0):
         self.name = name
+        self.stamina_cost = stamina_cost
+        self.base_cooldown = base_cooldown
+
+    def on_use(self, actor: Entity):
+        """
+        Register this ability’s cool-down on the acting Entity.
+        """
+        actor.cooldowns[self.name] = self.base_cooldown
 
     @abc.abstractmethod
     def execute(self, actor: Entity, target: Entity | None = None) -> dict:

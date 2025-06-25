@@ -16,12 +16,19 @@ Below are nine concrete, modular ways to add variety, depth, and long-term engag
    • Quests are lightweight goals (e.g. *“Defeat 5 Skeletons”, “Collect 50 Gold”*).  
      Reward players with XP, gold, or a rare item, giving purpose beyond endless waves.
 
-2. Procedural “Mini-Events” During Exploration  
-   • Hook straight into [`src/states/explore.py`](src/states/explore.py:90-120).  
-   • After each `E` keypress roll an *event table* (find item, trap, friendly NPC, puzzle).  
-   • Traps: instant HP loss or a status effect (see #4).  
-   • Friendly NPC: free heal, bargain shop, lore snippet, etc.  
-   • Puzzle: single-screen riddle that pays out XP.
+2. Procedural “Mini-Events” During Exploration
+   • ✔ Done Step 1 — Add `MiniEvent` ABC and `ItemFindEvent`, `TrapEvent` stubs.
+   • ✔ Done Step 2 — Implement weighted selection in `choose_event`.
+   • ✔ Done Step 3 — Hook `trigger_random` into `ExploreState`.
+   • ✔ Done Step 4 — Add logic to `ItemFindEvent` and `TrapEvent`.
+   • ✔ Done Step 5 — Implement `FriendlyNPCEvent`, `PuzzleEvent`, `GoldCacheEvent`.
+   • ✔ Done Step 6 — Add `register_event` for extensibility.
+   • ✔ Done Step 7 — Refine logging & test `choose_event` distribution.
+   • ✔ Done Step 8 — Add `flash_message` and status effect helpers.
+   • Step 9 — docs (this commit)
+   • Step 10 — Add side-effect unit tests for each event subclass.
+   • Step 11 — Add `AnimationRequest` signal for visuals.
+   • Step 12 — Add two more event types (e.g., temporary buff, mysterious stranger).
 
 3. Status Effects (Poison, Bleed, Stun, Regeneration)  
    • Extend [`Entity`](src/entities/base.py) with `statuses: list[Status]`.  
@@ -70,7 +77,8 @@ Below are nine concrete, modular ways to add variety, depth, and long-term engag
 Implementation Order Recommendation  
 1. Status Effects (#3) – small, self-contained, instantly enriches combat.  
 2. Procedural Mini-Events (#2) – uses existing Explore loop; adds surprise factor.  
-3. Active Skills & Cool-downs (#4) – deepens decision-making.  
+3. ✓ Active Skills & Cool-downs (#4) – deepens decision-making. (done)
+   Implemented in PR #?? – see docs/active_skills.md
 4. Relics (#6) – pairs nicely with #2 rewards.  
 5. Quest Board & Town Rework (#1 & #5) – ties systems together and enables narrative hooks.  
 6. Difficulty Depths & Bosses (#7 & #8) – escalate challenge curve.  

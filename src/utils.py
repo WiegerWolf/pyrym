@@ -3,11 +3,17 @@ utils.py
 Utility helpers used throughout the game package.
 """
 from dataclasses import dataclass
-from typing import Tuple
+from typing import Tuple, Type, TYPE_CHECKING
 from collections import OrderedDict
 
 import pygame
 from src import config
+from .entities.status import Status
+
+if TYPE_CHECKING:
+    from .entities.base import Entity
+    from .core.battle_log import BattleLog
+
 
 @dataclass
 class EncounterMeta:
@@ -107,6 +113,43 @@ def handle_item_use(player, key, logger_callback) -> dict:
 
     logger_callback("Invalid item selection.")
     return {"success": False, "used_item": False}
+
+def give_status(
+    target: "Entity",
+    status_cls: Type[Status],
+    duration: int,
+    log_callback: "BattleLog" = None
+):
+    """
+    Apply or refresh a status effect on the target Entity.
+
+    Args:
+        target (Entity): The entity receiving the status.
+        status_cls (Type[Status]): Concrete Status subclass to apply.
+        duration (int): Number of turns the status should last.
+        log_callback (Callable[[str], None] | None): Optional function to append
+            messages to the battle log.
+    """
+    # Check if status already active -> refresh duration
+    for s in target.statuses:
+        if isinstance(s, status_cls):
+            s.duration = max(s.duration, duration)
+            if log_callback:
+                add_to_log(
+                    log_callback,
+                    f"{target.name} already has {s.name}. "
+                    f"Duration refreshed to {s.duration}."
+                )
+            return
+
+    # Otherwise, apply a fresh instance
+    new_status = status_cls(duration)
+    target.apply_status(new_status)
+    if log_callback:
+        add_to_log(
+            log_callback,
+            f"{target.name} is afflicted by {new_status.name} ({duration})."
+        )
 
 def scaled_cost(base: int, level: int, growth: float) -> int:
     """Calculates the scaling cost for leveled upgrades."""

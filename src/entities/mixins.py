@@ -14,6 +14,10 @@ class ActionMixin:
 
     def attack_action(self, target: Entity) -> dict:
         """Wrapper for the attack ability."""
+        if getattr(self, "stunned", False):
+            # Cannot act while stunned; consume no stamina and return early
+            return {"damage": 0, "crit": False, "miss": False, "stunned": True}
+
         if hasattr(self, 'stamina') and self.stamina < 1:
             return {"damage": 0, "crit": False, "miss": False, "no_stamina": True}
 
@@ -28,6 +32,9 @@ class ActionMixin:
 
     def defend(self):
         """Sets the block_active flag and gains stamina."""
+        if getattr(self, "stunned", False):
+            return
+
         self.block_active = True
         self.gain_stamina(1)
 

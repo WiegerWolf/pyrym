@@ -5,8 +5,10 @@ Defines the player character.
 from dataclasses import dataclass, field
 
 from src import config
+from src.abilities.base import Ability
 from src.abilities.player_abilities import (PlayerAttackAbility,
-                                            PlayerDefendAbility)
+                                            PlayerDefendAbility, AdrenalineRushAbility, ShieldBashAbility)
+
 
 from ..items.items import Item
 from .base import Entity
@@ -43,6 +45,11 @@ class Player(Entity, ActionMixin):
         # Abilities
         self.attack_ability = PlayerAttackAbility()
         self.defend_ability = PlayerDefendAbility()
+        self.skills: list[Ability] = [
+            ShieldBashAbility(),       # Q
+            AdrenalineRushAbility(),   # W
+            # E, R slots left empty for now
+        ]
 
     def __repr__(self):
         return (f"Player(HP: {self.health}/{self.max_health}, "
@@ -149,3 +156,12 @@ class Player(Entity, ActionMixin):
     def is_defending(self):
         """Returns True if the player is defending."""
         return self.block_active
+
+    KEY_INDEX = {"q": 0, "w": 1, "e": 2, "r": 3}
+
+    def get_skill_for_key(self, key: str):
+        """Returns the skill for the given key if valid."""
+        idx = self.KEY_INDEX.get(key.lower())
+        if idx is None or idx >= len(self.skills):
+            return None
+        return self.skills[idx]

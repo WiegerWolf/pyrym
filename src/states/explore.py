@@ -1,14 +1,14 @@
+"""Handles the exploration state of the game."""
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=cyclic-import
 import random
 from random import randint
 
-import pygame
-
 from .. import config
 from ..config import BASE_ENCOUNTER_CHANCE, ENCOUNTER_INCREMENT, ITEM_FIND_CHANCE
 from ..core.state_machine import BaseState
 from ..core.ui import UI
+from ..events import trigger_random
 from ..items import HealingPotion, GoldPile
 from ..utils import HealthBarSpec, handle_item_use, add_to_log
 
@@ -68,9 +68,22 @@ class ExploreState(BaseState):  # pylint: disable=too-many-instance-attributes
         # pylint: disable=import-outside-toplevel
         from ..entities import Enemy
         from .battle import BattleState
+        
+        class _DummyBattle:
+            """A dummy class to pass to tick_statuses."""
+            def __init__(self, log):
+                self.battle_log = log
+        
+        self.player.tick_statuses(_DummyBattle(self.log))
 
         self.consecutive_turns += 1
         self.player.regenerate_stamina() # This is now handled by the ActionMixin
+
+        # Mini-event check
+        if random.random() < config.MINI_EVENT_BASE_CHANCE:
+            desc = trigger_random(self.player, self.meta, self.log)
+            if desc:  # empty string means chosen event declined to trigger
+                return  # mini-event consumes the turn
 
         # Check for encounter
         if random.random() < self.encounter_chance:

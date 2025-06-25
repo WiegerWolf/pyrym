@@ -19,6 +19,10 @@ def process_events():
         "number_keys": [],
         "quit_shop": False,
         "explore": False,
+        "skill_q": False,
+        "skill_w": False,
+        "skill_e": False,
+        "skill_r": False,
     }
 
     for event in raw_events:
@@ -26,29 +30,39 @@ def process_events():
             events["quit"] = True
 
         if event.type == pygame.KEYDOWN:
-            # Battle / General
-            if event.key == pygame.K_a:
-                events["attack"] = True
-            elif event.key == pygame.K_d:
-                events["defend"] = True
-            elif event.key == pygame.K_i:
-                events["use_item"] = True
-            elif event.key == pygame.K_f:
-                events["flee"] = True
+            key_is_mapped = False
 
-            # Explore
-            elif event.key == pygame.K_e:
-                events["explore"] = True
+            # Mappings that don't conflict
+            keymap = {
+                pygame.K_a: "attack",
+                pygame.K_d: "defend",
+                pygame.K_i: "use_item",
+                pygame.K_f: "flee",
+                pygame.K_w: "skill_w",
+                pygame.K_r: "skill_r",
+            }
+            action = keymap.get(event.key)
+            if action:
+                events[action] = True
+                key_is_mapped = True
 
-            # Shop
-            elif event.key == pygame.K_q:
+            # Handle context-dependent keys by flagging all possible actions.
+            # The game state manager is responsible for choosing the correct one.
+            if event.key == pygame.K_q:
                 events["quit_shop"] = True
+                events["skill_q"] = True
+                key_is_mapped = True
 
-            # Universal number keys
-            elif event.key in [
+            if event.key == pygame.K_e:
+                events["explore"] = True
+                events["skill_e"] = True
+                key_is_mapped = True
+
+            # Number keys are a fallback option.
+            if not key_is_mapped and event.key in [
                 pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4,
                 pygame.K_5, pygame.K_6, pygame.K_7, pygame.K_8,
-                pygame.K_9
+                pygame.K_9,
             ]:
                 events["number_keys"].append(event.key)
 

@@ -1,50 +1,50 @@
 """
-enemy_abilities.py
-Defines the enemy's abilities.
+This module defines the abilities available to enemies.
+
+The list order of skills returned by helpers maps to skill slot indices 0..n,
+even if the enemy AI does not use hotkeys, for consistency with the player's skill set.
 """
 from __future__ import annotations
 
-import random
 from typing import TYPE_CHECKING
 
-from src import config
-
 from .base import Ability
+from .player_abilities import AdrenalineRushAbility, ShieldBashAbility
 
 if TYPE_CHECKING:
     from ..entities.base import Entity
+
+
+__all__ = ["get_default_enemy_skills", "EnemyAttackAbility"]
+
 
 class EnemyAttackAbility(Ability):  # pylint: disable=too-few-public-methods
     """The enemy's basic attack."""
 
     def __init__(self):
-        super().__init__(name="Attack")
+        super().__init__(name="Attack", base_cooldown=0)
 
     def execute(self, actor: Entity, target: Entity | None = None) -> dict:
         """
-        Executes the attack, calculating damage, crit, and miss chances.
+        Executes the attack, calculating damage.
 
         :param actor: The enemy entity.
         :param target: The player entity being attacked.
-        :return: A dictionary with damage, crit status, and miss status.
+        :return: A dictionary with damage dealt.
         """
-        miss = random.random() < config.ENEMY_MISS_CHANCE
-        if miss:
-            return {"damage": 0, "crit": False, "miss": True}
+        # NOTE: Simplified compared to player attack. No miss/crit for now.
+        damage = actor.attack
+        target.take_damage(round(damage))  # type: ignore
 
-        crit = random.random() < config.ENEMY_CRIT_CHANCE
-        base_damage = actor.attack
+        return {"damage": round(damage)}
 
-        damage_multiplier = random.uniform(*config.ENEMY_DMG_VARIATION)
-        damage = base_damage * damage_multiplier
 
-        if crit:
-            damage *= config.ENEMY_CRIT_MULTIPLIER
-
-        if target.block_active:
-            damage *= (1 - config.DEFEND_BLOCK)
-            target.block_active = False
-
-        target.take_damage(round(damage))
-
-        return {"damage": round(damage), "crit": crit, "miss": False}
+def get_default_enemy_skills():
+    """
+    Return a list of Ability instances the enemy can use,
+    slot-ordered for Q,W,E,R equivalence (unused for enemy but kept consistent).
+    """
+    return [
+        ShieldBashAbility(),
+        AdrenalineRushAbility(),
+    ]
