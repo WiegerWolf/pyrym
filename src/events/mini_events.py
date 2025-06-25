@@ -122,19 +122,16 @@ class GoldCacheEvent(MiniEvent):
         """You find a cache of gold."""
         amount = randint(5, 30)
         player.gain_gold(amount)
-        if log is not None:
-            utils.add_to_log(log, f"You found {amount} gold!")
         message = f"You found a cache of {amount} gold!"
-        # Log the flavour text separately so players see both lines
         utils.add_to_log(log, message)
         return message
 
 # Probability and selection logic
 EVENT_TABLE: list[tuple[type[MiniEvent], float]] = [
     (ItemFindEvent, 0.35),
-    (TrapEvent, 0.25),
+    (TrapEvent, 0.05),
     (FriendlyNPCEvent, 0.15),
-    (PuzzleEvent, 0.15),
+    (PuzzleEvent, 0.10),
     (GoldCacheEvent, 0.10),
 ]
 WEIGHT_SUM = sum(w for _, w in EVENT_TABLE)
