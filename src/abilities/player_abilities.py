@@ -14,11 +14,20 @@ from .base import Ability
 if TYPE_CHECKING:
     from ..entities.base import Entity
 
+
+__all__ = [
+    "PlayerAttackAbility",
+    "PlayerDefendAbility",
+    "ShieldBashAbility",
+    "AdrenalineRushAbility",
+]
+
+
 class PlayerAttackAbility(Ability):  # pylint: disable=too-few-public-methods
     """The player's basic attack."""
 
     def __init__(self):
-        super().__init__(name="Attack")
+        super().__init__(name="Attack", base_cooldown=0)
 
     def execute(self, actor: Entity, target: Entity | None = None) -> dict:
         """
@@ -49,7 +58,7 @@ class PlayerDefendAbility(Ability):  # pylint: disable=too-few-public-methods
     """The player's defending ability."""
 
     def __init__(self):
-        super().__init__(name="Defend")
+        super().__init__(name="Defend", base_cooldown=0)
 
     def execute(self, actor: Entity, target: Entity | None = None) -> dict:
         """
@@ -60,3 +69,47 @@ class PlayerDefendAbility(Ability):  # pylint: disable=too-few-public-methods
         """
         actor.is_defending = True
         return {"success": True}
+
+
+class ShieldBashAbility(Ability):
+    """
+    Shield Bash – 75 % normal damage + apply StunStatus(1) to the target.
+    3-turn cool-down.
+    """
+    def __init__(self):
+        super().__init__(
+            name="Shield Bash",
+            stamina_cost=2,          # keep moderate cost
+            base_cooldown=3
+        )
+
+    def execute(self, actor, target, battle_ctx):
+        # damage: 0.75 × actor.attack stat (reuse existing damage helper if any)
+        dmg = int(actor.attack * 0.75)
+        target.take_damage(dmg, source=actor)
+        # Apply stun if StunStatus class exists; otherwise TODO comment
+        try:
+            from src.entities.status import StunStatus
+            target.statuses.append(StunStatus(1))
+        except ImportError:
+            # Leave a note so later dev step can link in StunStatus
+            battle_ctx.log(f"{target.name} would be stunned for 1 turn (StunStatus not yet imported)")
+        # Register cool-down
+        self.on_use(actor)
+
+
+class AdrenalineRushAbility(Ability):
+    """
+    Gain +2 stamina immediately. 4-turn cool-down.
+    """
+    def __init__(self):
+        super().__init__(
+            name="Adrenaline Rush",
+            stamina_cost=0,
+            base_cooldown=4
+        )
+
+    def execute(self, actor, target, battle_ctx):
+        actor.gain_stamina(2)
+        battle_ctx.log(f"{actor.name} feels a surge of adrenaline, +2 stamina!")
+        self.on_use(actor)

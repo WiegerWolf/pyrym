@@ -26,6 +26,7 @@ class Entity(abc.ABC):  # pylint: disable=too-many-instance-attributes
         self.block_active: bool = False
         self.statuses: List[Status] = []
         self.stunned: bool = False
+        self.cooldowns: dict[str, int] = {}
 
     def apply_status(self, status: Status) -> None:
         """Append a fresh Status and immediately call its on_apply hook."""
@@ -90,3 +91,17 @@ class Entity(abc.ABC):  # pylint: disable=too-many-instance-attributes
             self.statuses.remove(s)
             
         return len(to_remove)
+
+    def tick_cooldowns(self):
+        """Iterate over self.cooldowns and decrement every value > 0 by 1."""
+        for name, value in self.cooldowns.items():
+            if value > 0:
+                self.cooldowns[name] -= 1
+
+    def ability_ready(self, name: str) -> bool:
+        """Check if a named ability is ready to use."""
+        return self.cooldowns.get(name, 0) == 0
+
+    def reset_cooldowns(self):
+        """Reset all ability cooldowns."""
+        self.cooldowns.clear()
