@@ -113,6 +113,7 @@ def handle_item_use(player, key, logger_callback) -> dict:
 
     logger_callback("Invalid item selection.")
     return {"success": False, "used_item": False}
+
 def give_status(
     target: "Entity",
     status_cls: Type[Status],
@@ -149,14 +150,6 @@ def give_status(
             log_callback,
             f"{target.name} is afflicted by {new_status.name} ({duration})."
         )
-
-
-def inflict_damage(player: "Entity", damage: int, log_callback: "BattleLog" = None):
-    """Inflicts damage on the player and logs it."""
-    player.take_damage(damage)
-    if log_callback:
-        add_to_log(log_callback, f"You took {damage} damage!")
-
 
 def scaled_cost(base: int, level: int, growth: float) -> int:
     """Calculates the scaling cost for leveled upgrades."""

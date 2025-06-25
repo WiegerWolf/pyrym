@@ -66,7 +66,7 @@ class TrapEvent(MiniEvent):
         """A 50/50 chance to take damage or get poisoned."""
         if random.random() < 0.5:
             damage = randint(5, 15)
-            utils.inflict_damage(player, damage, log)
+            player.take_damage(damage)
             message = f"It's a trap! You took {damage} damage."
         else:
             utils.give_status(player, PoisonStatus, duration=3, log_callback=log)
