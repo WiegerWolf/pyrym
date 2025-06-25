@@ -1,5 +1,7 @@
 # Turn-Based Pygame Adventure
 
+![logo](assets/logo.png)
+
 A lightweight turn-based RPG prototype built with [Pygame](https://www.pygame.org/).
 Explore, find loot, and battle endless waves of enemies in a classic “explore → encounter → battle” gameplay loop. Built around a modular finite-state machine and percentage-based character progression.
 
