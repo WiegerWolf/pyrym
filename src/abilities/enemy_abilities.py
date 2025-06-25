@@ -36,7 +36,7 @@ class EnemyAttackAbility(Ability):  # pylint: disable=too-few-public-methods
         damage = actor.attack
         target.take_damage(round(damage))  # type: ignore
 
-        return {"damage": round(damage)}
+        return {"damage": round(damage), "crit": False, "miss": False}
 
 
 def get_default_enemy_skills():
