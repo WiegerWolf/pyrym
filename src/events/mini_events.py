@@ -122,7 +122,9 @@ class GoldCacheEvent(MiniEvent):
     def execute(self, player: "Entity", meta: dict, log: "BattleLog") -> str:
         """You find a cache of gold."""
         amount = randint(5, 30)
-        utils.award_gold(player, amount, log)
+        player.gain_gold(amount)
+        if log is not None:
+            utils.add_to_log(log, f"You found {amount} gold!")
         message = f"You found a cache of {amount} gold!"
         # Log the flavour text separately so players see both lines
         utils.add_to_log(log, message)

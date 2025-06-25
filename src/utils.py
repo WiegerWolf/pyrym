@@ -151,9 +151,11 @@ def give_status(
         )
 
 
-def award_gold(player: "Entity", amount: int, log_callback: "BattleLog" = None):
-    """Gives gold to the player and logs it."""
-    player.gold += amount
+def award_gold(player: "Entity", amount: int, log_callback: "BattleLog" = None):  # noqa: D401
+    """Deprecated helper.
+    Use player.gain_gold(amount) directly.
+    This wrapper is kept for backward compatibility and will be removed."""
+    player.gain_gold(amount)
     if log_callback:
         add_to_log(log_callback, f"You found {amount} gold!")
 
