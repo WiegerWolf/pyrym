@@ -60,6 +60,12 @@ class Entity(abc.ABC):  # pylint: disable=too-many-instance-attributes
         self.health -= final_damage
         self.health = max(self.health, 0)
 
+    def deal_true_damage(self, damage: int):
+        """
+        Applies damage directly to health, bypassing block.
+        """
+        self.health -= damage
+        self.health = max(self.health, 0)
 
     def heal(self, amount: int):
         """Heal the entity for a given amount."""
