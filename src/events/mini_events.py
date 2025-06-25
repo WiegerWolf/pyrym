@@ -32,7 +32,6 @@ class MiniEvent(ABC):
     def execute(self, player: "Entity", meta: dict, log: "BattleLog") -> str:
         """Apply side-effects, return description string."""
 
-# Concrete stubs — logic comes in Step 4
 class ItemFindEvent(MiniEvent):
     """Player finds a random item."""
 
@@ -105,7 +104,7 @@ class PuzzleEvent(MiniEvent):
 
     def execute(self, player: "Entity", meta: dict, log: "BattleLog") -> str:
         """You solve a simple riddle and gain XP (stub)."""
-        # player.gain_xp(20)  # Assuming player has a gain_xp method.
+        player.gain_xp(20)
         message = "You solve a simple riddle and feel more experienced."
         utils.add_to_log(log, message)
         return message
